@@ -3,7 +3,6 @@
 /* tslint:disable */
 
 /* eslint-disable */
-import type * as erc721Sol from "./ERC721.sol";
 import type * as external from "./external";
 import type * as features from "./features";
 import type * as fixins from "./fixins";
@@ -11,8 +10,6 @@ import type * as liquidityProviders from "./liquidity-providers";
 import type * as migrations from "./migrations";
 import type * as transformers from "./transformers";
 import type * as vendor from "./vendor";
-
-export type { erc721Sol };
 
 export type { external };
 

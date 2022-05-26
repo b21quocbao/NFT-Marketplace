@@ -3,9 +3,12 @@
 /* tslint:disable */
 
 /* eslint-disable */
+import type * as openzeppelin from "./@openzeppelin";
 import type * as contracts from "./contracts";
 import type * as contractsErc20 from "./contracts-erc20";
 import type * as contractsUtils from "./contracts-utils";
+
+export type { openzeppelin };
 
 export type { contracts };
 
@@ -13,6 +16,32 @@ export type { contractsErc20 };
 
 export type { contractsUtils };
 export * as factories from "./factories";
+export type { Ownable } from "./@openzeppelin/contracts/access/Ownable";
+export { Ownable__factory } from "./factories/@openzeppelin/contracts/access/Ownable__factory";
+export type { ERC20 } from "./@openzeppelin/contracts/token/ERC20/ERC20";
+export { ERC20__factory } from "./factories/@openzeppelin/contracts/token/ERC20/ERC20__factory";
+export type { IERC20Metadata } from "./@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata";
+export { IERC20Metadata__factory } from "./factories/@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata__factory";
+export type { IERC20 } from "./@openzeppelin/contracts/token/ERC20/IERC20";
+export { IERC20__factory } from "./factories/@openzeppelin/contracts/token/ERC20/IERC20__factory";
+export type { ERC721 } from "./@openzeppelin/contracts/token/ERC721/ERC721";
+export { ERC721__factory } from "./factories/@openzeppelin/contracts/token/ERC721/ERC721__factory";
+export type { ERC721Enumerable } from "./@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable";
+export { ERC721Enumerable__factory } from "./factories/@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable__factory";
+export type { ERC721URIStorage } from "./@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage";
+export { ERC721URIStorage__factory } from "./factories/@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage__factory";
+export type { IERC721Enumerable } from "./@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable";
+export { IERC721Enumerable__factory } from "./factories/@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable__factory";
+export type { IERC721Metadata } from "./@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata";
+export { IERC721Metadata__factory } from "./factories/@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata__factory";
+export type { IERC721 } from "./@openzeppelin/contracts/token/ERC721/IERC721";
+export { IERC721__factory } from "./factories/@openzeppelin/contracts/token/ERC721/IERC721__factory";
+export type { IERC721Receiver } from "./@openzeppelin/contracts/token/ERC721/IERC721Receiver";
+export { IERC721Receiver__factory } from "./factories/@openzeppelin/contracts/token/ERC721/IERC721Receiver__factory";
+export type { ERC165 } from "./@openzeppelin/contracts/utils/introspection/ERC165";
+export { ERC165__factory } from "./factories/@openzeppelin/contracts/utils/introspection/ERC165__factory";
+export type { IERC165 } from "./@openzeppelin/contracts/utils/introspection/IERC165";
+export { IERC165__factory } from "./factories/@openzeppelin/contracts/utils/introspection/IERC165__factory";
 export type { IERC20TokenV06 } from "./contracts-erc20/contracts/src/v06/IERC20TokenV06";
 export { IERC20TokenV06__factory } from "./factories/contracts-erc20/contracts/src/v06/IERC20TokenV06__factory";
 export type { IEtherTokenV06 } from "./contracts-erc20/contracts/src/v06/IEtherTokenV06";
@@ -25,16 +54,10 @@ export type { IOwnableV06 } from "./contracts-utils/contracts/src/v06/interfaces
 export { IOwnableV06__factory } from "./factories/contracts-utils/contracts/src/v06/interfaces/IOwnableV06__factory";
 export type { OwnableV06 } from "./contracts-utils/contracts/src/v06/OwnableV06";
 export { OwnableV06__factory } from "./factories/contracts-utils/contracts/src/v06/OwnableV06__factory";
-export type { ERC721Token } from "./contracts/contracts-erc721/src/ERC721Token";
-export { ERC721Token__factory } from "./factories/contracts/contracts-erc721/src/ERC721Token__factory";
-export type { IERC721Receiver } from "./contracts/contracts-erc721/src/interfaces/IERC721Receiver";
-export { IERC721Receiver__factory } from "./factories/contracts/contracts-erc721/src/interfaces/IERC721Receiver__factory";
-export type { IERC721Token } from "./contracts/contracts-erc721/src/interfaces/IERC721Token";
-export { IERC721Token__factory } from "./factories/contracts/contracts-erc721/src/interfaces/IERC721Token__factory";
-export type { MintableERC721Token } from "./contracts/contracts-erc721/src/MintableERC721Token";
-export { MintableERC721Token__factory } from "./factories/contracts/contracts-erc721/src/MintableERC721Token__factory";
-export type { ERC721 } from "./contracts/src/ERC721.sol/ERC721";
-export { ERC721__factory } from "./factories/contracts/src/ERC721.sol/ERC721__factory";
+export type { ERC20Token } from "./contracts/Erc20Token.sol/ERC20Token";
+export { ERC20Token__factory } from "./factories/contracts/Erc20Token.sol/ERC20Token__factory";
+export type { ERC721Token } from "./contracts/ERC721Token";
+export { ERC721Token__factory } from "./factories/contracts/ERC721Token__factory";
 export type { FeeCollector } from "./contracts/src/external/FeeCollector";
 export { FeeCollector__factory } from "./factories/contracts/src/external/FeeCollector__factory";
 export type { FeeCollectorController } from "./contracts/src/external/FeeCollectorController";
@@ -241,6 +264,8 @@ export type { WethTransformer } from "./contracts/src/transformers/WethTransform
 export { WethTransformer__factory } from "./factories/contracts/src/transformers/WethTransformer__factory";
 export type { IERC1155Token } from "./contracts/src/vendor/IERC1155Token";
 export { IERC1155Token__factory } from "./factories/contracts/src/vendor/IERC1155Token__factory";
+export type { IERC721Token } from "./contracts/src/vendor/IERC721Token";
+export { IERC721Token__factory } from "./factories/contracts/src/vendor/IERC721Token__factory";
 export type { IFeeRecipient } from "./contracts/src/vendor/IFeeRecipient";
 export { IFeeRecipient__factory } from "./factories/contracts/src/vendor/IFeeRecipient__factory";
 export type { ILiquidityProvider } from "./contracts/src/vendor/ILiquidityProvider";
