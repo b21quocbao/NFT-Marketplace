@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import OfferList from "../../../../components/nfts/OfferList";
 
 function OfferNftPage(props: any) {
-  return <OfferList bidOrders={props.nft.bidOrders} />;
+  return <OfferList nft={props.nft} />;
 }
 
 export async function getServerSideProps(ctx: any) {
