@@ -8,6 +8,9 @@ import {
 } from "../../../../components/wallet/Hooks";
 import { NftSwapV4 as NftSwap } from "@traderxyz/nft-swap-sdk";
 import StorageUtils from "../../../../utils/storage";
+import web3 from "web3";
+
+const { toWei } = web3.utils;
 
 function BidNftPage(props: any) {
   const context = useWeb3React();
@@ -43,7 +46,7 @@ function BidNftPage(props: any) {
 
     const makerAsset: any = {
       tokenAddress: process.env.NEXT_PUBLIC_SMART_CONTRACT_ERC20,
-      amount: enteredNftData.amount,
+      amount: toWei(enteredNftData.amount.toString()),
       type: "ERC20",
     };
 

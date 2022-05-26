@@ -1,7 +1,3 @@
-import {
-  buildOrder,
-  signOrder,
-} from "../../../../contracts/implementation/zeroEx";
 import { MongoClient, ObjectId } from "mongodb";
 import SaleNftForm from "../../../../components/nfts/SaleNftForm";
 import { useEffect, useState } from "react";
@@ -11,8 +7,9 @@ import {
   useInactiveListener,
 } from "../../../../components/wallet/Hooks";
 import { NftSwapV4 as NftSwap } from "@traderxyz/nft-swap-sdk";
-import { Contract } from "@ethersproject/contracts";
-import { erc721ABI } from "../../../../contracts/abi/erc721ABI";
+import web3 from "web3";
+
+const { toWei } = web3.utils;
 
 function SaleNftPage(props: any) {
   const context = useWeb3React();
@@ -43,7 +40,7 @@ function SaleNftPage(props: any) {
 
     const takerAsset: any = {
       tokenAddress: process.env.NEXT_PUBLIC_SMART_CONTRACT_ERC20,
-      amount: enteredNftData.amount,
+      amount: toWei(enteredNftData.amount.toString()),
       type: "ERC20",
     };
 
