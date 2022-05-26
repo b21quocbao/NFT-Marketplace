@@ -5,6 +5,9 @@ import { Button } from "antd";
 import { useEffect, useState } from "react";
 import StorageUtils from "../../utils/storage";
 import { useEagerConnect, useInactiveListener } from "../wallet/Hooks";
+import web3 from "web3";
+
+const { fromWei } = web3.utils;
 
 function OfferItem(props: any) {
   const context = useWeb3React();
@@ -31,10 +34,9 @@ function OfferItem(props: any) {
 
   return (
     <>
-      {Object.keys(props.offer).map((key) => (
-        <p key={key}>{`${key}: ${props.offer[key]}`}</p>
-      ))}
-      <Button
+      <p>{`Bidder: ${props.offer.maker}`}</p>
+      <p>{`Amount: ${fromWei(props.offer.erc20TokenAmount)}`}</p>
+      {props.makerUserId == user.id && <Button
         href="Confirm"
         onClick={async (e) => {
           const signer = library.getSigner();
@@ -92,6 +94,7 @@ function OfferItem(props: any) {
           });
         }}
       >Confirm this order</Button>
+      }
       <hr />
     </>
   );

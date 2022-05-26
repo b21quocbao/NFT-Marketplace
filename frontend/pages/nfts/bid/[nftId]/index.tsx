@@ -9,6 +9,7 @@ import {
 import { NftSwapV4 as NftSwap } from "@traderxyz/nft-swap-sdk";
 import StorageUtils from "../../../../utils/storage";
 import web3 from "web3";
+import { useRouter } from "next/router";
 
 const { toWei } = web3.utils;
 
@@ -103,7 +104,7 @@ function BidNftPage(props: any) {
     const data = await response.json();
 
     console.log(data);
-    
+
     router.push('/nfts')
   }
 

@@ -10,6 +10,7 @@ function NftList(props: any) {
           imageUrl={nft.imageUrl}
           name={nft.name}
           address={nft.address}
+          userId={nft.userId}
           status={nft.status}
           chain={nft.chain}
           signedOrder={nft.signedOrder}
