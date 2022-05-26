@@ -8,11 +8,13 @@ import {
 } from "../../../../components/wallet/Hooks";
 import { NftSwapV4 as NftSwap } from "@traderxyz/nft-swap-sdk";
 import web3 from "web3";
+import { useRouter } from "next/router";
 
 const { toWei } = web3.utils;
 
 function SaleNftPage(props: any) {
   const context = useWeb3React();
+  const router = useRouter();
   const { library, active, connector } = context;
 
   const [activatingConnector, setActivatingConnector] = useState();
@@ -90,6 +92,7 @@ function SaleNftPage(props: any) {
     const data = await response.json();
 
     console.log(data);
+    router.push('/nfts');
   }
 
   return <SaleNftForm onSaleNft={saleNftHandler} />;

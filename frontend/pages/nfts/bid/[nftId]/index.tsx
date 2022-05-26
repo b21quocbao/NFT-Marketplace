@@ -14,6 +14,7 @@ const { toWei } = web3.utils;
 
 function BidNftPage(props: any) {
   const context = useWeb3React();
+  const router = useRouter();
   const { library, active, connector } = context;
   const [user, setUser] = useState({} as any);
 
@@ -102,6 +103,8 @@ function BidNftPage(props: any) {
     const data = await response.json();
 
     console.log(data);
+    
+    router.push('/nfts')
   }
 
   return <BidNftForm onBidNft={bidNftHandler} />;
