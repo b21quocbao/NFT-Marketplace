@@ -90,6 +90,7 @@ function NftItem(props: any) {
               id: props.id,
               status: "COMPLETED",
               fillTxReceipt,
+              userId: user.id,
             }),
             headers: {
               "Content-Type": "application/json",
@@ -99,14 +100,14 @@ function NftItem(props: any) {
       >
         Buy
       </Button>}
-      {props.status !== "LIST" && <Button
+      {props.status === "AUCTION" && <Button
         type="primary"
         style={{ margin: "auto" }}
         href={`/nfts/bid/${props.id}`}
       >
         Bid
       </Button>}
-      {props.status !== "LIST" && <><br /><br /><Button
+      {props.status === "AUCTION" && <><br /><br /><Button
         type="primary"
         style={{ margin: "auto" }}
         href={`/nfts/offers/${props.id}`}
