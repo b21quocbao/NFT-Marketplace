@@ -13,16 +13,17 @@ function NewMeetupPage() {
   const [user, setUser] = useState({} as any);
 
   useEffect(() => {
-    setUser(StorageUtils.getUser())
+    setUser(StorageUtils.getUser());
   }, []);
 
   async function addCollectionHandler(enteredCollectionData: any) {
     const result = await client.add(
-      enteredCollectionData.image[0].originFileObj
+      enteredCollectionData.image[0].originFileObj,
+
     );
 
-    const response = await fetch('/api/new-collection', {
-      method: 'POST',
+    const response = await fetch("/api/new-collection", {
+      method: "POST",
       body: JSON.stringify({
         imageUrl: `https://ipfs.infura.io/ipfs/${result.path}`,
         name: enteredCollectionData.name,
@@ -31,7 +32,7 @@ function NewMeetupPage() {
         userId: user._id,
       }),
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
@@ -39,7 +40,7 @@ function NewMeetupPage() {
 
     console.log(data);
 
-    router.push('/');
+    router.push("/");
   }
 
   return (

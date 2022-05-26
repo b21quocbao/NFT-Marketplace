@@ -22,10 +22,8 @@ const validateMessages = {
 
 /* eslint-enable no-template-curly-in-string */
 
-const NewNftForm = (props: any) => {
+const SaleNftForm = (props: any) => {
   const onFinish = (values: any) => {
-    console.log(values, 'values');
-  
     props.onSaleNft(values);
   };
 
@@ -47,17 +45,6 @@ const NewNftForm = (props: any) => {
       >
         <Input />
       </Form.Item>
-      <Form.Item
-        name="expiry"
-        label="Expiry"
-        rules={[
-          {
-            required: true,
-          },
-        ]}
-      >
-        <InputNumber />
-      </Form.Item>
       <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
         <Button type="primary" htmlType="submit">
           Submit
@@ -67,4 +54,4 @@ const NewNftForm = (props: any) => {
   );
 };
 
-export default NewNftForm;
+export default SaleNftForm;

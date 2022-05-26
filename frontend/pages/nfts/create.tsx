@@ -13,13 +13,14 @@ import {
   useEagerConnect,
   useInactiveListener,
 } from "../../components/wallet/Hooks";
+import { ensureIpfsUriPrefix, makeNFTMetadata, stripIpfsUriPrefix } from "../../helpers/contract";
+import path from "path";
 
 const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
 
 function NewMeetupPage() {
   const router = useRouter();
   const [user, setUser] = useState({} as any);
-  const [contract, setContract] = useState(undefined as any);
   const context = useWeb3React();
   const { library, active, connector } = context;
 
@@ -39,36 +40,49 @@ function NewMeetupPage() {
 
   useEffect(() => {
     setUser(StorageUtils.getUser());
-
-    if (library) {
-      const signer = library.getSigner();
-      setContract(
-        new Contract(
-          process.env.NEXT_PUBLIC_SMART_CONTRACT_ERC721 as string,
-          erc721ABI,
-          signer
-        )
-      );
-    }
-  }, [library]);
+  }, []);
 
   async function addNftHandler(enteredNftData: any) {
-    console.log(active);
+    const signer = library.getSigner();
+    const contract = new Contract(
+      process.env.NEXT_PUBLIC_SMART_CONTRACT_ERC721 as string,
+      erc721ABI,
+      signer
+    );
 
-    const result = await client.add(enteredNftData.image[0].originFileObj);
+    // add the asset to IPFS
+    const filePath = enteredNftData.image[0].originFileObj.name;
+    const content = enteredNftData.image[0].originFileObj;
+    const basename = path.basename(filePath);
 
-    const tokenCount = await contract.tokenCount()
-    contract.mint(`https://ipfs.infura.io/ipfs/${result.path}`);
+    const ipfsPath = "/nft/" + basename;
+    const { cid: assetCid } = await client.add({ path: ipfsPath, content });
+
+    // make the NFT metadata JSON
+    const assetURI = ensureIpfsUriPrefix(assetCid) + "/" + basename;
+    const metadata = await makeNFTMetadata(assetURI, enteredNftData);
+
+    // add the metadata to IPFS
+    const { cid: metadataCid } = await client.add({
+      path: "/nft/metadata.json",
+      content: JSON.stringify(metadata),
+    });
+    const metadataURI = ensureIpfsUriPrefix(metadataCid) + "/metadata.json";
+    const totalSupply = (await contract.totalSupply()).toNumber();
+    
+    contract.mint(user.address, 1, [metadataURI]);
 
     const response = await fetch("/api/new-nft", {
       method: "POST",
       body: JSON.stringify({
-        imageUrl: `https://ipfs.infura.io/ipfs/${result.path}`,
+        imageUrl: `https://ipfs.io/ipfs/${stripIpfsUriPrefix(assetURI)}`,
+        assetURI: assetURI,
+        metadataURI: metadataURI,
         name: enteredNftData.name,
         description: enteredNftData.description,
         chain: enteredNftData.chain,
         status: "PENDING",
-        tokenId: Number(tokenCount) + 1,
+        tokenId: Number(totalSupply) + 1,
         userId: user._id,
       }),
       headers: {

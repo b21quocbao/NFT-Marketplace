@@ -1,9 +1,5 @@
-import {
-  buildOrder,
-  signOrder,
-} from "../../../../contracts/implementation/zeroEx";
 import { MongoClient, ObjectId } from "mongodb";
-import SaleNftForm from "../../../../components/nfts/SaleNftForm";
+import BidNftForm from "../../../../components/nfts/BidNftForm";
 import { useEffect, useState } from "react";
 import { useWeb3React } from "@web3-react/core";
 import {
@@ -11,12 +7,16 @@ import {
   useInactiveListener,
 } from "../../../../components/wallet/Hooks";
 import { NftSwapV4 as NftSwap } from "@traderxyz/nft-swap-sdk";
-import { Contract } from "@ethersproject/contracts";
-import { erc721ABI } from "../../../../contracts/abi/erc721ABI";
+import StorageUtils from "../../../../utils/storage";
 
-function SaleNftPage(props: any) {
+function BidNftPage(props: any) {
   const context = useWeb3React();
   const { library, active, connector } = context;
+  const [user, setUser] = useState({} as any);
+
+  useEffect(() => {
+    setUser(StorageUtils.getUser());
+  }, [library]);
 
   const [activatingConnector, setActivatingConnector] = useState();
   useEffect(() => {
@@ -32,58 +32,64 @@ function SaleNftPage(props: any) {
   // handle logic to connect in reaction to certain events on the injected ethereum provider, if it exists
   useInactiveListener(!triedEager || !!activatingConnector);
 
-  async function saleNftHandler(enteredNftData: any) {
+  async function bidNftHandler(enteredNftData: any) {
     const signer = library.getSigner();
 
-    const makerAsset: any = {
+    const takerAsset: any = {
       tokenAddress: process.env.NEXT_PUBLIC_SMART_CONTRACT_ERC721,
       tokenId: props.nft.tokenId,
       type: "ERC721",
     };
 
-    const takerAsset: any = {
+    const makerAsset: any = {
       tokenAddress: process.env.NEXT_PUBLIC_SMART_CONTRACT_ERC20,
       amount: enteredNftData.amount,
       type: "ERC20",
     };
-
-    const makerAddress = props.user.address;
 
     const nftSwapSdk = new NftSwap(
       library,
       signer,
       process.env.NEXT_PUBLIC_CHAIN_ID
     );
+    console.log(makerAsset, user.address, "user.address");
 
     // Check if we need to approve the NFT for swapping
-    const approvalStatusForUserA = await nftSwapSdk.loadApprovalStatus(
+    const approvalStatusForUserB = await nftSwapSdk.loadApprovalStatus(
       makerAsset,
-      makerAddress
+      user.address
     );
+    console.log(approvalStatusForUserB, "approvalStatusForUserB");
 
-    // If we do need to approve User A's CryptoPunk for swapping, let's do that now
-    if (!approvalStatusForUserA.contractApproved) {
+    // If we do need to approve NFT for swapping, let's do that now
+    if (!approvalStatusForUserB.contractApproved) {
       const approvalTx = await nftSwapSdk.approveTokenOrNftByAsset(
         makerAsset,
-        makerAddress
+        user.address
       );
       const approvalTxReceipt = await approvalTx.wait();
       console.log(
-        `Approved ${makerAsset.tokenAddress} contract to swap with 0x v4 (txHash: ${approvalTxReceipt.transactionHash})`
+        `Approved ${makerAsset.tokenAddress} contract to swap with 0x. TxHash: ${approvalTxReceipt.transactionHash})`
       );
     }
 
     // Create the order (Remember, User A initiates the trade, so User A creates the order)
-    const order = nftSwapSdk.buildOrder(makerAsset, takerAsset, makerAddress);
+    const order = nftSwapSdk.buildOrder(makerAsset, takerAsset, user.address, {
+      taker: props.user.address,
+    });
 
     const signedOrder = await nftSwapSdk.signOrder(order);
+    let { bidOrders } = props.nft;
+    console.log(bidOrders, "bidOrdersoxcivuxoicvu");
+    
+    if (!bidOrders) bidOrders = [];
+    bidOrders.push({ signedOrder, userId: user.id });
 
     const response = await fetch("/api/update-nft", {
       method: "PUT",
       body: JSON.stringify({
         id: props.nft.id,
-        status: "LIST",
-        signedOrder,
+        bidOrders: bidOrders,
       }),
       headers: {
         "Content-Type": "application/json",
@@ -95,7 +101,7 @@ function SaleNftPage(props: any) {
     console.log(data);
   }
 
-  return <SaleNftForm onSaleNft={saleNftHandler} />;
+  return <BidNftForm onBidNft={bidNftHandler} />;
 }
 
 export async function getServerSideProps(ctx: any) {
@@ -132,4 +138,4 @@ export async function getServerSideProps(ctx: any) {
   };
 }
 
-export default SaleNftPage;
+export default BidNftPage;

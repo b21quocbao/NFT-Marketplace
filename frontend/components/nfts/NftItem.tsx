@@ -42,7 +42,7 @@ function NftItem(props: any) {
     >
       <Meta title={props.name} description={props.status} />
       <br />
-      <Button
+      {props.status === "LIST" && <Button
         type="primary"
         style={{ margin: "auto" }}
         onClick={async (e) => {
@@ -79,8 +79,6 @@ function NftItem(props: any) {
             );
           }
 
-          console.log(props.signedOrder, 'props.signedOrder');
-          
           const fillTx = await nftSwapSdk.fillSignedOrder(props.signedOrder);
           console.log(fillTx, 'fillTx');
           
@@ -99,8 +97,22 @@ function NftItem(props: any) {
           });
         }}
       >
-        {props.status === "LIST" ? "Buy" : "Bid"}
-      </Button>
+        Buy
+      </Button>}
+      {props.status !== "LIST" && <Button
+        type="primary"
+        style={{ margin: "auto" }}
+        href={`/nfts/bid/${props.id}`}
+      >
+        Bid
+      </Button>}
+      {props.status !== "LIST" && <><br /><br /><Button
+        type="primary"
+        style={{ margin: "auto" }}
+        href={`/nfts/offers/${props.id}`}
+      >
+        View Offers
+      </Button></>}
     </Card>
   );
 }
