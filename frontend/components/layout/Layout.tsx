@@ -10,6 +10,8 @@ function Layout(props: any) {
   const router = useRouter();
   const [logined, setLogined] = useState(false);
   const [user, setUser] = useState({} as any);
+  console.log(router.pathname, 'pathname');
+  
 
   useEffect(() => {
     setLogined(!!StorageUtils.getToken());
@@ -23,7 +25,6 @@ function Layout(props: any) {
         <Menu
           theme="dark"
           mode="horizontal"
-          defaultSelectedKeys={["0"]}
           items={[
             { key: 0, label: "Homepage" },
             logined ? { key: 1, label: "Create NFT" } : null,
