@@ -3,12 +3,13 @@
 /* tslint:disable */
 
 /* eslint-disable */
-import type * as contractsErc721 from "./contracts-erc721";
+import type * as erc20TokenSol from "./Erc20Token.sol";
 import type * as src from "./src";
 import type * as test from "./test";
 
-export type { contractsErc721 };
+export type { erc20TokenSol };
 
 export type { src };
 
 export type { test };
+export type { ERC721Token } from "./ERC721Token";
