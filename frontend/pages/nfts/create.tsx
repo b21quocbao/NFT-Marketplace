@@ -13,12 +13,17 @@ import {
   useEagerConnect,
   useInactiveListener,
 } from "../../components/wallet/Hooks";
-import { ensureIpfsUriPrefix, makeNFTMetadata, stripIpfsUriPrefix } from "../../helpers/contract";
+import {
+  ensureIpfsUriPrefix,
+  makeNFTMetadata,
+  stripIpfsUriPrefix,
+} from "../../helpers/contract";
 import path from "path";
+import { MongoClient } from "mongodb";
 
 const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
 
-function NewMeetupPage() {
+function NewNftPage(props: any) {
   const router = useRouter();
   const [user, setUser] = useState({} as any);
   const context = useWeb3React();
@@ -69,16 +74,15 @@ function NewMeetupPage() {
     });
     const metadataURI = ensureIpfsUriPrefix(metadataCid) + "/metadata.json";
     const totalSupply = (await contract.totalSupply()).toNumber();
-    
-    contract.mint(user.address, 1, [metadataURI]);
 
-    const response = await fetch("/api/new-nft", {
+    await fetch("/api/new-nft", {
       method: "POST",
       body: JSON.stringify({
         imageUrl: `https://ipfs.io/ipfs/${stripIpfsUriPrefix(assetURI)}`,
         assetURI: assetURI,
         metadataURI: metadataURI,
         name: enteredNftData.name,
+        collectionId: enteredNftData.collectionId,
         description: enteredNftData.description,
         chain: enteredNftData.chain,
         status: "AVAILABLE",
@@ -90,12 +94,35 @@ function NewMeetupPage() {
       },
     });
 
-    const data = await response.json();
+    await contract.mint(user.address, 1, [metadataURI]);
 
-    console.log(data);
+    router.push(`/nfts/${user.id}`);
   }
 
-  return <>{active && <NewNftForm onAddNft={addNftHandler} />}</>;
+  return <>{active && <NewNftForm onAddNft={addNftHandler} collections={props.collections} />}</>;
 }
 
-export default NewMeetupPage;
+export async function getServerSideProps() {
+  // fetch data from an API
+  const client = await MongoClient.connect(process.env.MONGODB_URI as string);
+
+  const db = client.db();
+
+  const collectionsCollection = db.collection("collections");
+
+  const collections = await collectionsCollection.find().toArray();
+
+  client.close();
+
+  return {
+    props: {
+      collections: collections.map((collection: any) => ({
+        ...collection,
+        id: collection._id.toString(),
+        _id: null,
+      })),
+    },
+  };
+}
+
+export default NewNftPage;
