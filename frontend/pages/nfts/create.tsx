@@ -75,7 +75,7 @@ function NewNftPage(props: any) {
     const metadataURI = ensureIpfsUriPrefix(metadataCid) + "/metadata.json";
     const totalSupply = (await contract.totalSupply()).toNumber();
 
-    await fetch("/api/new-nft", {
+    const result = await fetch("/api/new-nft", {
       method: "POST",
       body: JSON.stringify({
         imageUrl: `https://ipfs.io/ipfs/${stripIpfsUriPrefix(assetURI)}`,
@@ -88,6 +88,20 @@ function NewNftPage(props: any) {
         status: "AVAILABLE",
         tokenId: Number(totalSupply) + 1,
         userId: user._id,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await result.json();
+
+    await fetch("/api/new-action", {
+      method: "POST",
+      body: JSON.stringify({
+        userId: user.id,
+        nftId: data.id,
+        name: "Mint"
       }),
       headers: {
         "Content-Type": "application/json",

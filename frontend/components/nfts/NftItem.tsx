@@ -121,12 +121,10 @@ function NftItem(props: any) {
               const fillTx = await nftSwapSdk.fillSignedOrder(
                 props.signedOrder
               );
-              console.log(fillTx, "fillTx");
-
               const fillTxReceipt = await nftSwapSdk.awaitTransactionHash(
                 fillTx.hash
               );
-              console.log(fillTxReceipt, "fillTxReceipt");
+
               await fetch("/api/update-nft", {
                 method: "PUT",
                 body: JSON.stringify({
@@ -134,6 +132,18 @@ function NftItem(props: any) {
                   status: "AVAILABLE",
                   fillTxReceipt,
                   userId: user.id,
+                }),
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              });
+
+              await fetch("/api/new-action", {
+                method: "POST",
+                body: JSON.stringify({
+                  userId: user.id,
+                  nftId: props.id,
+                  name: "Buy"
                 }),
                 headers: {
                   "Content-Type": "application/json",

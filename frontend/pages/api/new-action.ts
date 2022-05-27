@@ -7,13 +7,15 @@ async function handler(req: any, res: any) {
     const client = await MongoClient.connect(process.env.MONGODB_URI as string);
     const db = client.db();
 
-    const nftsCollection = db.collection("nfts");
+    const actionsCollection = db.collection("actions");
 
-    const result = await nftsCollection.insertOne(data);
+    const result = await actionsCollection.insertOne(data);
+
+    console.log(result);
 
     client.close();
 
-    res.status(201).json({ id: result.insertedId.toString() });
+    res.status(201).json({ message: "Collection inserted!" });
   }
 }
 
