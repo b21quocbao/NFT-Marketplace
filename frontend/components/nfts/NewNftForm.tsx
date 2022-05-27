@@ -78,7 +78,8 @@ const NewNftForm = (props: any) => {
             Click or drag file to this area to upload
           </p>
           <p className="ant-upload-hint">
-          File types supported: JPG, PNG, GIF, SVG, MP4, WEBM, MP3, WAV, OGG, GLB, GLTF. Max size: 100 MB.
+            File types supported: JPG, PNG, GIF, SVG, MP4, WEBM, MP3, WAV, OGG,
+            GLB, GLTF. Max size: 100 MB.
           </p>
         </Dragger>
       </Form.Item>
@@ -96,15 +97,23 @@ const NewNftForm = (props: any) => {
       <Form.Item name="description" label="Description">
         <Input.TextArea style={{ height: 100 }} />
       </Form.Item>
-      <Form.Item
-        name="chain"
-        label="Chain"
-        hasFeedback
-        initialValue="Ethereum"
-      >
+      <Form.Item name="chain" label="Chain" hasFeedback initialValue="Polygon">
         <Select placeholder="Select the blockchain where you'd like new items from this nft to be added by default">
           <Option value="Ethereum">Ethereum</Option>
           <Option value="Polygon">Polygon</Option>
+        </Select>
+      </Form.Item>
+      <Form.Item
+        name="collectionId"
+        label="Collection"
+        hasFeedback
+      >
+        <Select placeholder="Select the collection where you want this nft to">
+          {props.collections.map((collection: any) => (
+            <Option key={collection.id} value={collection.id}>
+              {`${collection.name} - ${collection.id}`}
+            </Option>
+          ))}
         </Select>
       </Form.Item>
       <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>

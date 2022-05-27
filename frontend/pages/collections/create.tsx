@@ -40,7 +40,7 @@ function NewMeetupPage() {
 
     console.log(data);
 
-    router.push("/");
+    router.push("/collections");
   }
 
   return (
