@@ -78,8 +78,28 @@ function SaleNftPage(props: any) {
       );
     }
 
+    const marketplaceFee =
+      (Number(process.env.NEXT_PUBLIC_MARKETPLACE_FEE) *
+        enteredNftData.amount) /
+      100;
+    const saleRoyaltyFee =
+      (enteredNftData.saleRoyaltyFee * enteredNftData.amount) / 100;
+    
     // Create the order (Remember, User A initiates the trade, so User A creates the order)
-    const order = nftSwapSdk.buildOrder(makerAsset, takerAsset, makerAddress);
+    const order = nftSwapSdk.buildOrder(makerAsset, takerAsset, makerAddress, {
+      fees: [
+        {
+          recipient: process.env.NEXT_PUBLIC_ADMIN_WALLET as string,
+          amount: toWei(marketplaceFee.toString()),
+          feeData: '0x' + Buffer.from('Marketplace', 'utf8').toString('hex'),
+        },
+        {
+          recipient: props.user.address,
+          amount: toWei(saleRoyaltyFee.toString()),
+          feeData: '0x' + Buffer.from('Royalty', 'utf8').toString('hex'),
+        },
+      ],
+    });
 
     const signedOrder = await nftSwapSdk.signOrder(order);
 
@@ -88,6 +108,7 @@ function SaleNftPage(props: any) {
       body: JSON.stringify({
         id: props.nft.id,
         status: "LIST",
+        saleRoyaltyFee: enteredNftData.saleRoyaltyFee,
         signedOrder,
       }),
       headers: {
@@ -100,14 +121,14 @@ function SaleNftPage(props: any) {
       body: JSON.stringify({
         userId: user.id,
         nftId: props.nft.id,
-        name: "List for sale"
+        name: "List for sale",
       }),
       headers: {
         "Content-Type": "application/json",
       },
     });
-    
-    router.push('/nfts');
+
+    router.push("/nfts");
   }
 
   return <SaleNftForm onSaleNft={saleNftHandler} />;

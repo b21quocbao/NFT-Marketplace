@@ -78,9 +78,28 @@ function BidNftPage(props: any) {
       );
     }
 
+    const marketplaceFee =
+      (Number(process.env.NEXT_PUBLIC_MARKETPLACE_FEE) *
+        enteredNftData.amount) /
+      100;
+    const bidRoyaltyFee =
+      (enteredNftData.bidRoyaltyFee * enteredNftData.amount) / 100;
+
     // Create the order (Remember, User A initiates the trade, so User A creates the order)
     const order = nftSwapSdk.buildOrder(makerAsset, takerAsset, user.address, {
       taker: props.user.address,
+      fees: [
+        {
+          recipient: process.env.NEXT_PUBLIC_ADMIN_WALLET as string,
+          amount: toWei(marketplaceFee.toString()),
+          feeData: "0x" + Buffer.from("Marketplace", "utf8").toString("hex"),
+        },
+        {
+          recipient: props.user.address,
+          amount: toWei(bidRoyaltyFee.toString()),
+          feeData: "0x" + Buffer.from("Royalty", "utf8").toString("hex"),
+        },
+      ],
     });
 
     const signedOrder = await nftSwapSdk.signOrder(order);
@@ -90,8 +109,10 @@ function BidNftPage(props: any) {
     if (!bidOrders) bidOrders = [];
     bidOrders.push({ signedOrder, userId: user.id });
     bidOrders.sort((a: any, b: any) => {
-      return Number(fromWei(b.signedOrder.erc20TokenAmount)) -
-        Number(fromWei(a.signedOrder.erc20TokenAmount));
+      return (
+        Number(fromWei(b.signedOrder.erc20TokenAmount)) -
+        Number(fromWei(a.signedOrder.erc20TokenAmount))
+      );
     });
 
     await fetch("/api/update-nft", {
@@ -110,7 +131,7 @@ function BidNftPage(props: any) {
       body: JSON.stringify({
         userId: user.id,
         nftId: props.nft.id,
-        name: "Bid"
+        name: "Bid",
       }),
       headers: {
         "Content-Type": "application/json",
@@ -120,7 +141,7 @@ function BidNftPage(props: any) {
     router.push("/nfts");
   }
 
-  return <BidNftForm onBidNft={bidNftHandler} />;
+  return <BidNftForm minPrice={fromWei(props.nft.startingPrice)} onBidNft={bidNftHandler} />;
 }
 
 export async function getServerSideProps(ctx: any) {
