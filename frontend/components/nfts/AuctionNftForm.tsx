@@ -47,6 +47,17 @@ const AuctionNftForm = (props: any) => {
       >
         <InputNumber />
       </Form.Item>
+      <Form.Item
+        name="startingPrice"
+        label="Starting Price"
+        rules={[
+          {
+            required: true,
+          },
+        ]}
+      >
+        <InputNumber />
+      </Form.Item>
       <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
         <Button type="primary" htmlType="submit">
           Submit

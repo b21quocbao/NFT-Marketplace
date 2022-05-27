@@ -81,7 +81,7 @@ function NewMeetupPage() {
         name: enteredNftData.name,
         description: enteredNftData.description,
         chain: enteredNftData.chain,
-        status: "PENDING",
+        status: "AVAILABLE",
         tokenId: Number(totalSupply) + 1,
         userId: user._id,
       }),

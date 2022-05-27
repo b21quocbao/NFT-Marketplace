@@ -84,7 +84,7 @@ function OfferItem(props: any) {
             method: "PUT",
             body: JSON.stringify({
               id: props.id,
-              status: "COMPLETED",
+              status: "AVAILABLE",
               fillTxReceipt,
               userId: props.userId,
             }),
@@ -93,7 +93,7 @@ function OfferItem(props: any) {
             },
           });
         }}
-      >Confirm this order</Button>
+      >Confirm this offer</Button>
       }
       <hr />
     </>
