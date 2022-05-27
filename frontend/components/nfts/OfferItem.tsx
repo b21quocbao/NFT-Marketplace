@@ -83,7 +83,6 @@ function OfferItem(props: any) {
               const fillTxReceipt = await nftSwapSdk.awaitTransactionHash(
                 fillTx.hash
               );
-              console.log(fillTxReceipt, "fillTxReceipt");
               await fetch("/api/update-nft", {
                 method: "PUT",
                 body: JSON.stringify({
@@ -91,6 +90,18 @@ function OfferItem(props: any) {
                   status: "AVAILABLE",
                   fillTxReceipt,
                   userId: props.userId,
+                }),
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              });
+
+              await fetch("/api/new-action", {
+                method: "POST",
+                body: JSON.stringify({
+                  userId: user.id,
+                  nftId: props.id,
+                  name: "Confirm offer"
                 }),
                 headers: {
                   "Content-Type": "application/json",

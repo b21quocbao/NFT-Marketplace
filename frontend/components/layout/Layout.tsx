@@ -33,7 +33,8 @@ function Layout(props: any) {
             logined ? { key: 4, label: "Create Collection" } : null,
             logined ? { key: 5, label: "My Collections" }: null,
             { key: 6, label: "All Collections" },
-            { key: 7, label: "Connect Wallet" },
+            logined ? { key: 7, label: "My Actions" }: null,
+            { key: 8, label: "Connect Wallet" },
           ]}
           onClick={({ key }) => {
             const keyNum = Number(key);
@@ -60,6 +61,9 @@ function Layout(props: any) {
                 router.push(`/collections`);
                 break;
               case 7:
+                router.push(`/actions/${user.id}`);
+                break;
+              case 8:
                 router.push("/wallet/connect");
                 break;
             }

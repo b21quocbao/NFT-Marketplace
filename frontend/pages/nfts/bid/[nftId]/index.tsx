@@ -94,7 +94,7 @@ function BidNftPage(props: any) {
         Number(fromWei(a.signedOrder.erc20TokenAmount));
     });
 
-    const response = await fetch("/api/update-nft", {
+    await fetch("/api/update-nft", {
       method: "PUT",
       body: JSON.stringify({
         id: props.nft.id,
@@ -105,9 +105,17 @@ function BidNftPage(props: any) {
       },
     });
 
-    const data = await response.json();
-
-    console.log(data);
+    await fetch("/api/new-action", {
+      method: "POST",
+      body: JSON.stringify({
+        userId: user.id,
+        nftId: props.nft.id,
+        name: "Bid"
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
     router.push("/nfts");
   }

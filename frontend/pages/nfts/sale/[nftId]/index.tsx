@@ -9,6 +9,7 @@ import {
 import { NftSwapV4 as NftSwap } from "@traderxyz/nft-swap-sdk";
 import web3 from "web3";
 import { useRouter } from "next/router";
+import StorageUtils from "../../../../utils/storage";
 
 const { toWei } = web3.utils;
 
@@ -16,6 +17,11 @@ function SaleNftPage(props: any) {
   const context = useWeb3React();
   const router = useRouter();
   const { library, active, connector } = context;
+  const [user, setUser] = useState({} as any);
+
+  useEffect(() => {
+    setUser(StorageUtils.getUser());
+  }, [library]);
 
   const [activatingConnector, setActivatingConnector] = useState();
   useEffect(() => {
@@ -77,7 +83,7 @@ function SaleNftPage(props: any) {
 
     const signedOrder = await nftSwapSdk.signOrder(order);
 
-    const response = await fetch("/api/update-nft", {
+    await fetch("/api/update-nft", {
       method: "PUT",
       body: JSON.stringify({
         id: props.nft.id,
@@ -89,9 +95,18 @@ function SaleNftPage(props: any) {
       },
     });
 
-    const data = await response.json();
-
-    console.log(data);
+    await fetch("/api/new-action", {
+      method: "POST",
+      body: JSON.stringify({
+        userId: user.id,
+        nftId: props.nft.id,
+        name: "List for sale"
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    
     router.push('/nfts');
   }
 

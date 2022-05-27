@@ -2,14 +2,21 @@ import { MongoClient, ObjectId } from "mongodb";
 import { useRouter } from "next/router";
 import AuctionNftForm from "../../../../components/nfts/AuctionNftForm";
 import web3 from "web3";
+import { useEffect, useState } from "react";
+import StorageUtils from "../../../../utils/storage";
 
 const { toWei } = web3.utils;
 
 function AuctionNftPage(props: any) {
   const router = useRouter();
+  const [user, setUser] = useState({} as any);
+
+  useEffect(() => {
+    setUser(StorageUtils.getUser());
+  }, []);
 
   async function auctionNftHandler(enteredNftData: any) {
-    const response = await fetch("/api/update-nft", {
+    await fetch("/api/update-nft", {
       method: "PUT",
       body: JSON.stringify({
         id: props.nft.id,
@@ -23,11 +30,19 @@ function AuctionNftPage(props: any) {
       },
     });
 
-    const data = await response.json();
+    await fetch("/api/new-action", {
+      method: "POST",
+      body: JSON.stringify({
+        userId: user.id,
+        nftId: props.id,
+        name: "List for auction"
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-    console.log(data);
-
-    router.push('/')
+    router.push('/nfts')
   }
 
   return <AuctionNftForm onAuctionNft={auctionNftHandler} />;
