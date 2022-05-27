@@ -36,65 +36,71 @@ function OfferItem(props: any) {
     <>
       <p>{`Bidder: ${props.offer.maker}`}</p>
       <p>{`Amount: ${fromWei(props.offer.erc20TokenAmount)}`}</p>
-      {props.makerUserId == user.id && <Button
-        href="Confirm"
-        onClick={async (e) => {
-          const signer = library.getSigner();
+      {props.makerUserId == user.id &&
+        props.highestBid &&
+        new Date(props.endAuctionTime).getTime() < Date.now() && (
+          <Button
+            href="Confirm"
+            onClick={async (e) => {
+              const signer = library.getSigner();
 
-          e.preventDefault();
+              e.preventDefault();
 
-          const takerAsset: any = {
-            tokenAddress: props.offer.erc721Token,
-            tokenId: props.offer.erc721TokenId,
-            type: "ERC721",
-          };
+              const takerAsset: any = {
+                tokenAddress: props.offer.erc721Token,
+                tokenId: props.offer.erc721TokenId,
+                type: "ERC721",
+              };
 
-          const nftSwapSdk = new NftSwap(
-            library,
-            signer,
-            process.env.NEXT_PUBLIC_CHAIN_ID
-          );
+              const nftSwapSdk = new NftSwap(
+                library,
+                signer,
+                process.env.NEXT_PUBLIC_CHAIN_ID
+              );
 
-          // Check if we need to approve the NFT for swapping
-          const approvalStatusForUserB = await nftSwapSdk.loadApprovalStatus(
-            takerAsset,
-            props.offer.taker
-          );
-          
-          // If we do need to approve NFT for swapping, let's do that now
-          if (!approvalStatusForUserB.contractApproved) {
-            const approvalTx = await nftSwapSdk.approveTokenOrNftByAsset(
-              takerAsset,
-              props.offer.taker
-            );
-            const approvalTxReceipt = await approvalTx.wait();
-            console.log(
-              `Approved ${takerAsset.tokenAddress} contract to swap with 0x. TxHash: ${approvalTxReceipt.transactionHash})`
-            );
-          }
-          
-          const fillTx = await nftSwapSdk.fillSignedOrder(props.offer);
-          console.log(fillTx, "fillTx");
+              // Check if we need to approve the NFT for swapping
+              const approvalStatusForUserB =
+                await nftSwapSdk.loadApprovalStatus(
+                  takerAsset,
+                  props.offer.taker
+                );
 
-          const fillTxReceipt = await nftSwapSdk.awaitTransactionHash(
-            fillTx.hash
-          );
-          console.log(fillTxReceipt, "fillTxReceipt");
-          await fetch("/api/update-nft", {
-            method: "PUT",
-            body: JSON.stringify({
-              id: props.id,
-              status: "AVAILABLE",
-              fillTxReceipt,
-              userId: props.userId,
-            }),
-            headers: {
-              "Content-Type": "application/json",
-            },
-          });
-        }}
-      >Confirm this offer</Button>
-      }
+              // If we do need to approve NFT for swapping, let's do that now
+              if (!approvalStatusForUserB.contractApproved) {
+                const approvalTx = await nftSwapSdk.approveTokenOrNftByAsset(
+                  takerAsset,
+                  props.offer.taker
+                );
+                const approvalTxReceipt = await approvalTx.wait();
+                console.log(
+                  `Approved ${takerAsset.tokenAddress} contract to swap with 0x. TxHash: ${approvalTxReceipt.transactionHash})`
+                );
+              }
+
+              const fillTx = await nftSwapSdk.fillSignedOrder(props.offer);
+              console.log(fillTx, "fillTx");
+
+              const fillTxReceipt = await nftSwapSdk.awaitTransactionHash(
+                fillTx.hash
+              );
+              console.log(fillTxReceipt, "fillTxReceipt");
+              await fetch("/api/update-nft", {
+                method: "PUT",
+                body: JSON.stringify({
+                  id: props.id,
+                  status: "AVAILABLE",
+                  fillTxReceipt,
+                  userId: props.userId,
+                }),
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              });
+            }}
+          >
+            Confirm this offer
+          </Button>
+        )}
       <hr />
     </>
   );

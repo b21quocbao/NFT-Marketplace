@@ -11,7 +11,7 @@ import StorageUtils from "../../../../utils/storage";
 import web3 from "web3";
 import { useRouter } from "next/router";
 
-const { toWei } = web3.utils;
+const { toWei, fromWei } = web3.utils;
 
 function BidNftPage(props: any) {
   const context = useWeb3React();
@@ -86,9 +86,13 @@ function BidNftPage(props: any) {
     const signedOrder = await nftSwapSdk.signOrder(order);
     let { bidOrders } = props.nft;
     console.log(bidOrders, "bidOrdersoxcivuxoicvu");
-    
+
     if (!bidOrders) bidOrders = [];
     bidOrders.push({ signedOrder, userId: user.id });
+    bidOrders.sort((a: any, b: any) => {
+      return Number(fromWei(b.signedOrder.erc20TokenAmount)) -
+        Number(fromWei(a.signedOrder.erc20TokenAmount));
+    });
 
     const response = await fetch("/api/update-nft", {
       method: "PUT",
@@ -105,7 +109,7 @@ function BidNftPage(props: any) {
 
     console.log(data);
 
-    router.push('/nfts')
+    router.push("/nfts");
   }
 
   return <BidNftForm onBidNft={bidNftHandler} />;
