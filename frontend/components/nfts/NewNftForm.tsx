@@ -55,7 +55,7 @@ const NewNftForm = (props: any) => {
     >
       <Form.Item
         name="image"
-        label="Logo image"
+        label="File"
         valuePropName="fileList"
         rules={[
           {
@@ -78,7 +78,7 @@ const NewNftForm = (props: any) => {
             Click or drag file to this area to upload
           </p>
           <p className="ant-upload-hint">
-            This image will also be used for navigation. 350 x 350 recommended.
+          File types supported: JPG, PNG, GIF, SVG, MP4, WEBM, MP3, WAV, OGG, GLB, GLTF. Max size: 100 MB.
           </p>
         </Dragger>
       </Form.Item>

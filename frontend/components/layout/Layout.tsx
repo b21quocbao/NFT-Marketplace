@@ -27,7 +27,7 @@ function Layout(props: any) {
           mode="horizontal"
           items={[
             { key: 0, label: "Homepage" },
-            logined ? { key: 1, label: "Create NFT" } : null,
+            logined ? { key: 1, label: "Mint NFT" } : null,
             logined ? { key: 2, label: "My NFTs" } : null,
             { key: 3, label: "All NFTs" },
             logined ? { key: 4, label: "Create Collection" } : null,

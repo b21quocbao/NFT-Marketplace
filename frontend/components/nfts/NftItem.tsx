@@ -21,13 +21,17 @@ function NftItem(props: any) {
 
   useEffect(() => {
     let { status } = props;
+    
     const checkStatus = () => {
-      if (status === 'AUCTION' && new Date(props.endAuctionTime).getTime() < Date.now()) {
-        setStatus('AVAILABLE');
+      if (
+        status === "AUCTION" &&
+        new Date(props.endAuctionTime).getTime() < Date.now()
+      ) {
+        setStatus("AVAILABLE");
       }
-    }
-    checkStatus()
-    const interval = setInterval(checkStatus, 1000)
+    };
+    checkStatus();
+    const interval = setInterval(checkStatus, 1000);
     setUser(StorageUtils.getUser());
     return () => clearInterval(interval);
   }, [props]);
@@ -46,8 +50,6 @@ function NftItem(props: any) {
   // handle logic to connect in reaction to certain events on the injected ethereum provider, if it exists
   useInactiveListener(!triedEager || !!activatingConnector);
 
-
-
   return (
     <>
       <Card
@@ -59,7 +61,9 @@ function NftItem(props: any) {
       >
         <Meta title={props.name} description={status} />
         <br />
-        {props.signedOrder && <b>{props.status == 'AVAILABLE' ? "Last Sale" : "Price"}</b>}
+        {props.signedOrder && (
+          <b>{props.status == "AVAILABLE" ? "Last Sale" : "Price"}</b>
+        )}
         {props.signedOrder && (
           <p>{fromWei(props.signedOrder.erc20TokenAmount) + " MATIC"}</p>
         )}
@@ -71,15 +75,12 @@ function NftItem(props: any) {
           </p>
         )}
         {status === "AUCTION" &&
-          (!(props.bidOrders &&
-          props.bidOrders.length)) && <b>{"Starting Price"}</b>}
+          !(props.bidOrders && props.bidOrders.length) && (
+            <b>{"Starting Price"}</b>
+          )}
         {status === "AUCTION" &&
-          (!(props.bidOrders &&
-            props.bidOrders.length)) && (
-            <p>
-              {fromWei(props.startingPrice) +
-                " MATIC"}
-            </p>
+          !(props.bidOrders && props.bidOrders.length) && (
+            <p>{fromWei(props.startingPrice) + " MATIC"}</p>
           )}
         {status === "LIST" && user?.id !== props?.userId && (
           <Button
@@ -143,23 +144,26 @@ function NftItem(props: any) {
             Buy
           </Button>
         )}
-        {user && status === "AUCTION" && user?.id !== props?.userId && (
-          <Button
-            type="primary"
-            style={{ margin: "auto" }}
-            href={`/nfts/bid/${props.id}`}
-          >
-            Bid
-          </Button>
-        )}
-
         {status === "AUCTION" && (
           <>
             <b>Expiry Time: </b>
             <Countdown date={new Date(props.endAuctionTime).getTime()} />
           </>
         )}
-        {status === "AUCTION" && (
+        {user && status === "AUCTION" && user?.id !== props?.userId && (
+          <>
+            <br />
+            <br />
+            <Button
+              type="primary"
+              style={{ margin: "auto" }}
+              href={`/nfts/bid/${props.id}`}
+            >
+              Bid
+            </Button>
+          </>
+        )}
+        {(status === "AUCTION" || (props.status === 'AUCTION' && props.userId === user.id)) && (
           <>
             <br />
             <br />
