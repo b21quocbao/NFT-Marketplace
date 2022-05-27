@@ -1,6 +1,9 @@
 import { MongoClient, ObjectId } from "mongodb";
 import { useRouter } from "next/router";
 import AuctionNftForm from "../../../../components/nfts/AuctionNftForm";
+import web3 from "web3";
+
+const { toWei } = web3.utils;
 
 function AuctionNftPage(props: any) {
   const router = useRouter();
@@ -11,6 +14,7 @@ function AuctionNftPage(props: any) {
       body: JSON.stringify({
         id: props.nft.id,
         status: "AUCTION",
+        startingPrice: toWei(enteredNftData.startingPrice.toString()),
         startAuctionTime: new Date(Date.now()),
         endAuctionTime: new Date(Date.now() + enteredNftData.expiry * 1000),
       }),

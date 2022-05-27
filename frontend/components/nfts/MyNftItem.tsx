@@ -1,8 +1,23 @@
 import { Button, Card } from "antd";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 const { Meta } = Card;
 
 function MyNftItem(props: any) {
+  const [status, setStatus] = useState(props.status);
+
+  useEffect(() => {
+    let { status } = props;
+    const checkStatus = () => {
+      if (status === 'AUCTION' && new Date(props.endAuctionTime).getTime() < Date.now()) {
+        setStatus('AVAILABLE');
+      }
+    }
+    checkStatus()
+    const interval = setInterval(checkStatus, 1000)
+    return () => clearInterval(interval);
+  }, [props]);
+
   return (
     <>
       <Card
@@ -12,24 +27,24 @@ function MyNftItem(props: any) {
         }}
         cover={<img alt="example" src={props.imageUrl} layout="fill" />}
       >
-        <Meta title={props.name} description={props.status} />
+        <Meta title={props.name} description={status} />
         <br />
-        <Button
+        {status == 'AVAILABLE' && <Button
           type="primary"
           style={{ margin: "auto" }}
           href={`/nfts/sale/${props.id}`}
         >
           Sale
-        </Button>
+        </Button>}
         <br />
         <br />
-        <Button
+        {status == 'AVAILABLE' && <Button
           type="primary"
           style={{ margin: "auto" }}
           href={`/nfts/auction/${props.id}`}
         >
           Auction
-        </Button>
+        </Button>}
       </Card>
       <br />
     </>

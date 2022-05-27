@@ -10,6 +10,7 @@ function MyNftList(props: any) {
           imageUrl={nft.imageUrl}
           name={nft.name}
           address={nft.address}
+          endAuctionTime={nft.endAuctionTime}
           status={nft.status}
           chain={nft.chain}
           signedOrder={nft.signedOrder}
