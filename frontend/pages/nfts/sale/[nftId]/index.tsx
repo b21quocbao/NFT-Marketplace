@@ -91,12 +91,10 @@ function SaleNftPage(props: any) {
         {
           recipient: process.env.NEXT_PUBLIC_ADMIN_WALLET as string,
           amount: toWei(marketplaceFee.toString()),
-          feeData: '0x' + Buffer.from('Marketplace', 'utf8').toString('hex'),
         },
         {
           recipient: props.user.address,
           amount: toWei(saleRoyaltyFee.toString()),
-          feeData: '0x' + Buffer.from('Royalty', 'utf8').toString('hex'),
         },
       ],
     });
