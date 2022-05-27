@@ -21,6 +21,7 @@ function AuctionNftPage(props: any) {
       body: JSON.stringify({
         id: props.nft.id,
         status: "AUCTION",
+        bidRoyaltyFee: enteredNftData.bidRoyaltyFee,
         startingPrice: toWei(enteredNftData.startingPrice.toString()),
         startAuctionTime: new Date(Date.now()),
         endAuctionTime: new Date(Date.now() + enteredNftData.expiry * 1000),
