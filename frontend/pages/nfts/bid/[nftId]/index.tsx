@@ -120,7 +120,6 @@ function BidNftPage(props: any) {
       method: "PUT",
       body: JSON.stringify({
         id: props.nft.id,
-        symbol: symbol,
         bidOrders: bidOrders,
       }),
       headers: {
