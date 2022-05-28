@@ -94,7 +94,7 @@ function NftItem(props: any) {
             {props.signedOrder && (
               <>
                 <b>Price</b>
-                <p>{fromWei(props.signedOrder.erc20TokenAmount) + " MATIC"}</p>
+                <p>{fromWei(props.signedOrder.erc20TokenAmount) + ` ${props.symbol}`}</p>
               </>
             )}
             {user?.id !== props?.userId && (
@@ -182,14 +182,14 @@ function NftItem(props: any) {
                 <b>Highest Offer</b>
                 <p>
                   {fromWei(props.bidOrders[0].signedOrder.erc20TokenAmount) +
-                    " MATIC"}
+                    ` ${props.symbol}`}
                 </p>
               </>
             )}
             {!(props.bidOrders && props.bidOrders.length) && (
               <>
                 <b>Starting Price</b>
-                <p>{fromWei(props.startingPrice) + " MATIC"}</p>
+                <p>{fromWei(props.startingPrice) + ` ${props.symbol}`}</p>
               </>
             )}
             <b>Expiry Time: </b>

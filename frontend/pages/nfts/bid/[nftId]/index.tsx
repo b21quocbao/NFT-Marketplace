@@ -10,6 +10,9 @@ import { NftSwapV4 as NftSwap } from "@traderxyz/nft-swap-sdk";
 import StorageUtils from "../../../../utils/storage";
 import web3 from "web3";
 import { useRouter } from "next/router";
+import { Contract } from "@ethersproject/contracts";
+import { erc20ABI } from "../../../../contracts/abi/erc20ABI";
+import { NATIVE_COINS } from "../../../../constants/chain";
 
 const { toWei, fromWei } = web3.utils;
 
@@ -41,6 +44,17 @@ function BidNftPage(props: any) {
   async function bidNftHandler(enteredNftData: any) {
     setLoading(true);
     const signer = library.getSigner();
+    enteredNftData.erc20TokenAddress = enteredNftData.erc20TokenAddress.toLowerCase();
+    let symbol = NATIVE_COINS[Number(chainId)];
+  
+    if (enteredNftData.erc20TokenAddress != "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee") {
+      const contract = new Contract(
+        enteredNftData.erc20TokenAddress,
+        erc20ABI,
+        signer
+      );
+      symbol = await contract.symbol();
+    }
 
     const takerAsset: any = {
       tokenAddress: process.env.NEXT_PUBLIC_SMART_CONTRACT_ERC721,
@@ -49,7 +63,7 @@ function BidNftPage(props: any) {
     };
 
     const makerAsset: any = {
-      tokenAddress: process.env.NEXT_PUBLIC_SMART_CONTRACT_ERC20,
+      tokenAddress: enteredNftData.erc20TokenAddress,
       amount: toWei(enteredNftData.amount.toString()),
       type: "ERC20",
     };
@@ -59,14 +73,12 @@ function BidNftPage(props: any) {
       signer,
       chainId,
     );
-    console.log(makerAsset, user.address, "user.address");
 
     // Check if we need to approve the NFT for swapping
     const approvalStatusForUserB = await nftSwapSdk.loadApprovalStatus(
       makerAsset,
       user.address
     );
-    console.log(approvalStatusForUserB, "approvalStatusForUserB");
 
     // If we do need to approve NFT for swapping, let's do that now
     if (!approvalStatusForUserB.contractApproved) {
@@ -119,6 +131,7 @@ function BidNftPage(props: any) {
       method: "PUT",
       body: JSON.stringify({
         id: props.nft.id,
+        symbol: symbol,
         bidOrders: bidOrders,
       }),
       headers: {

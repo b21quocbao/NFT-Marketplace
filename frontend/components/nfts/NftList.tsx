@@ -13,6 +13,7 @@ function NftList(props: any) {
           userId={nft.userId}
           endAuctionTime={nft.endAuctionTime}
           status={nft.status}
+          symbol={nft.symbol}
           bidOrders={nft.bidOrders}
           startingPrice={nft.startingPrice}
           chainId={nft.chainId}

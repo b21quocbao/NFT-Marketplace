@@ -1,9 +1,13 @@
 import { Button, Card } from "antd";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 const { Meta } = Card;
 
 function MyNftItem(props: any) {
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
   return (
     <>
       <Card
@@ -33,6 +37,30 @@ function MyNftItem(props: any) {
             href={`/nfts/auction/${props.id}`}
           >
             Auction
+          </Button>
+        )}
+        {props.status == "LIST" && (
+          <Button
+            type="primary"
+            style={{ margin: "auto" }}
+            loading={loading}
+            onClick={async() => {
+              setLoading(true)
+              await fetch("/api/update-nft", {
+                method: "PUT",
+                body: JSON.stringify({
+                  id: props.id,
+                  status: "AVAILABLE",
+                  signedOrder: null,
+                }),
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              });
+              router.reload()
+            }}
+          >
+            Cancel
           </Button>
         )}
         {props.status == "AUCTION" && (

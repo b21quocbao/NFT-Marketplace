@@ -10,6 +10,9 @@ import { NftSwapV4 as NftSwap } from "@traderxyz/nft-swap-sdk";
 import web3 from "web3";
 import { useRouter } from "next/router";
 import StorageUtils from "../../../../utils/storage";
+import { Contract } from "@ethersproject/contracts";
+import { erc20ABI } from "../../../../contracts/abi/erc20ABI";
+import { NATIVE_COINS } from "../../../../constants/chain";
 
 const { toWei } = web3.utils;
 
@@ -41,7 +44,18 @@ function SaleNftPage(props: any) {
   async function saleNftHandler(enteredNftData: any) {
     setLoading(true);
     const signer = library.getSigner();
-
+    enteredNftData.erc20TokenAddress = enteredNftData.erc20TokenAddress.toLowerCase();
+    let symbol = NATIVE_COINS[Number(chainId)];
+  
+    if (enteredNftData.erc20TokenAddress != "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee") {
+      const contract = new Contract(
+        enteredNftData.erc20TokenAddress,
+        erc20ABI,
+        signer
+      );
+      symbol = await contract.symbol();
+    }
+    
     const makerAsset: any = {
       tokenAddress: process.env.NEXT_PUBLIC_SMART_CONTRACT_ERC721,
       tokenId: props.nft.tokenId,
@@ -49,7 +63,7 @@ function SaleNftPage(props: any) {
     };
 
     const takerAsset: any = {
-      tokenAddress: process.env.NEXT_PUBLIC_SMART_CONTRACT_ERC20,
+      tokenAddress: enteredNftData.erc20TokenAddress,
       amount: toWei(enteredNftData.amount.toString()),
       type: "ERC20",
     };
@@ -108,6 +122,7 @@ function SaleNftPage(props: any) {
       body: JSON.stringify({
         id: props.nft.id,
         status: "LIST",
+        symbol: symbol,
         saleRoyaltyFee: enteredNftData.saleRoyaltyFee,
         signedOrder,
       }),
