@@ -61,7 +61,7 @@ const AuctionNftForm = (props: any) => {
       <Form.Item
         name="erc20TokenAddress"
         label="Token Address"
-        tooltip="Address of token you want to process. Please use 0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee for native tokens."
+        tooltip="Address of token you want to process. Do not use 0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee (native token) for auction."
         rules={[
           {
             required: true,
