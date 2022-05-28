@@ -1,23 +1,22 @@
-// our-domain.com/new-meetup
 import { Fragment, useEffect, useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { create as ipfsHttpClient } from "ipfs-http-client";
 
-import NewNftForm from "../../components/nfts/NewNftForm";
-import StorageUtils from "../../utils/storage";
+import NewNftForm from "../../../components/nfts/NewNftForm";
+import StorageUtils from "../../../utils/storage";
 import { useWeb3React } from "@web3-react/core";
-import { erc721ABI } from "../../contracts/abi/erc721ABI";
+import { erc721ABI } from "../../../contracts/abi/erc721ABI";
 import { Contract } from "@ethersproject/contracts";
 import {
   useEagerConnect,
   useInactiveListener,
-} from "../../components/wallet/Hooks";
+} from "../../../components/wallet/Hooks";
 import {
   ensureIpfsUriPrefix,
   makeNFTMetadata,
   stripIpfsUriPrefix,
-} from "../../helpers/contract";
+} from "../../../helpers/contract";
 import path from "path";
 import { MongoClient } from "mongodb";
 import web3 from "web3";
@@ -45,8 +44,9 @@ const client = ipfsHttpClient({
 function NewNftPage(props: any) {
   const router = useRouter();
   const [user, setUser] = useState({} as any);
+  const [loading, setLoading] = useState(false);
   const context = useWeb3React();
-  const { library, active, connector } = context;
+  const { library, active, connector, chainId } = context;
 
   const [activatingConnector, setActivatingConnector] = useState();
   useEffect(() => {
@@ -67,6 +67,7 @@ function NewNftPage(props: any) {
   }, []);
 
   async function addNftHandler(enteredNftData: any) {
+    setLoading(true);
     const cost = 0;
     const signer = library.getSigner();
     const numNft = enteredNftData.images.length;
@@ -140,7 +141,7 @@ function NewNftPage(props: any) {
         metadataURIs: processedDatas.metadataURI,
         assets: enteredNftData.assets,
         collectionId: enteredNftData.collectionId,
-        chain: enteredNftData.chain,
+        chainId: chainId?.toString(),
         status: "AVAILABLE",
         tokenId: Number(totalSupply) + 1,
         userId: user._id,
@@ -154,19 +155,21 @@ function NewNftPage(props: any) {
       value: toWei((cost * numNft).toString()),
     });
 
-    router.push(`/nfts/${user.id}`);
+    setLoading(false);
+
+    router.push(`/nfts/${chainId}/${user.id}`);
   }
 
   return (
     <>
       {active && (
-        <NewNftForm onAddNft={addNftHandler} collections={props.collections} />
+        <NewNftForm onAddNft={addNftHandler} collections={props.collections} chainId={props.chainId} loading={loading} />
       )}
     </>
   );
 }
 
-export async function getServerSideProps() {
+export async function getServerSideProps(ctx: any) {
   // fetch data from an API
   const client = await MongoClient.connect(process.env.MONGODB_URI as string);
 
@@ -174,7 +177,7 @@ export async function getServerSideProps() {
 
   const collectionsCollection = db.collection("collections");
 
-  const collections = await collectionsCollection.find().toArray();
+  const collections = await collectionsCollection.find({ chainId: ctx.params.chainId }).toArray();
 
   client.close();
 
@@ -185,6 +188,7 @@ export async function getServerSideProps() {
         id: collection._id.toString(),
         _id: null,
       })),
+      chainId: ctx.params.chainId,
     },
   };
 }

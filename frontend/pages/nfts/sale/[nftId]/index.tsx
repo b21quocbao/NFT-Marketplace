@@ -16,8 +16,9 @@ const { toWei } = web3.utils;
 function SaleNftPage(props: any) {
   const context = useWeb3React();
   const router = useRouter();
-  const { library, active, connector } = context;
+  const { library, active, connector, chainId } = context;
   const [user, setUser] = useState({} as any);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setUser(StorageUtils.getUser());
@@ -38,6 +39,7 @@ function SaleNftPage(props: any) {
   useInactiveListener(!triedEager || !!activatingConnector);
 
   async function saleNftHandler(enteredNftData: any) {
+    setLoading(true);
     const signer = library.getSigner();
 
     const makerAsset: any = {
@@ -57,7 +59,7 @@ function SaleNftPage(props: any) {
     const nftSwapSdk = new NftSwap(
       library,
       signer,
-      process.env.NEXT_PUBLIC_CHAIN_ID
+      chainId,
     );
 
     // Check if we need to approve the NFT for swapping
@@ -126,10 +128,10 @@ function SaleNftPage(props: any) {
       },
     });
 
-    router.push("/nfts");
+    router.push(`/nfts/${chainId}`);
   }
 
-  return <SaleNftForm onSaleNft={saleNftHandler} />;
+  return <SaleNftForm onSaleNft={saleNftHandler} loading={loading} />;
 }
 
 export async function getServerSideProps(ctx: any) {

@@ -9,6 +9,7 @@ function OfferList(props: any) {
       {(props.nft.bidOrders || []).map((offer: any, index: number) => (
         <OfferItem
           key={index}
+          id={props.nft.id}
           offer={offer.signedOrder}
           endAuctionTime={props.nft.endAuctionTime}
           highestBid={offer.highestBidder}

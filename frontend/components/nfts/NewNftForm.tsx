@@ -12,6 +12,7 @@ import {
 import { InboxOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import styles from "./NewNftForm.module.css";
+import { CHAINS } from "../../constants/chain";
 const { Dragger } = Upload;
 const { Option } = Select;
 /* eslint-disable no-template-curly-in-string */
@@ -152,17 +153,6 @@ const NewNftForm = (props: any) => {
               </>
             )}
           </Form.List>
-          <Form.Item
-            name="chain"
-            label="Chain"
-            hasFeedback
-            initialValue="Polygon"
-          >
-            <Select placeholder="Select the blockchain where you'd like new items from this nft to be added by default">
-              <Option value="Ethereum">Ethereum</Option>
-              <Option value="Polygon">Polygon</Option>
-            </Select>
-          </Form.Item>
           <Form.Item name="collectionId" label="Collection" hasFeedback>
             <Select placeholder="Select the collection where you want this nft to">
               {props.collections.map((collection: any) => (
@@ -173,7 +163,7 @@ const NewNftForm = (props: any) => {
             </Select>
           </Form.Item>
           <Form.Item wrapperCol={{ offset: 9 }}>
-            <Button type="primary" htmlType="submit">
+            <Button type="primary" htmlType="submit" loading={props.loading}>
               Submit
             </Button>
           </Form.Item>

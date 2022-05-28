@@ -4,14 +4,17 @@ function CollectionList(props: any) {
   return (
     <ul>
       {props.collections.map((collection: any) => (
-        <CollectionItem
-          key={collection.id}
-          id={collection.id}
-          imageUrl={collection.imageUrl}
-          description={collection.description}
-          name={collection.name}
-          chain={collection.chain}
-        />
+        <>
+          <CollectionItem
+            key={collection.id}
+            id={collection.id}
+            imageUrl={collection.imageUrl}
+            description={collection.description}
+            name={collection.name}
+            chainId={collection.chainId}
+          />
+          <br />
+        </>
       ))}
     </ul>
   );

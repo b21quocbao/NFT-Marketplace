@@ -1,4 +1,3 @@
-// our-domain.com/new-meetup
 import { Fragment, useEffect, useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -23,16 +22,17 @@ const client = ipfsHttpClient({
     authorization: auth,
   },
 });
-
-function NewMeetupPage() {
+function NewCollectionPage() {
   const router = useRouter();
   const [user, setUser] = useState({} as any);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setUser(StorageUtils.getUser());
   }, []);
 
   async function addCollectionHandler(enteredCollectionData: any) {
+    setLoading(true);
     const result = await client.add(
       enteredCollectionData.image[0].originFileObj,
 
@@ -44,7 +44,7 @@ function NewMeetupPage() {
         imageUrl: `https://ipfs.infura.io/ipfs/${result.path}`,
         name: enteredCollectionData.name,
         description: enteredCollectionData.description,
-        chain: enteredCollectionData.chain,
+        chainId: enteredCollectionData.chainId,
         userId: user._id,
       }),
       headers: {
@@ -61,9 +61,8 @@ function NewMeetupPage() {
 
   return (
     <Fragment>
-      <NewCollectionForm onAddCollection={addCollectionHandler} />
+      <NewCollectionForm onAddCollection={addCollectionHandler} loading={loading}  />
     </Fragment>
   );
 }
-
-export default NewMeetupPage;
+export default NewCollectionPage;

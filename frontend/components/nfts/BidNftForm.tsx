@@ -47,7 +47,7 @@ const BidNftForm = (props: any) => {
         <InputNumber min={props.minPrice} />
       </Form.Item>
       <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
-        <Button type="primary" htmlType="submit">
+        <Button type="primary" htmlType="submit" loading={props.loading}>
           Submit
         </Button>
       </Form.Item>

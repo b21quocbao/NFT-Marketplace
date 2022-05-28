@@ -6,13 +6,16 @@ import { useEffect, useState } from "react";
 import StorageUtils from "../../utils/storage";
 import { useEagerConnect, useInactiveListener } from "../wallet/Hooks";
 import web3 from "web3";
+import { useRouter } from "next/router";
 
 const { fromWei } = web3.utils;
 
 function OfferItem(props: any) {
   const context = useWeb3React();
-  const { library, active, connector } = context;
+  const router = useRouter();
+  const { library, active, connector, chainId } = context;
   const [user, setUser] = useState({} as any);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setUser(StorageUtils.getUser());
@@ -31,6 +34,8 @@ function OfferItem(props: any) {
 
   // handle logic to connect in reaction to certain events on the injected ethereum provider, if it exists
   useInactiveListener(!triedEager || !!activatingConnector);
+  console.log(props.userId, 'props.userId');
+  
 
   return (
     <>
@@ -41,7 +46,9 @@ function OfferItem(props: any) {
         new Date(props.endAuctionTime).getTime() < Date.now() && (
           <Button
             href="Confirm"
+            loading={loading}
             onClick={async (e) => {
+              setLoading(true);
               const signer = library.getSigner();
 
               e.preventDefault();
@@ -55,7 +62,7 @@ function OfferItem(props: any) {
               const nftSwapSdk = new NftSwap(
                 library,
                 signer,
-                process.env.NEXT_PUBLIC_CHAIN_ID
+                chainId
               );
 
               // Check if we need to approve the NFT for swapping
@@ -78,11 +85,12 @@ function OfferItem(props: any) {
               }
 
               const fillTx = await nftSwapSdk.fillSignedOrder(props.offer);
-              console.log(fillTx, "fillTx");
 
               const fillTxReceipt = await nftSwapSdk.awaitTransactionHash(
                 fillTx.hash
               );
+              console.log(props.userId, "props.userId");
+              
               await fetch("/api/update-nft", {
                 method: "PUT",
                 body: JSON.stringify({
@@ -107,6 +115,8 @@ function OfferItem(props: any) {
                   "Content-Type": "application/json",
                 },
               });
+
+              router.push(`/nfts/${chainId}/${user.id}`);
             }}
           >
             Confirm this offer

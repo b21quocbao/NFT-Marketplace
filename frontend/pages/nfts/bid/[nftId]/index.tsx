@@ -16,8 +16,9 @@ const { toWei, fromWei } = web3.utils;
 function BidNftPage(props: any) {
   const context = useWeb3React();
   const router = useRouter();
-  const { library, active, connector } = context;
+  const { library, active, connector, chainId } = context;
   const [user, setUser] = useState({} as any);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setUser(StorageUtils.getUser());
@@ -38,6 +39,7 @@ function BidNftPage(props: any) {
   useInactiveListener(!triedEager || !!activatingConnector);
 
   async function bidNftHandler(enteredNftData: any) {
+    setLoading(true);
     const signer = library.getSigner();
 
     const takerAsset: any = {
@@ -55,7 +57,7 @@ function BidNftPage(props: any) {
     const nftSwapSdk = new NftSwap(
       library,
       signer,
-      process.env.NEXT_PUBLIC_CHAIN_ID
+      chainId,
     );
     console.log(makerAsset, user.address, "user.address");
 
@@ -136,13 +138,14 @@ function BidNftPage(props: any) {
       },
     });
 
-    router.push("/nfts");
+    router.push(`/nfts/${chainId}`);
   }
 
   return (
     <BidNftForm
       minPrice={fromWei(props.nft.startingPrice)}
       onBidNft={bidNftHandler}
+      loading={loading}
     />
   );
 }
