@@ -20,6 +20,9 @@ import {
 } from "../../helpers/contract";
 import path from "path";
 import { MongoClient } from "mongodb";
+import web3 from "web3";
+
+const { toWei } = web3.utils;
 
 const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
 
@@ -108,7 +111,7 @@ function NewNftPage(props: any) {
       },
     });
 
-    await contract.mint(user.address, 1, [metadataURI]);
+    await contract.mint(user.address, 1, [metadataURI], { value: toWei((0.001 * 1).toString()) });
 
     router.push(`/nfts/${user.id}`);
   }

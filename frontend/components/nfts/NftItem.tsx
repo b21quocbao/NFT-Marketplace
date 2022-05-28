@@ -12,8 +12,6 @@ import web3 from "web3";
 const { fromWei } = web3.utils;
 
 function NftItem(props: any) {
-  console.log(props, "props");
-
   const context = useWeb3React();
   const { library, active, connector } = context;
   const [user, setUser] = useState({} as any);
@@ -21,7 +19,7 @@ function NftItem(props: any) {
 
   useEffect(() => {
     let { status } = props;
-    
+
     const checkStatus = () => {
       if (
         status === "AUCTION" &&
@@ -61,120 +59,125 @@ function NftItem(props: any) {
       >
         <Meta title={props.name} description={status} />
         <br />
-        {props.signedOrder && (
-          <b>{props.status == "AVAILABLE" ? "Last Sale" : "Price"}</b>
-        )}
-        {props.signedOrder && (
-          <p>{fromWei(props.signedOrder.erc20TokenAmount) + " MATIC"}</p>
-        )}
-        {props.bidOrders && props.bidOrders.length && <b>{"Highest Offer"}</b>}
-        {props.bidOrders && props.bidOrders.length && (
-          <p>
-            {fromWei(props.bidOrders[0].signedOrder.erc20TokenAmount) +
-              " MATIC"}
-          </p>
-        )}
-        {status === "AUCTION" &&
-          !(props.bidOrders && props.bidOrders.length) && (
-            <b>{"Starting Price"}</b>
-          )}
-        {status === "AUCTION" &&
-          !(props.bidOrders && props.bidOrders.length) && (
-            <p>{fromWei(props.startingPrice) + " MATIC"}</p>
-          )}
-        {status === "LIST" && user?.id !== props?.userId && (
-          <Button
-            type="primary"
-            style={{ margin: "auto" }}
-            onClick={async (e) => {
-              const signer = library.getSigner();
 
-              e.preventDefault();
+        {status === "LIST" && (
+          <>
+            {props.signedOrder && (
+              <>
+                <b>Price</b>
+                <p>{fromWei(props.signedOrder.erc20TokenAmount) + " MATIC"}</p>
+              </>
+            )}
+            {user?.id !== props?.userId && (
+              <Button
+                type="primary"
+                style={{ margin: "auto" }}
+                onClick={async (e) => {
+                  const signer = library.getSigner();
 
-              const takerAsset: any = {
-                tokenAddress: props.signedOrder.erc20Token,
-                amount: props.signedOrder.erc20TokenAmount,
-                type: "ERC20",
-              };
+                  e.preventDefault();
 
-              const nftSwapSdk = new NftSwap(
-                library,
-                signer,
-                process.env.NEXT_PUBLIC_CHAIN_ID
-              );
+                  const takerAsset: any = {
+                    tokenAddress: props.signedOrder.erc20Token,
+                    amount: props.signedOrder.erc20TokenAmount,
+                    type: "ERC20",
+                  };
 
-              // Check if we need to approve the NFT for swapping
-              const approvalStatusForUserB =
-                await nftSwapSdk.loadApprovalStatus(takerAsset, user.address);
-              // If we do need to approve NFT for swapping, let's do that now
-              if (!approvalStatusForUserB.contractApproved) {
-                const approvalTx = await nftSwapSdk.approveTokenOrNftByAsset(
-                  takerAsset,
-                  user.address
-                );
-                const approvalTxReceipt = await approvalTx.wait();
-                console.log(
-                  `Approved ${takerAsset.tokenAddress} contract to swap with 0x. TxHash: ${approvalTxReceipt.transactionHash})`
-                );
-              }
+                  const nftSwapSdk = new NftSwap(
+                    library,
+                    signer,
+                    process.env.NEXT_PUBLIC_CHAIN_ID
+                  );
 
-              const fillTx = await nftSwapSdk.fillSignedOrder(
-                props.signedOrder
-              );
-              const fillTxReceipt = await nftSwapSdk.awaitTransactionHash(
-                fillTx.hash
-              );
+                  // Check if we need to approve the NFT for swapping
+                  const approvalStatusForUserB =
+                    await nftSwapSdk.loadApprovalStatus(
+                      takerAsset,
+                      user.address
+                    );
+                  // If we do need to approve NFT for swapping, let's do that now
+                  if (!approvalStatusForUserB.contractApproved) {
+                    const approvalTx =
+                      await nftSwapSdk.approveTokenOrNftByAsset(
+                        takerAsset,
+                        user.address
+                      );
+                    const approvalTxReceipt = await approvalTx.wait();
+                    console.log(
+                      `Approved ${takerAsset.tokenAddress} contract to swap with 0x. TxHash: ${approvalTxReceipt.transactionHash})`
+                    );
+                  }
 
-              await fetch("/api/update-nft", {
-                method: "PUT",
-                body: JSON.stringify({
-                  id: props.id,
-                  status: "AVAILABLE",
-                  fillTxReceipt,
-                  userId: user.id,
-                }),
-                headers: {
-                  "Content-Type": "application/json",
-                },
-              });
+                  const fillTx = await nftSwapSdk.fillSignedOrder(
+                    props.signedOrder
+                  );
+                  const fillTxReceipt = await nftSwapSdk.awaitTransactionHash(
+                    fillTx.hash
+                  );
 
-              await fetch("/api/new-action", {
-                method: "POST",
-                body: JSON.stringify({
-                  userId: user.id,
-                  nftId: props.id,
-                  name: "Buy"
-                }),
-                headers: {
-                  "Content-Type": "application/json",
-                },
-              });
-            }}
-          >
-            Buy
-          </Button>
+                  await fetch("/api/update-nft", {
+                    method: "PUT",
+                    body: JSON.stringify({
+                      id: props.id,
+                      status: "AVAILABLE",
+                      fillTxReceipt,
+                      userId: user.id,
+                    }),
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                  });
+
+                  await fetch("/api/new-action", {
+                    method: "POST",
+                    body: JSON.stringify({
+                      userId: user.id,
+                      nftId: props.id,
+                      name: "Buy",
+                    }),
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                  });
+                }}
+              >
+                Buy
+              </Button>
+            )}
+          </>
         )}
         {status === "AUCTION" && (
           <>
+            {props.bidOrders && props.bidOrders.length && (
+              <>
+                <b>Highest Offer</b>
+                <p>
+                  {fromWei(props.bidOrders[0].signedOrder.erc20TokenAmount) +
+                    " MATIC"}
+                </p>
+              </>
+            )}
+            {!(props.bidOrders && props.bidOrders.length) && (
+              <>
+                <b>Starting Price</b>
+                <p>{fromWei(props.startingPrice) + " MATIC"}</p>
+              </>
+            )}
             <b>Expiry Time: </b>
             <Countdown date={new Date(props.endAuctionTime).getTime()} />
-          </>
-        )}
-        {user && status === "AUCTION" && user?.id !== props?.userId && (
-          <>
-            <br />
-            <br />
-            <Button
-              type="primary"
-              style={{ margin: "auto" }}
-              href={`/nfts/bid/${props.id}`}
-            >
-              Bid
-            </Button>
-          </>
-        )}
-        {(status === "AUCTION" || (props.status === 'AUCTION' && props.userId === user.id)) && (
-          <>
+            {user && user?.id !== props?.userId && (
+              <>
+                <br />
+                <br />
+                <Button
+                  type="primary"
+                  style={{ margin: "auto" }}
+                  href={`/nfts/bid/${props.id}`}
+                >
+                  Bid
+                </Button>
+              </>
+            )}
             <br />
             <br />
             <Button
