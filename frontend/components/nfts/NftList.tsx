@@ -15,7 +15,7 @@ function NftList(props: any) {
           status={nft.status}
           bidOrders={nft.bidOrders}
           startingPrice={nft.startingPrice}
-          chain={nft.chain}
+          chainId={nft.chainId}
           signedOrder={nft.signedOrder}
         />
       ))}

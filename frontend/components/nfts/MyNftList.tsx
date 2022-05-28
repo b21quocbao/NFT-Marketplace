@@ -12,7 +12,7 @@ function MyNftList(props: any) {
           address={nft.address}
           endAuctionTime={nft.endAuctionTime}
           status={nft.status}
-          chain={nft.chain}
+          chainId={nft.chainId}
           signedOrder={nft.signedOrder}
         />
       ))}

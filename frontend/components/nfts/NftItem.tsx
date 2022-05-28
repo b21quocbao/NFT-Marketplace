@@ -8,14 +8,31 @@ import StorageUtils from "../../utils/storage";
 import Countdown from "react-countdown";
 const { Meta } = Card;
 import web3 from "web3";
+import { useRouter } from "next/router";
 
 const { fromWei } = web3.utils;
 
+const timeString = (time: number) => {
+  const day = Math.trunc(time / 86400000);
+  time -= day * 86400000;
+  const hour =  Math.trunc(time / 3600000);
+  time -= hour * 3600000;
+  const min =  Math.trunc(time / 60000);
+  time -= min * 60000;
+  const sec =  Math.trunc(time / 1000);
+  time -= sec * 1000;
+
+  return `${day}:${hour < 10 ? '0' : ''}${hour}:${min < 10 ? '0' : ''}${min}:${sec < 10 ? '0' : ''}${sec}`;
+}
+
 function NftItem(props: any) {
   const context = useWeb3React();
-  const { library, active, connector } = context;
+  const router = useRouter();
+  const { library, active, connector, chainId } = context;
   const [user, setUser] = useState({} as any);
   const [status, setStatus] = useState(props.status);
+  const [loading, setLoading] = useState(false);
+  const [endAuctionTime, setEndAuctionTime] = useState(undefined as any);
 
   useEffect(() => {
     let { status } = props;
@@ -25,13 +42,25 @@ function NftItem(props: any) {
         status === "AUCTION" &&
         new Date(props.endAuctionTime).getTime() < Date.now()
       ) {
-        setStatus("AVAILABLE");
+        setStatus("END AUCTION");
       }
     };
     checkStatus();
     const interval = setInterval(checkStatus, 1000);
     setUser(StorageUtils.getUser());
     return () => clearInterval(interval);
+  }, [props]);
+
+  useEffect(() => {
+    if (props.endAuctionTime) {
+      setEndAuctionTime(new Date(props.endAuctionTime).getTime() - Date.now());
+
+      const minusAuctionTime = () => {
+        setEndAuctionTime((value: number) => value - 1000);
+      };
+      const interval = setInterval(minusAuctionTime, 1000);
+      return () => clearInterval(interval);
+    }
   }, [props]);
 
   const [activatingConnector, setActivatingConnector] = useState();
@@ -73,6 +102,7 @@ function NftItem(props: any) {
                 type="primary"
                 style={{ margin: "auto" }}
                 onClick={async (e) => {
+                  setLoading(true);
                   const signer = library.getSigner();
 
                   e.preventDefault();
@@ -83,11 +113,7 @@ function NftItem(props: any) {
                     type: "ERC20",
                   };
 
-                  const nftSwapSdk = new NftSwap(
-                    library,
-                    signer,
-                    process.env.NEXT_PUBLIC_CHAIN_ID
-                  );
+                  const nftSwapSdk = new NftSwap(library, signer, chainId);
 
                   // Check if we need to approve the NFT for swapping
                   const approvalStatusForUserB =
@@ -139,7 +165,10 @@ function NftItem(props: any) {
                       "Content-Type": "application/json",
                     },
                   });
+
+                  router.push(`/nfts/${chainId}/${user.id}`);
                 }}
+                loading={loading}
               >
                 Buy
               </Button>
@@ -164,8 +193,8 @@ function NftItem(props: any) {
               </>
             )}
             <b>Expiry Time: </b>
-            <Countdown date={new Date(props.endAuctionTime).getTime()} />
-            {user && user?.id !== props?.userId && (
+            <p>{timeString(endAuctionTime)}</p>
+            {user && user.id !== props.userId && (
               <>
                 <br />
                 <br />

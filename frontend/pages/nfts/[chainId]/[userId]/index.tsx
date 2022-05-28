@@ -1,4 +1,4 @@
-import MyNftList from "../../../components/nfts/MyNftList";
+import MyNftList from "../../../../components/nfts/MyNftList";
 import { MongoClient } from "mongodb";
 import { NextPage } from "next";
 
@@ -14,7 +14,7 @@ export async function getServerSideProps(ctx: any) {
 
   const nftsCollection = db.collection("nfts");
 
-  const nfts = await nftsCollection.find({ userId: ctx.params.userId }).toArray();
+  const nfts = await nftsCollection.find({ userId: ctx.params.userId, chainId: ctx.params.chainId }).toArray();
 
   client.close();
 

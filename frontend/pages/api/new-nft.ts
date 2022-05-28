@@ -15,9 +15,9 @@ async function handler(req: any, res: any) {
       const metadataURI = data.metadataURIs[idx];
       const { name, description } = data.assets[idx];
       const collectionId = data.collectionId;
-      const chain = data.chain;
+      const chainId = data.chainId;
       const status = data.status;
-      const tokenId = data.tokenId;
+      const tokenId = data.tokenId + idx;
       const userId = data.userId;
 
       await nftsCollection.insertOne({
@@ -25,7 +25,7 @@ async function handler(req: any, res: any) {
         assetURI,
         metadataURI,
         collectionId,
-        chain,
+        chainId,
         status,
         tokenId,
         userId,

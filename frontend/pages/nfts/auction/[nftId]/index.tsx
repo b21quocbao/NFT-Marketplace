@@ -4,18 +4,38 @@ import AuctionNftForm from "../../../../components/nfts/AuctionNftForm";
 import web3 from "web3";
 import { useEffect, useState } from "react";
 import StorageUtils from "../../../../utils/storage";
+import { useEagerConnect, useInactiveListener } from "../../../../components/wallet/Hooks";
+import { useWeb3React } from "@web3-react/core";
 
 const { toWei } = web3.utils;
 
 function AuctionNftPage(props: any) {
   const router = useRouter();
   const [user, setUser] = useState({} as any);
+  const context = useWeb3React();
+  const { connector, chainId } = context;
+  const [loading, setLoading] = useState(false);
+
+  const [activatingConnector, setActivatingConnector] = useState();
+  useEffect(() => {
+    console.log("running");
+    if (activatingConnector && activatingConnector === connector) {
+      setActivatingConnector(undefined);
+    }
+  }, [activatingConnector, connector]);
+
+  // handle logic to eagerly connect to the injected ethereum provider, if it exists and has granted access already
+  const triedEager = useEagerConnect();
+
+  // handle logic to connect in reaction to certain events on the injected ethereum provider, if it exists
+  useInactiveListener(!triedEager || !!activatingConnector);
 
   useEffect(() => {
     setUser(StorageUtils.getUser());
   }, []);
 
   async function auctionNftHandler(enteredNftData: any) {
+    setLoading(true);
     await fetch("/api/update-nft", {
       method: "PUT",
       body: JSON.stringify({
@@ -43,10 +63,10 @@ function AuctionNftPage(props: any) {
       },
     });
 
-    router.push('/nfts')
+    router.push(`/nfts/${chainId}`)
   }
 
-  return <AuctionNftForm onAuctionNft={auctionNftHandler} />;
+  return <AuctionNftForm onAuctionNft={auctionNftHandler} loading={loading}  />;
 }
 
 export async function getServerSideProps(ctx: any) {

@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
 import { MongoClient } from "mongodb";
-import NftList from "../../components/nfts/NftList";
+import NftList from "../../../components/nfts/NftList";
 
 const Nfts: NextPage = (props: any) => {
   return <NftList nfts={props.nfts} />;

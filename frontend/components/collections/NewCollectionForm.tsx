@@ -1,6 +1,7 @@
 import { Button, Form, Input, InputNumber, Select, Upload } from "antd";
 import { InboxOutlined } from "@ant-design/icons";
 import { useState } from "react";
+import { CHAINS } from "../../constants/chain";
 const { Dragger } = Upload;
 const { Option } = Select;
 const layout = {
@@ -97,18 +98,17 @@ const NewCollectionForm = (props: any) => {
         <Input.TextArea style={{ height: 100 }} />
       </Form.Item>
       <Form.Item
-        name="chain"
+        name="chainId"
         label="Chain"
         hasFeedback
-        initialValue="Ethereum"
+        required
       >
         <Select placeholder="Select the blockchain where you'd like new items from this collection to be added by default">
-          <Option value="Ethereum">Ethereum</Option>
-          <Option value="Polygon">Polygon</Option>
+          {Object.keys(CHAINS).map(key => <Option value={key} key={key}>{CHAINS[key]}</Option>)}
         </Select>
       </Form.Item>
       <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
-        <Button type="primary" htmlType="submit">
+        <Button type="primary" htmlType="submit" loading={props.loading}>
           Submit
         </Button>
       </Form.Item>

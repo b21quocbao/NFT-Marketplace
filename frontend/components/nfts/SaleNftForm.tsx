@@ -63,7 +63,7 @@ const SaleNftForm = (props: any) => {
         />
       </Form.Item>
       <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
-        <Button type="primary" htmlType="submit">
+        <Button type="primary" htmlType="submit" loading={props.loading}>
           Submit
         </Button>
       </Form.Item>

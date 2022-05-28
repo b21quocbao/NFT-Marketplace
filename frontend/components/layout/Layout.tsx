@@ -5,13 +5,29 @@ const { Header, Content, Footer } = LayoutAnt;
 import { useRouter } from "next/router";
 import StorageUtils from "../../utils/storage";
 import { useEffect, useState } from "react";
+import { useWeb3React } from "@web3-react/core";
+import { useEagerConnect, useInactiveListener } from "../wallet/Hooks";
 
 function Layout(props: any) {
   const router = useRouter();
   const [logined, setLogined] = useState(false);
   const [user, setUser] = useState({} as any);
-  console.log(router.pathname, 'pathname');
-  
+  const context = useWeb3React();
+  const { connector, chainId } = context;
+
+  const [activatingConnector, setActivatingConnector] = useState();
+  useEffect(() => {
+    console.log("running");
+    if (activatingConnector && activatingConnector === connector) {
+      setActivatingConnector(undefined);
+    }
+  }, [activatingConnector, connector]);
+
+  // handle logic to eagerly connect to the injected ethereum provider, if it exists and has granted access already
+  const triedEager = useEagerConnect();
+
+  // handle logic to connect in reaction to certain events on the injected ethereum provider, if it exists
+  useInactiveListener(!triedEager || !!activatingConnector);
 
   useEffect(() => {
     setLogined(!!StorageUtils.getToken());
@@ -43,13 +59,13 @@ function Layout(props: any) {
                 router.push("/");
                 break;
               case 1:
-                router.push("/nfts/create");
+                router.push(`/nfts/${chainId}/create`);
                 break;
               case 2:
-                router.push(`/nfts/${user.id}`);
+                router.push(`/nfts/${chainId}/${user.id}`);
                 break;
               case 3:
-                router.push("/nfts");
+                router.push(`/nfts/${chainId}`);
                 break;
               case 4:
                 router.push("/collections/create");
