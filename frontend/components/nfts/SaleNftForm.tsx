@@ -62,6 +62,19 @@ const SaleNftForm = (props: any) => {
           parser={(value: any) => value.replace("%", "")}
         />
       </Form.Item>
+      <Form.Item
+        name="erc20TokenAddress"
+        label="Token Address"
+        tooltip="Address of token you want to process. Please use 0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee for native tokens."
+        initialValue="0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+        rules={[
+          {
+            required: true,
+          },
+        ]}
+      >
+        <Input />
+      </Form.Item>
       <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
         <Button type="primary" htmlType="submit" loading={props.loading}>
           Submit
