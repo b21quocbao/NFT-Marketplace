@@ -59,6 +59,18 @@ const AuctionNftForm = (props: any) => {
         <InputNumber />
       </Form.Item>
       <Form.Item
+        name="erc20TokenAddress"
+        label="Token Address"
+        tooltip="Address of token you want to process. Please use 0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee for native tokens."
+        rules={[
+          {
+            required: true,
+          },
+        ]}
+      >
+        <Input />
+      </Form.Item>
+      <Form.Item
         name="bidRoyaltyFee"
         label="Royalty Fee"
         initialValue={2.5}
