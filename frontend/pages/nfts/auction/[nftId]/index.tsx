@@ -6,6 +6,9 @@ import { useEffect, useState } from "react";
 import StorageUtils from "../../../../utils/storage";
 import { useEagerConnect, useInactiveListener } from "../../../../components/wallet/Hooks";
 import { useWeb3React } from "@web3-react/core";
+import { erc20ABI } from "../../../../contracts/abi/erc20ABI";
+import { NATIVE_COINS } from "../../../../constants/chain";
+import { Contract } from "@ethersproject/contracts";
 
 const { toWei } = web3.utils;
 
@@ -13,7 +16,7 @@ function AuctionNftPage(props: any) {
   const router = useRouter();
   const [user, setUser] = useState({} as any);
   const context = useWeb3React();
-  const { connector, chainId } = context;
+  const { connector, chainId, library } = context;
   const [loading, setLoading] = useState(false);
 
   const [activatingConnector, setActivatingConnector] = useState();
@@ -36,13 +39,29 @@ function AuctionNftPage(props: any) {
 
   async function auctionNftHandler(enteredNftData: any) {
     setLoading(true);
+    const signer = library.getSigner();
+
+    enteredNftData.erc20TokenAddress = enteredNftData.erc20TokenAddress.toLowerCase();
+    let symbol = NATIVE_COINS[Number(chainId)];
+  
+    if (enteredNftData.erc20TokenAddress != "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee") {
+      const contract = new Contract(
+        enteredNftData.erc20TokenAddress,
+        erc20ABI,
+        signer
+      );
+      symbol = await contract.symbol();
+    }
+
     await fetch("/api/update-nft", {
       method: "PUT",
       body: JSON.stringify({
         id: props.nft.id,
         status: "AUCTION",
+        symbol: symbol,
+        erc20TokenAddress: enteredNftData.erc20TokenAddress,
         bidRoyaltyFee: enteredNftData.bidRoyaltyFee,
-        startingPrice: toWei(enteredNftData.startingPrice.toString()),
+        startingPrice: toWei(enteredNftData.startingPrice.toFixed(10).toString()),
         startAuctionTime: new Date(Date.now()),
         endAuctionTime: new Date(Date.now() + enteredNftData.expiry * 1000),
       }),

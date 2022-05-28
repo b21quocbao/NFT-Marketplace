@@ -44,17 +44,6 @@ function BidNftPage(props: any) {
   async function bidNftHandler(enteredNftData: any) {
     setLoading(true);
     const signer = library.getSigner();
-    enteredNftData.erc20TokenAddress = enteredNftData.erc20TokenAddress.toLowerCase();
-    let symbol = NATIVE_COINS[Number(chainId)];
-  
-    if (enteredNftData.erc20TokenAddress != "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee") {
-      const contract = new Contract(
-        enteredNftData.erc20TokenAddress,
-        erc20ABI,
-        signer
-      );
-      symbol = await contract.symbol();
-    }
 
     const takerAsset: any = {
       tokenAddress: process.env.NEXT_PUBLIC_SMART_CONTRACT_ERC721,
@@ -63,8 +52,8 @@ function BidNftPage(props: any) {
     };
 
     const makerAsset: any = {
-      tokenAddress: enteredNftData.erc20TokenAddress,
-      amount: toWei(enteredNftData.amount.toString()),
+      tokenAddress: props.nft.erc20TokenAddress,
+      amount: toWei(enteredNftData.amount.toFixed(10).toString()),
       type: "ERC20",
     };
 
@@ -105,11 +94,11 @@ function BidNftPage(props: any) {
       fees: [
         {
           recipient: process.env.NEXT_PUBLIC_ADMIN_WALLET as string,
-          amount: toWei(marketplaceFee.toString()),
+          amount: toWei(marketplaceFee.toFixed(10).toString()),
         },
         {
           recipient: props.user.address,
-          amount: toWei(bidRoyaltyFee.toString()),
+          amount: toWei(bidRoyaltyFee.toFixed(10).toString()),
         },
       ],
     });

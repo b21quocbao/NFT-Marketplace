@@ -64,7 +64,7 @@ function SaleNftPage(props: any) {
 
     const takerAsset: any = {
       tokenAddress: enteredNftData.erc20TokenAddress,
-      amount: toWei(enteredNftData.amount.toString()),
+      amount: toWei(enteredNftData.amount.toFixed(10).toString()),
       type: "ERC20",
     };
 
@@ -106,11 +106,11 @@ function SaleNftPage(props: any) {
       fees: [
         {
           recipient: process.env.NEXT_PUBLIC_ADMIN_WALLET as string,
-          amount: toWei(marketplaceFee.toString()),
+          amount: toWei(marketplaceFee.toFixed(10).toString()),
         },
         {
           recipient: props.user.address,
-          amount: toWei(saleRoyaltyFee.toString()),
+          amount: toWei(saleRoyaltyFee.toFixed(10).toString()),
         },
       ],
     });
