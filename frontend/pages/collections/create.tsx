@@ -6,7 +6,23 @@ import { create as ipfsHttpClient } from "ipfs-http-client";
 
 import NewCollectionForm from "../../components/collections/NewCollectionForm";
 import StorageUtils from "../../utils/storage";
-const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
+const auth =
+  "Basic " +
+  Buffer.from(
+    process.env.NEXT_PUBLIC_INFURA_PROJECT_ID +
+      ":" +
+      process.env.NEXT_PUBLIC_INFURA_PROJECT_SECRET
+  ).toString("base64");
+
+const client = ipfsHttpClient({
+  host: "ipfs.infura.io",
+  port: 5001,
+  protocol: "https",
+  apiPath: "/api/v0",
+  headers: {
+    authorization: auth,
+  },
+});
 
 function NewMeetupPage() {
   const router = useRouter();

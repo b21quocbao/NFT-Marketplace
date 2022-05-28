@@ -24,7 +24,23 @@ import web3 from "web3";
 
 const { toWei } = web3.utils;
 
-const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
+const auth =
+  "Basic " +
+  Buffer.from(
+    process.env.NEXT_PUBLIC_INFURA_PROJECT_ID +
+      ":" +
+      process.env.NEXT_PUBLIC_INFURA_PROJECT_SECRET
+  ).toString("base64");
+
+const client = ipfsHttpClient({
+  host: "ipfs.infura.io",
+  port: 5001,
+  protocol: "https",
+  apiPath: "/api/v0",
+  headers: {
+    authorization: auth,
+  },
+});
 
 function NewNftPage(props: any) {
   const router = useRouter();
@@ -51,42 +67,79 @@ function NewNftPage(props: any) {
   }, []);
 
   async function addNftHandler(enteredNftData: any) {
+    const cost = 0;
     const signer = library.getSigner();
+    const numNft = enteredNftData.images.length;
+    const assetCids = [] as any[];
     const contract = new Contract(
       process.env.NEXT_PUBLIC_SMART_CONTRACT_ERC721 as string,
       erc721ABI,
       signer
     );
 
-    // add the asset to IPFS
-    const filePath = enteredNftData.image[0].originFileObj.name;
-    const content = enteredNftData.image[0].originFileObj;
-    const basename = path.basename(filePath);
+    const ipfsAddAssets = enteredNftData.images.map((image: any) => {
+      const filePath = image.originFileObj.name;
+      const content = image.originFileObj;
+      const basename = path.basename(filePath);
+      const ipfsPath = "/nft/" + basename;
 
-    const ipfsPath = "/nft/" + basename;
-    const { cid: assetCid } = await client.add({ path: ipfsPath, content });
-
-    // make the NFT metadata JSON
-    const assetURI = ensureIpfsUriPrefix(assetCid) + "/" + basename;
-    const metadata = await makeNFTMetadata(assetURI, enteredNftData);
-
-    // add the metadata to IPFS
-    const { cid: metadataCid } = await client.add({
-      path: "/nft/metadata.json",
-      content: JSON.stringify(metadata),
+      return {
+        path: ipfsPath,
+        content: content,
+      };
     });
-    const metadataURI = ensureIpfsUriPrefix(metadataCid) + "/metadata.json";
+
+    // for await (const file of client.addAll(ipfsAddAssets)) {
+    for (const ipfsAddAsset of ipfsAddAssets) {
+      const file = await client.add(ipfsAddAsset);
+
+      assetCids.push(file.cid);
+    }
+
+    const processedDatas = {
+      metadataURI: [] as string[],
+      assetURI: [] as string[],
+      imageUrl: [] as string[],
+    };
+
+    const ipfsAddMetadatas = await Promise.all(Array.from(Array(numNft).keys()).map(async(idx) => {
+      const filePath = enteredNftData.images[idx].originFileObj.name;
+      const basename = path.basename(filePath);
+      const assetCid = assetCids[idx];
+      const assetURI = ensureIpfsUriPrefix(assetCid) + "/" + basename;
+      const metadata = await makeNFTMetadata(assetURI, enteredNftData);
+
+      processedDatas.assetURI.push(assetURI);
+      processedDatas.imageUrl.push(
+        `https://ipfs.io/ipfs/${stripIpfsUriPrefix(assetURI)}`
+      );
+
+      // add the metadata to IPFS
+      return {
+        path: `/nft/metadata.json`,
+        content: JSON.stringify(metadata),
+      };
+    }));
+
+    // for await (const file of client.addAll(ipfsAddMetadatas)) {
+    for (const ipfsAddMetadata of ipfsAddMetadatas) {
+      const file = await client.add(ipfsAddMetadata);
+      const metadataCid = file.cid;
+      const metadataURI = ensureIpfsUriPrefix(metadataCid) + "/metadata.json";
+
+      processedDatas.metadataURI.push(metadataURI);
+    }
+
     const totalSupply = (await contract.totalSupply()).toNumber();
 
-    const result = await fetch("/api/new-nft", {
+    await fetch("/api/new-nft", {
       method: "POST",
       body: JSON.stringify({
-        imageUrl: `https://ipfs.io/ipfs/${stripIpfsUriPrefix(assetURI)}`,
-        assetURI: assetURI,
-        metadataURI: metadataURI,
-        name: enteredNftData.name,
+        imageUrls: processedDatas.imageUrl,
+        assetURIs: processedDatas.assetURI,
+        metadataURIs: processedDatas.metadataURI,
+        assets: enteredNftData.assets,
         collectionId: enteredNftData.collectionId,
-        description: enteredNftData.description,
         chain: enteredNftData.chain,
         status: "AVAILABLE",
         tokenId: Number(totalSupply) + 1,
@@ -97,26 +150,20 @@ function NewNftPage(props: any) {
       },
     });
 
-    const data = await result.json();
-
-    await fetch("/api/new-action", {
-      method: "POST",
-      body: JSON.stringify({
-        userId: user.id,
-        nftId: data.id,
-        name: "Mint"
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
+    await contract.mint(user.address, numNft, processedDatas.metadataURI, {
+      value: toWei((cost * numNft).toString()),
     });
-
-    await contract.mint(user.address, 1, [metadataURI], { value: toWei((0.001 * 1).toString()) });
 
     router.push(`/nfts/${user.id}`);
   }
 
-  return <>{active && <NewNftForm onAddNft={addNftHandler} collections={props.collections} />}</>;
+  return (
+    <>
+      {active && (
+        <NewNftForm onAddNft={addNftHandler} collections={props.collections} />
+      )}
+    </>
+  );
 }
 
 export async function getServerSideProps() {

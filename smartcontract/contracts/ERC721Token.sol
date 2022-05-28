@@ -12,9 +12,9 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 contract ERC721Token is ERC721Enumerable, Ownable {
     using Strings for uint256;
 
-    uint256 public cost = 0.001 ether;
-    uint256 public maxSupply = 2888;
-    uint256 public maxMintAmount = 20;
+    uint256 public cost = 0 ether;
+    uint256 public maxSupply = 200000;
+    uint256 public maxMintAmount = 2000;
     address public payoutAddress;
     mapping(uint256 => string) private _tokenURIs;
 
