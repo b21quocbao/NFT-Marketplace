@@ -83,7 +83,7 @@ function BidNftPage(props: any) {
         enteredNftData.amount) /
       100;
     const bidRoyaltyFee =
-      (enteredNftData.bidRoyaltyFee * enteredNftData.amount) / 100;
+      (props.nft.bidRoyaltyFee * enteredNftData.amount) / 100;
 
     // Create the order (Remember, User A initiates the trade, so User A creates the order)
     const order = nftSwapSdk.buildOrder(makerAsset, takerAsset, user.address, {
@@ -139,7 +139,12 @@ function BidNftPage(props: any) {
     router.push("/nfts");
   }
 
-  return <BidNftForm minPrice={fromWei(props.nft.startingPrice)} onBidNft={bidNftHandler} />;
+  return (
+    <BidNftForm
+      minPrice={fromWei(props.nft.startingPrice)}
+      onBidNft={bidNftHandler}
+    />
+  );
 }
 
 export async function getServerSideProps(ctx: any) {
