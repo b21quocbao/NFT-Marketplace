@@ -61,8 +61,16 @@ export default async function handler(
     };
 
     const response: Data = {
-      accessToken: jwt.sign(payload, process.env.JWT_REFRESH_TOKEN_SECRET, accessTokenConfig),
-      refreshToken: jwt.sign(refreshTokenPayload, process.env.JWT_ACCESS_TOKEN_SECRET, refreshTokenConfig),
+      accessToken: jwt.sign(
+        payload,
+        process.env.JWT_REFRESH_TOKEN_SECRET as string,
+        accessTokenConfig
+      ),
+      refreshToken: jwt.sign(
+        refreshTokenPayload,
+        process.env.JWT_ACCESS_TOKEN_SECRET as string,
+        refreshTokenConfig
+      ),
       user,
     };
 

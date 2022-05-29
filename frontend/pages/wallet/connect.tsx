@@ -305,7 +305,6 @@ function MyComponent() {
               >
                 {activating && (
                   <Spinner
-                    color={"black"}
                     style={{ height: "25%", marginLeft: "-1rem" }}
                   />
                 )}

@@ -24,14 +24,12 @@ export const injected = new InjectedConnector({
 export const network = new NetworkConnector({
   urls: { 1: RPC_URLS[1], 4: RPC_URLS[4] },
   defaultChainId: 1,
-  pollingInterval: POLLING_INTERVAL
 });
 
 export const walletconnect = new WalletConnectConnector({
   rpc: { 1: RPC_URLS[1] },
   bridge: "https://bridge.walletconnect.org",
   qrcode: true,
-  pollingInterval: POLLING_INTERVAL
 });
 
 export const walletlink = new WalletLinkConnector({
