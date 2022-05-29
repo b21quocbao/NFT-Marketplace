@@ -31,8 +31,24 @@ function Layout(props: any) {
 
   useEffect(() => {
     setLogined(!!StorageUtils.getToken());
-    setUser(StorageUtils.getUser())
-  }, [])
+    setUser(StorageUtils.getUser() || {});
+  }, []);
+
+  useEffect(() => {
+    if (
+      !logined &&
+      ![
+        "/",
+        "/wallet/connect",
+        "/nfts",
+        "/collections",
+        "/nfts/offers/[nftId]",
+      ].includes(router.pathname)
+    ) {
+      router.push('/wallet/connect');
+      window.alert(`You must connect to your wallet then login to continue.`);
+    }
+  }, [logined, router]);
 
   return (
     <LayoutAnt className="layout">
@@ -43,13 +59,13 @@ function Layout(props: any) {
           mode="horizontal"
           items={[
             { key: 0, label: "Homepage" },
-            logined ? { key: 1, label: "Mint NFT" } : null,
-            logined ? { key: 2, label: "My NFTs" } : null,
+            { key: 1, label: "Mint NFT" },
+            { key: 2, label: "My NFTs" },
             { key: 3, label: "All NFTs" },
-            logined ? { key: 4, label: "Create Collection" } : null,
-            logined ? { key: 5, label: "My Collections" }: null,
+            { key: 4, label: "Create Collection" },
+            { key: 5, label: "My Collections" },
             { key: 6, label: "All Collections" },
-            logined ? { key: 7, label: "My Actions" }: null,
+            { key: 7, label: "My Actions" },
             { key: 8, label: "Connect Wallet" },
           ]}
           onClick={({ key }) => {
