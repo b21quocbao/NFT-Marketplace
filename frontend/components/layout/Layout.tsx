@@ -30,11 +30,9 @@ function Layout(props: any) {
   useInactiveListener(!triedEager || !!activatingConnector);
 
   useEffect(() => {
-    setLogined(!!StorageUtils.getToken());
+    const logined = !!StorageUtils.getToken()
+    setLogined(logined);
     setUser(StorageUtils.getUser() || {});
-  }, []);
-
-  useEffect(() => {
     if (
       !logined &&
       ![
@@ -48,7 +46,7 @@ function Layout(props: any) {
       router.push('/wallet/connect');
       window.alert(`You must connect to your wallet then login to continue.`);
     }
-  }, [logined, router]);
+  }, [router]);
 
   return (
     <LayoutAnt className="layout">
