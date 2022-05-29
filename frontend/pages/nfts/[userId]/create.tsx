@@ -20,6 +20,7 @@ import {
 import path from "path";
 import { MongoClient } from "mongodb";
 import web3 from "web3";
+import { erc721ContractAddresses } from "../../../contracts/erc721Contracts";
 
 const { toWei } = web3.utils;
 
@@ -78,7 +79,7 @@ function NewNftPage(props: any) {
     const numNft = enteredNftData.images.length;
     const assetCids = [] as any[];
     const contract = new Contract(
-      process.env.NEXT_PUBLIC_SMART_CONTRACT_ERC721 as string,
+      erc721ContractAddresses[Number(chainId)] as string,
       erc721ABI,
       signer
     );

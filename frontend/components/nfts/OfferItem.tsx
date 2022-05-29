@@ -7,6 +7,7 @@ import StorageUtils from "../../utils/storage";
 import { useEagerConnect, useInactiveListener } from "../wallet/Hooks";
 import web3 from "web3";
 import { useRouter } from "next/router";
+import { zeroContractAddresses } from "../../contracts/zeroExContracts";
 
 const { fromWei } = web3.utils;
 
@@ -83,7 +84,14 @@ function OfferItem(props: any) {
               const nftSwapSdk = new NftSwap(
                 library,
                 signer,
-                chainId
+                chainId,
+                {
+                  zeroExExchangeProxyContractAddress: zeroContractAddresses[
+                    Number(chainId)
+                  ]
+                    ? zeroContractAddresses[Number(chainId)]
+                    : undefined,
+                }
               );
 
               // Check if we need to approve the NFT for swapping

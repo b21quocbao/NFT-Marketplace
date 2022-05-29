@@ -13,6 +13,8 @@ import StorageUtils from "../../../../utils/storage";
 import { Contract } from "@ethersproject/contracts";
 import { erc20ABI } from "../../../../contracts/abi/erc20ABI";
 import { CHAINS, NATIVE_COINS } from "../../../../constants/chain";
+import { erc721ContractAddresses } from "../../../../contracts/erc721Contracts";
+import { zeroContractAddresses } from "../../../../contracts/zeroExContracts";
 
 const { toWei } = web3.utils;
 
@@ -37,20 +39,24 @@ function SaleNftPage(props: any) {
 
   useEffect(() => {
     const { ethereum } = window;
-    const changeChain = async() => {
+    const changeChain = async () => {
       if (props.nft.chainId != chainId) {
         try {
           await ethereum.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: `0x${Number(props.nft.chainId).toString(16)}` }], // chainId must be in hexadecimal numbers
+            method: "wallet_switchEthereumChain",
+            params: [
+              { chainId: `0x${Number(props.nft.chainId).toString(16)}` },
+            ], // chainId must be in hexadecimal numbers
           });
         } catch (e: any) {
           if (e.code === 4902) {
-            window.alert(`Please add chain with id ${props.nft.chainId} to your wallet then try again`);
+            window.alert(
+              `Please add chain with id ${props.nft.chainId} to your wallet then try again`
+            );
           }
         }
       }
-    }
+    };
 
     changeChain();
   }, [chainId, props.nft.chainId]);
@@ -64,10 +70,14 @@ function SaleNftPage(props: any) {
   async function saleNftHandler(enteredNftData: any) {
     setLoading(true);
     const signer = library.getSigner();
-    enteredNftData.erc20TokenAddress = enteredNftData.erc20TokenAddress.toLowerCase();
+    enteredNftData.erc20TokenAddress =
+      enteredNftData.erc20TokenAddress.toLowerCase();
     let symbol = NATIVE_COINS[Number(chainId)];
-  
-    if (enteredNftData.erc20TokenAddress != "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee") {
+
+    if (
+      enteredNftData.erc20TokenAddress !=
+      "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+    ) {
       const contract = new Contract(
         enteredNftData.erc20TokenAddress,
         erc20ABI,
@@ -75,9 +85,9 @@ function SaleNftPage(props: any) {
       );
       symbol = await contract.symbol();
     }
-    
+
     const makerAsset: any = {
-      tokenAddress: process.env.NEXT_PUBLIC_SMART_CONTRACT_ERC721,
+      tokenAddress: erc721ContractAddresses[Number(chainId)],
       tokenId: props.nft.tokenId,
       type: "ERC721",
     };
@@ -90,11 +100,11 @@ function SaleNftPage(props: any) {
 
     const makerAddress = props.user.address;
 
-    const nftSwapSdk = new NftSwap(
-      library,
-      signer,
-      chainId,
-    );
+    const nftSwapSdk = new NftSwap(library, signer, chainId, {
+      zeroExExchangeProxyContractAddress: zeroContractAddresses[Number(chainId)]
+        ? zeroContractAddresses[Number(chainId)]
+        : undefined,
+    });
 
     // Check if we need to approve the NFT for swapping
     const approvalStatusForUserA = await nftSwapSdk.loadApprovalStatus(
@@ -120,7 +130,7 @@ function SaleNftPage(props: any) {
       100;
     const saleRoyaltyFee =
       (enteredNftData.saleRoyaltyFee * enteredNftData.amount) / 100;
-    
+
     // Create the order (Remember, User A initiates the trade, so User A creates the order)
     const order = nftSwapSdk.buildOrder(makerAsset, takerAsset, makerAddress, {
       fees: [

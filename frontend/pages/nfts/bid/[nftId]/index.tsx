@@ -13,6 +13,8 @@ import { useRouter } from "next/router";
 import { Contract } from "@ethersproject/contracts";
 import { erc20ABI } from "../../../../contracts/abi/erc20ABI";
 import { NATIVE_COINS } from "../../../../constants/chain";
+import { erc721ContractAddresses } from "../../../../contracts/erc721Contracts";
+import { zeroContractAddresses } from "../../../../contracts/zeroExContracts";
 
 const { toWei, fromWei } = web3.utils;
 
@@ -66,7 +68,7 @@ function BidNftPage(props: any) {
     const signer = library.getSigner();
 
     const takerAsset: any = {
-      tokenAddress: process.env.NEXT_PUBLIC_SMART_CONTRACT_ERC721,
+      tokenAddress: erc721ContractAddresses[Number(chainId)],
       tokenId: props.nft.tokenId,
       type: "ERC721",
     };
@@ -81,6 +83,13 @@ function BidNftPage(props: any) {
       library,
       signer,
       chainId,
+      {
+        zeroExExchangeProxyContractAddress: zeroContractAddresses[
+          Number(chainId)
+        ]
+          ? zeroContractAddresses[Number(chainId)]
+          : undefined,
+      }
     );
 
     // Check if we need to approve the NFT for swapping
