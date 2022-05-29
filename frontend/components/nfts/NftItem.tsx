@@ -102,7 +102,7 @@ function NftItem(props: any) {
                 </p>
               </>
             )}
-            {user?.id !== props?.userId && (
+            {user && user.id !== props?.userId && (
               <Button
                 type="primary"
                 style={{ margin: "auto" }}
