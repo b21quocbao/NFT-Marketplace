@@ -41,7 +41,7 @@ function OfferItem(props: any) {
     <>
       <p>{`Bidder: ${props.offer.maker}`}</p>
       <p>{`Amount: ${fromWei(props.offer.erc20TokenAmount)}`}</p>
-      {props.makerUserId == user.id &&
+      {user && props.makerUserId == user.id &&
         props.highestBid &&
         new Date(props.endAuctionTime).getTime() < Date.now() && (
           <Button
