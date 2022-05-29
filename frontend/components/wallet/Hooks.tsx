@@ -37,19 +37,19 @@ export function useInactiveListener(suppress = false) {
   useEffect(() => {
     const { ethereum } = window;
     if (ethereum && ethereum.on && !active && !error && !suppress) {
-      const handleChainChanged = chainId => {
+      const handleChainChanged = (chainId: any) => {
         console.log("chainChanged", chainId);
         activate(injected);
       };
 
-      const handleAccountsChanged = accounts => {
+      const handleAccountsChanged = (accounts: any) => {
         console.log("accountsChanged", accounts);
         if (accounts.length > 0) {
           activate(injected);
         }
       };
 
-      const handleNetworkChanged = networkId => {
+      const handleNetworkChanged = (networkId: any) => {
         console.log("networkChanged", networkId);
         activate(injected);
       };
