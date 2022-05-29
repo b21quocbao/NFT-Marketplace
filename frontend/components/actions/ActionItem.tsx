@@ -1,4 +1,4 @@
-import { Card } from "antd";
+import { Card, Image } from "antd";
 import Link from "next/link";
 const { Meta } = Card;
 
@@ -12,7 +12,7 @@ function ActionItem(props: any) {
         style={{
           width: 240,
         }}
-        cover={<img alt="example" src={props.nft.imageUrl} layout="fill" />}
+        cover={<Image alt="example" src={props.nft.imageUrl} />}
       >
         <Meta title={props.name} description={`${props.nft.name} - ${props.nft.id}`} />
       </Card>

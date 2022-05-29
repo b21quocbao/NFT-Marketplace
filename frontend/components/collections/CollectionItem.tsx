@@ -1,4 +1,4 @@
-import { Card } from "antd";
+import { Card, Image } from "antd";
 import Link from "next/link";
 import { CHAINS } from "../../constants/chain";
 const { Meta } = Card;
@@ -11,7 +11,7 @@ function CollectionItem(props: any) {
         style={{
           width: 240,
         }}
-        cover={<img alt="example" src={props.imageUrl} layout="fill" />}
+        cover={<Image alt="example" src={props.imageUrl} />}
       >
         <Meta title={props.name} description={CHAINS[props.chainId]} />
       </Card>
