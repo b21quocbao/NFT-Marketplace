@@ -1,4 +1,4 @@
-import { Button, Card } from "antd";
+import { Button, Card, Image } from "antd";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -15,7 +15,7 @@ function MyNftItem(props: any) {
         style={{
           width: 240,
         }}
-        cover={<img alt="example" src={props.imageUrl} layout="fill" />}
+        cover={<Image alt="example" src={props.imageUrl} />}
       >
         <Meta title={props.name} description={props.status} />
         <br />

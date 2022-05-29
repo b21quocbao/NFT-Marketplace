@@ -1,5 +1,5 @@
 import { useWeb3React } from "@web3-react/core";
-import { Button, Card } from "antd";
+import { Button, Card, Image } from "antd";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useEagerConnect, useInactiveListener } from "../wallet/Hooks";
@@ -86,7 +86,7 @@ function NftItem(props: any) {
         style={{
           width: 240,
         }}
-        cover={<img alt="example" src={props.imageUrl} layout="fill" />}
+        cover={<Image alt="example" src={props.imageUrl} />}
       >
         <Meta title={props.name} description={status} />
         <br />

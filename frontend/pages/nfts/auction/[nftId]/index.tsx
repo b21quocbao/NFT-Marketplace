@@ -74,7 +74,7 @@ function AuctionNftPage(props: any) {
       method: "POST",
       body: JSON.stringify({
         userId: user.id,
-        nftId: props.id,
+        nftId: props.nft.id,
         name: "List for auction"
       }),
       headers: {
