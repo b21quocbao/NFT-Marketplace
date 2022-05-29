@@ -82,7 +82,7 @@ function AuctionNftPage(props: any) {
       },
     });
 
-    router.push(`/nfts/${chainId}`)
+    router.push(`/nfts`)
   }
 
   return <AuctionNftForm onAuctionNft={auctionNftHandler} loading={loading}  />;

@@ -59,13 +59,13 @@ function Layout(props: any) {
                 router.push("/");
                 break;
               case 1:
-                router.push(`/nfts/${chainId}/create`);
+                router.push(`/nfts/${user.id}/create`);
                 break;
               case 2:
-                router.push(`/nfts/${chainId}/${user.id}`);
+                router.push(`/nfts/${user.id}`);
                 break;
               case 3:
-                router.push(`/nfts/${chainId}`);
+                router.push(`/nfts`);
                 break;
               case 4:
                 router.push("/collections/create");

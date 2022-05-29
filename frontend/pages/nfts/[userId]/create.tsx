@@ -45,6 +45,7 @@ function NewNftPage(props: any) {
   const router = useRouter();
   const [user, setUser] = useState({} as any);
   const [loading, setLoading] = useState(false);
+  const [collections, setCollections] = useState(props.collections);
   const context = useWeb3React();
   const { library, active, connector, chainId } = context;
 
@@ -65,6 +66,10 @@ function NewNftPage(props: any) {
   useEffect(() => {
     setUser(StorageUtils.getUser());
   }, []);
+
+  useEffect(() => {
+    setCollections(props.collections.filter((col: any) => col.chainId == chainId))
+  }, [chainId, props.collections]);
 
   async function addNftHandler(enteredNftData: any) {
     setLoading(true);
@@ -157,13 +162,13 @@ function NewNftPage(props: any) {
 
     setLoading(false);
 
-    router.push(`/nfts/${chainId}/${user.id}`);
+    router.push(`/nfts/${user.id}`);
   }
 
   return (
     <>
       {active && (
-        <NewNftForm onAddNft={addNftHandler} collections={props.collections} chainId={props.chainId} loading={loading} />
+        <NewNftForm onAddNft={addNftHandler} collections={collections} chainId={chainId} loading={loading} />
       )}
     </>
   );
@@ -177,7 +182,7 @@ export async function getServerSideProps(ctx: any) {
 
   const collectionsCollection = db.collection("collections");
 
-  const collections = await collectionsCollection.find({ chainId: ctx.params.chainId }).toArray();
+  const collections = await collectionsCollection.find({ userId: ctx.params.userId }).toArray();
 
   client.close();
 
@@ -188,7 +193,6 @@ export async function getServerSideProps(ctx: any) {
         id: collection._id.toString(),
         _id: null,
       })),
-      chainId: ctx.params.chainId,
     },
   };
 }
