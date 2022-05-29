@@ -12,7 +12,7 @@ import { useRouter } from "next/router";
 import StorageUtils from "../../../../utils/storage";
 import { Contract } from "@ethersproject/contracts";
 import { erc20ABI } from "../../../../contracts/abi/erc20ABI";
-import { NATIVE_COINS } from "../../../../constants/chain";
+import { CHAINS, NATIVE_COINS } from "../../../../constants/chain";
 
 const { toWei } = web3.utils;
 
@@ -34,6 +34,26 @@ function SaleNftPage(props: any) {
       setActivatingConnector(undefined);
     }
   }, [activatingConnector, connector]);
+
+  useEffect(() => {
+    const { ethereum } = window;
+    const changeChain = async() => {
+      if (props.nft.chainId != chainId) {
+        try {
+          await ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: `0x${Number(props.nft.chainId).toString(16)}` }], // chainId must be in hexadecimal numbers
+          });
+        } catch (e: any) {
+          if (e.code === 4902) {
+            window.alert(`Please add chain with id ${props.nft.chainId} to your wallet then try again`);
+          }
+        }
+      }
+    }
+
+    changeChain();
+  }, [chainId, props.nft.chainId]);
 
   // handle logic to eagerly connect to the injected ethereum provider, if it exists and has granted access already
   const triedEager = useEagerConnect();
@@ -143,7 +163,7 @@ function SaleNftPage(props: any) {
       },
     });
 
-    router.push(`/nfts/${chainId}`);
+    router.push(`/nfts`);
   }
 
   return <SaleNftForm onSaleNft={saleNftHandler} loading={loading} />;

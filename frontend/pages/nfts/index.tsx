@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
 import { MongoClient } from "mongodb";
-import NftList from "../../../components/nfts/NftList";
+import NftList from "../../components/nfts/NftList";
 
 const Nfts: NextPage = (props: any) => {
   return <NftList nfts={props.nfts} />;
@@ -12,9 +12,9 @@ export async function getServerSideProps() {
 
   const db = client.db();
 
-  const nftsNft = db.collection("nfts");
+  const nftsCollection = db.collection("nfts");
 
-  const nfts = await nftsNft.find().toArray();
+  const nfts = await nftsCollection.find().toArray();
 
   client.close();
 

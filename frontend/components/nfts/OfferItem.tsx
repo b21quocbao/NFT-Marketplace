@@ -48,10 +48,31 @@ function OfferItem(props: any) {
             href="Confirm"
             loading={loading}
             onClick={async (e) => {
-              setLoading(true);
-              const signer = library.getSigner();
-
               e.preventDefault();
+              setLoading(true);
+
+              const { ethereum } = window;
+
+              if (props.chainId != chainId) {
+                try {
+                  await ethereum.request({
+                    method: "wallet_switchEthereumChain",
+                    params: [
+                      {
+                        chainId: `0x${Number(props.chainId).toString(16)}`,
+                      },
+                    ], // chainId must be in hexadecimal numbers
+                  });
+                  router.reload();
+                  await new Promise((resolve) => setTimeout(resolve, 5000));
+                } catch (e: any) {
+                  if (e.code === 4902) {
+                    window.alert(`Please add chain with id ${props.nft.chainId} to your wallet then try again`);
+                  }
+                }
+              }
+
+              const signer = library.getSigner();
 
               const takerAsset: any = {
                 tokenAddress: props.offer.erc721Token,
@@ -116,7 +137,7 @@ function OfferItem(props: any) {
                 },
               });
 
-              router.push(`/nfts/${chainId}/${user.id}`);
+              router.push(`/nfts/${user.id}`);
             }}
           >
             Confirm this offer

@@ -35,6 +35,26 @@ function BidNftPage(props: any) {
     }
   }, [activatingConnector, connector]);
 
+  useEffect(() => {
+    const { ethereum } = window;
+    const changeChain = async() => {
+      if (props.nft.chainId != chainId) {
+        try {
+          await ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: `0x${Number(props.nft.chainId).toString(16)}` }], // chainId must be in hexadecimal numbers
+          });
+        } catch (e: any) {
+          if (e.code === 4902) {
+            window.alert(`Please add chain with id ${props.nft.chainId} to your wallet then try again`);
+          }
+        }
+      }
+    }
+
+    changeChain();
+  }, [chainId, props.nft.chainId]);
+
   // handle logic to eagerly connect to the injected ethereum provider, if it exists and has granted access already
   const triedEager = useEagerConnect();
 
@@ -139,7 +159,7 @@ function BidNftPage(props: any) {
       },
     });
 
-    router.push(`/nfts/${chainId}`);
+    router.push(`/nfts`);
   }
 
   return (

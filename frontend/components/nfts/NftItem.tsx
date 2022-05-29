@@ -15,20 +15,22 @@ const { fromWei } = web3.utils;
 const timeString = (time: number) => {
   const day = Math.trunc(time / 86400000);
   time -= day * 86400000;
-  const hour =  Math.trunc(time / 3600000);
+  const hour = Math.trunc(time / 3600000);
   time -= hour * 3600000;
-  const min =  Math.trunc(time / 60000);
+  const min = Math.trunc(time / 60000);
   time -= min * 60000;
-  const sec =  Math.trunc(time / 1000);
+  const sec = Math.trunc(time / 1000);
   time -= sec * 1000;
 
-  return `${day}:${hour < 10 ? '0' : ''}${hour}:${min < 10 ? '0' : ''}${min}:${sec < 10 ? '0' : ''}${sec}`;
-}
+  return `${day}:${hour < 10 ? "0" : ""}${hour}:${min < 10 ? "0" : ""}${min}:${
+    sec < 10 ? "0" : ""
+  }${sec}`;
+};
 
 function NftItem(props: any) {
   const context = useWeb3React();
   const router = useRouter();
-  const { library, active, connector, chainId } = context;
+  const { library, active, connector, chainId, activate } = context;
   const [user, setUser] = useState({} as any);
   const [status, setStatus] = useState(props.status);
   const [loading, setLoading] = useState(false);
@@ -94,7 +96,10 @@ function NftItem(props: any) {
             {props.signedOrder && (
               <>
                 <b>Price</b>
-                <p>{fromWei(props.signedOrder.erc20TokenAmount) + ` ${props.symbol}`}</p>
+                <p>
+                  {fromWei(props.signedOrder.erc20TokenAmount) +
+                    ` ${props.symbol}`}
+                </p>
               </>
             )}
             {user?.id !== props?.userId && (
@@ -102,18 +107,43 @@ function NftItem(props: any) {
                 type="primary"
                 style={{ margin: "auto" }}
                 onClick={async (e) => {
-                  setLoading(true);
-                  const signer = library.getSigner();
-
                   e.preventDefault();
+                  setLoading(true);
+
+                  const { ethereum } = window;
+
+                  if (props.chainId != chainId) {
+                    try {
+                      await ethereum.request({
+                        method: "wallet_switchEthereumChain",
+                        params: [
+                          {
+                            chainId: `0x${Number(props.chainId).toString(16)}`,
+                          },
+                        ], // chainId must be in hexadecimal numbers
+                      });
+                      router.reload();
+                      await new Promise((resolve) => setTimeout(resolve, 5000));
+                    } catch (e: any) {
+                      if (e.code === 4902) {
+                        window.alert(`Please add chain with id ${props.nft.chainId} to your wallet then try again`);
+                      }
+                    }
+                  }
+
+                  const signer = library.getSigner();
+                  
+                  const nftSwapSdk = new NftSwap(
+                    library,
+                    signer,
+                    props.chainId
+                  );
 
                   const takerAsset: any = {
                     tokenAddress: props.signedOrder.erc20Token,
                     amount: props.signedOrder.erc20TokenAmount,
                     type: "ERC20",
                   };
-
-                  const nftSwapSdk = new NftSwap(library, signer, chainId);
 
                   // Check if we need to approve the NFT for swapping
                   const approvalStatusForUserB =
@@ -166,7 +196,7 @@ function NftItem(props: any) {
                     },
                   });
 
-                  router.push(`/nfts/${chainId}/${user.id}`);
+                  router.push(`/nfts/${user.id}`);
                 }}
                 loading={loading}
               >
