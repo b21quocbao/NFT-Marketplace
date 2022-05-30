@@ -123,11 +123,15 @@ function NftItem(props: any) {
                 </p>
               </>
             )}
-            {user && user.id !== props?.userId && (
+            {(!user || user.id !== props?.userId) && (
               <Button
                 type="primary"
                 style={{ margin: "auto" }}
                 onClick={async (e) => {
+                  if (!user) {
+                    router.push('/wallet/connect');
+                    window.alert(`You must connect to your wallet then login to continue.`);
+                  }
                   e.preventDefault();
                   setLoading(true);
 
@@ -233,12 +237,18 @@ function NftItem(props: any) {
                 Buy
               </Button>
             )}
-            {user && user.id !== props?.userId && props?.usdPrice && (
+            {(!user || user.id !== props?.userId) && props?.usdPrice && (
               <>
                 <br />
                 <br />
                 <PayPalButtons
                   createOrder={(data, actions) => {
+                    const user = StorageUtils.getUser();
+
+                    if (!user) {
+                      router.push('/wallet/connect');
+                      window.alert(`You must connect to your wallet then login to continue.`);
+                    }
                     return actions.order.create({
                       purchase_units: [
                         {
