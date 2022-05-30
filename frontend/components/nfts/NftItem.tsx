@@ -11,6 +11,7 @@ import web3 from "web3";
 import { useRouter } from "next/router";
 import { CHAINS } from "../../constants/chain";
 import { zeroContractAddresses } from "../../contracts/zeroExContracts";
+import { PayPalButtons } from "@paypal/react-paypal-js";
 
 const { fromWei } = web3.utils;
 
@@ -104,6 +105,18 @@ function NftItem(props: any) {
                 <p>
                   {fromWei(props.signedOrder.erc20TokenAmount) +
                     ` ${props.symbol}`}
+                </p>
+              </>
+            )}
+            {props.signedOrder && (
+              <>
+                <b>USD Price</b>
+                <p>
+                  {Number(
+                    fromWei(props.signedOrder.erc20TokenAmount).toString()
+                  ) *
+                    props.usdPrice +
+                    ` USD`}
                 </p>
               </>
             )}
@@ -217,6 +230,49 @@ function NftItem(props: any) {
                 Buy
               </Button>
             )}
+            {user && user.id !== props?.userId && props?.usdPrice && (
+              <>
+                <br />
+                <br />
+                <PayPalButtons
+                  createOrder={(data, actions) => {
+                    return actions.order.create({
+                      purchase_units: [
+                        {
+                          amount: {
+                            value: (
+                              Number(
+                                fromWei(
+                                  props.signedOrder.erc20TokenAmount
+                                ).toString()
+                              ) * props.usdPrice
+                            ).toFixed(2).toString(),
+                          },
+                        },
+                      ],
+                    });
+                  }}
+                  onApprove={(data, actions: any) => {
+                    return actions.order.capture().then(async (details: any) => {
+                      await fetch("/api/process-payment", {
+                        method: "POST",
+                        body: JSON.stringify({
+                          nftId: props.id,
+                          userId: user.id,
+                        }),
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                      });
+                      const name = details.payer.name.given_name;
+                      alert(`Transaction completed by ${name}`);
+
+                      router.push(`/nfts/${user.id}`);
+                    });
+                  }}
+                />
+              </>
+            )}
           </>
         )}
         {status === "AUCTION" && (
@@ -240,8 +296,6 @@ function NftItem(props: any) {
             <p>{timeString(endAuctionTime)}</p>
             {user && user.id !== props.userId && (
               <>
-                <br />
-                <br />
                 <Button
                   type="primary"
                   style={{ margin: "auto" }}

@@ -1,9 +1,10 @@
-import Layout from '../components/layout/Layout';
+import Layout from "../components/layout/Layout";
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import { Web3ReactProvider } from "@web3-react/core";
 import { Web3Provider } from "@ethersproject/providers";
-import { useRouter } from 'next/router';
+import { useRouter } from "next/router";
+import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 
 function getLibrary(provider: any) {
   const library = new Web3Provider(provider);
@@ -12,13 +13,15 @@ function getLibrary(provider: any) {
 }
 
 function MyApp({ Component, pageProps }: AppProps) {
-  const router = useRouter()
+  const router = useRouter();
 
   return (
     <Web3ReactProvider getLibrary={getLibrary}>
-      <Layout key={router.asPath}>
-        <Component {...pageProps} />
-      </Layout>
+      <PayPalScriptProvider options={{ "client-id": "sb" }}>
+        <Layout key={router.asPath}>
+          <Component {...pageProps} />
+        </Layout>
+      </PayPalScriptProvider>
     </Web3ReactProvider>
   );
 }

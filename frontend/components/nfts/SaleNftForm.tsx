@@ -46,6 +46,17 @@ const SaleNftForm = (props: any) => {
         <InputNumber />
       </Form.Item>
       <Form.Item
+        name="usdPrice"
+        label="USD Token price"
+        rules={[
+          {
+            required: false,
+          },
+        ]}
+      >
+        <InputNumber />
+      </Form.Item>
+      <Form.Item
         name="saleRoyaltyFee"
         label="Royalty Fee"
         initialValue={2.5}

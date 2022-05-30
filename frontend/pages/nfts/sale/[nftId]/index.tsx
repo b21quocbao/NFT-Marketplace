@@ -27,7 +27,7 @@ function SaleNftPage(props: any) {
 
   useEffect(() => {
     setUser(StorageUtils.getUser());
-  }, [library]);
+  }, []);
 
   const [activatingConnector, setActivatingConnector] = useState();
   useEffect(() => {
@@ -146,6 +146,19 @@ function SaleNftPage(props: any) {
     });
 
     const signedOrder = await nftSwapSdk.signOrder(order);
+    let usdSignedOrder: any;
+
+    if (enteredNftData.usdPrice) {
+      takerAsset.amount = toWei("0");
+      takerAsset.tokenAddress = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
+      const order = nftSwapSdk.buildOrder(
+        makerAsset,
+        takerAsset,
+        makerAddress,
+        { taker: process.env.NEXT_PUBLIC_ADMIN_WALLET }
+      );
+      usdSignedOrder = await nftSwapSdk.signOrder(order);
+    }
 
     await fetch("/api/update-nft", {
       method: "PUT",
@@ -154,6 +167,8 @@ function SaleNftPage(props: any) {
         status: "LIST",
         symbol: symbol,
         saleRoyaltyFee: enteredNftData.saleRoyaltyFee,
+        usdPrice: enteredNftData.usdPrice,
+        usdSignedOrder,
         signedOrder,
       }),
       headers: {

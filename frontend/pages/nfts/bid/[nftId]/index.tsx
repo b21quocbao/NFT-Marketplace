@@ -27,7 +27,7 @@ function BidNftPage(props: any) {
 
   useEffect(() => {
     setUser(StorageUtils.getUser());
-  }, [library]);
+  }, []);
 
   const [activatingConnector, setActivatingConnector] = useState();
   useEffect(() => {

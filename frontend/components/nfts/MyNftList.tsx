@@ -30,6 +30,7 @@ function MyNftList(props: any) {
             status={nft.status}
             chainId={nft.chainId}
             signedOrder={nft.signedOrder}
+            usdSignedOrder={nft.usdSignedOrder}
           />
         </Col>
       ))}

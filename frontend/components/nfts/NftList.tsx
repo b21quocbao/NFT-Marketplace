@@ -20,6 +20,7 @@ function NftList(props: any) {
             imageUrl={nft.imageUrl}
             name={nft.name}
             address={nft.address}
+            usdPrice={nft.usdPrice}
             userId={nft.userId}
             endAuctionTime={nft.endAuctionTime}
             status={nft.status}
