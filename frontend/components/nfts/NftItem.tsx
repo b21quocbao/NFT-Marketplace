@@ -52,9 +52,12 @@ function NftItem(props: any) {
     };
     checkStatus();
     const interval = setInterval(checkStatus, 1000);
-    setUser(StorageUtils.getUser());
     return () => clearInterval(interval);
   }, [props]);
+
+  useEffect(() => {
+    setUser(StorageUtils.getUser());
+  }, []);
 
   useEffect(() => {
     if (props.endAuctionTime) {
@@ -254,6 +257,8 @@ function NftItem(props: any) {
                   }}
                   onApprove={(data, actions: any) => {
                     return actions.order.capture().then(async (details: any) => {
+                      const user = StorageUtils.getUser();
+                      
                       await fetch("/api/process-payment", {
                         method: "POST",
                         body: JSON.stringify({
