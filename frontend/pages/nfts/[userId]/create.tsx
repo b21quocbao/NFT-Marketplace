@@ -6,7 +6,7 @@ import { create as ipfsHttpClient } from "ipfs-http-client";
 import NewNftForm from "../../../components/nfts/NewNftForm";
 import StorageUtils from "../../../utils/storage";
 import { useWeb3React } from "@web3-react/core";
-import { erc721ABI } from "../../../contracts/abi/erc721ABI";
+import erc721ABI from "../../../contracts/abi/erc721ABI.json";
 import { Contract } from "@ethersproject/contracts";
 import {
   useEagerConnect,
