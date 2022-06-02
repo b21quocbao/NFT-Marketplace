@@ -1,20 +1,20 @@
 import { useEffect } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import MyNftList from "../../components/nfts/MyNftList";
-import { getMyNfts } from "../../store/nfts/actions";
+import MyActionList from "../../components/actions/MyActionList";
+import { getMyActions } from "../../store/actions/actions";
 
-const MyNfts = () => {
+const MyActions = () => {
   const dispatch = useDispatch();
-  const { myNfts, loading, error } = useSelector(
-    (state: any) => state.NftReducer
+  const { myActions, loading, error } = useSelector(
+    (state: any) => state.ActionReducer
   );
   const { user } = useSelector(
     (state: any) => state.AuthReducer
   );
 
   useEffect(() => {
-    dispatch(getMyNfts({ userId: user.id }));
+    dispatch(getMyActions({ userId: user.id }));
   }, [dispatch]);
 
   return (
@@ -25,7 +25,7 @@ const MyNfts = () => {
         </View>
       ) : null}
       {!loading && (
-        <MyNftList nfts={myNfts} />
+        <MyActionList actions={myActions} />
       )}
       {!loading && error.message.length ? (
         <View style={[styles.button]}>
@@ -47,4 +47,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MyNfts;
+export default MyActions;

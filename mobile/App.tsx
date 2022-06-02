@@ -12,6 +12,7 @@ import { useEffect } from "react";
 import { getLoginStorage } from "./store/auth/actions";
 import ListNfts from "./pages/nfts/ListNFTs";
 import MyNfts from "./pages/nfts/MyNFTs";
+import MyActions from "./pages/actions/MyActions";
 
 const Drawer = createDrawerNavigator();
 
@@ -20,6 +21,8 @@ function Root() {
   const { user, loading } = useSelector(
     (state: any) => state.AuthReducer
   );
+  console.log(user, 'user');
+  
 
   useEffect(() => {
     dispatch(getLoginStorage());
@@ -49,7 +52,10 @@ function Root() {
           {user && <Drawer.Screen
             name="My Nfts"
             component={MyNfts}
-            initialParams={{ userId: user.id }}
+          />}
+          {user && <Drawer.Screen
+            name="My Actions"
+            component={MyActions}
           />}
         </Drawer.Navigator>
       </NavigationContainer>: null}

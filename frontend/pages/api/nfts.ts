@@ -5,8 +5,6 @@ export default async function handler(req: NextApiRequest, res: any) {
   const client = await MongoClient.connect(process.env.MONGODB_URI as string);
 
   const db = client.db();
-  console.log(req.query, 'Line #8 nfts.ts');
-  
 
   const nftsCollection = db.collection("nfts");
 
