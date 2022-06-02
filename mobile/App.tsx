@@ -1,17 +1,25 @@
-import * as React from 'react';
-import { createDrawerNavigator } from '@react-navigation/drawer';
-import { NavigationContainer } from '@react-navigation/native';
+import { createDrawerNavigator } from "@react-navigation/drawer";
+import { NavigationContainer } from "@react-navigation/native";
 import WalletConnectProvider from "@walletconnect/react-native-dapp";
-import { Platform } from 'react-native';
+import { Platform } from "react-native";
 import rootSaga from "./store/sagas";
-// import { Provider } from "react-redux";
-import Home from './pages/Home';
-import ConnectWallet from './pages/wallet/ConnectWallet';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Provider, useDispatch } from "react-redux";
+import Home from "./pages/Home";
+import ConnectWallet from "./pages/wallet/ConnectWallet";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import configureStore from "./store/configureStore";
+import { useEffect } from "react";
+import { getLoginStorage } from "./store/auth/actions";
 
 const Drawer = createDrawerNavigator();
 
-export default function App() {
+function Root() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getLoginStorage());
+  });
+
   return (
     <WalletConnectProvider
       bridge="https://bridge.walletconnect.org"
@@ -28,15 +36,23 @@ export default function App() {
         asyncStorage: AsyncStorage,
       }}
     >
-      {/* <Provider store={store}> */}
-        <NavigationContainer>
-          <Drawer.Navigator>
-            <Drawer.Screen name="Homepage" component={Home} />
-            <Drawer.Screen name="Connect Wallet" component={ConnectWallet} />
-            {/* <Drawer.Screen name="Connect Wallet" component={ConnectWallet} /> */}
-          </Drawer.Navigator>
-        </NavigationContainer>
-      {/* </Provider> */}
+      <NavigationContainer>
+        <Drawer.Navigator>
+          <Drawer.Screen name="Homepage" component={Home} />
+          <Drawer.Screen name="Connect Wallet" component={ConnectWallet} />
+        </Drawer.Navigator>
+      </NavigationContainer>
     </WalletConnectProvider>
+  );
+}
+
+export default function App() {
+  const store = configureStore();
+  store.runSaga(rootSaga);
+
+  return (
+    <Provider store={store}>
+      <Root />
+    </Provider>
   );
 }

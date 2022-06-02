@@ -2,10 +2,11 @@ import {
   LOGIN,
   LOGIN_SUCCESS,
   LOGIN_FAIL,
+  LOGOUT,
 } from "./actionTypes";
 
 const initialState = {
-  user: [],
+  user: null,
   accessToken: "",
   refreshToken: "",
   loading: false,
@@ -14,7 +15,7 @@ const initialState = {
   },
 };
 
-const PostReducer = (state = initialState, action: any) => {
+const AuthReducer = (state = initialState, action: any) => {
   switch (action.type) {
     case LOGIN:
       state = { ...state, loading: true };
@@ -26,10 +27,13 @@ const PostReducer = (state = initialState, action: any) => {
       state = {
         ...state,
         error: {
-          message: "Error",
+          message: "Login Failed",
         },
         loading: false,
       };
+      break;
+    case LOGOUT:
+      state = initialState;
       break;
     default:
       state = { ...state };
@@ -38,4 +42,4 @@ const PostReducer = (state = initialState, action: any) => {
   return state;
 };
 
-export default PostReducer;
+export default AuthReducer;

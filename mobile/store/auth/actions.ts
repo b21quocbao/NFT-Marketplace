@@ -2,7 +2,15 @@ import {
   LOGIN,
   LOGIN_SUCCESS,
   LOGIN_FAIL,
+  GET_LOGIN_STORAGE,
+  LOGOUT,
 } from "./actionTypes";
+
+export const getLoginStorage = () => {
+  return {
+    type: GET_LOGIN_STORAGE,
+  };
+};
 
 export const login = (authRequest: any) => {
   return {
@@ -22,5 +30,11 @@ export const loginFail = (error: any) => {
   return {
     type: LOGIN_FAIL,
     payload: error,
+  };
+};
+
+export const logout = () => {
+  return {
+    type: LOGOUT,
   };
 };

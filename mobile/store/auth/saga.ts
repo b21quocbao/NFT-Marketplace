@@ -1,26 +1,64 @@
 import { takeLatest, put, call } from "redux-saga/effects";
+import { GET_LOGIN_STORAGE, LOGIN, LOGOUT } from "./actionTypes";
+import { loginSuccess, loginFail, login, logout } from "./actions";
+import { axiosInstance } from "../../helpers/axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { LOGIN } from "./actionTypes";
+function* saveLoginDataToStore(data: any) {
+  const { user, accessToken, refreshToken } = data;
 
-import { loginSuccess, loginFail, login } from "./actions";
+  yield AsyncStorage.multiSet([
+    ["user", JSON.stringify(user)],
+    ["accessToken", accessToken],
+    ["refreshToken", refreshToken],
+  ]);
+}
 
-function* onLogin({ payload }: ReturnType<typeof login>) {
-  try {
-    const response = yield call(() => fetch("/api/login", {
-      method: "POST",
-      body: JSON.stringify(payload),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }));
-    yield put(loginSuccess(response));
-  } catch (error) {
-    yield put(loginFail(error.response));
+function* removeLoginDataFromStore() {
+  yield AsyncStorage.multiRemove(["user", "accessToken", "refreshToken"]);
+}
+
+function* getLoginStorage() {
+  const response = yield AsyncStorage.multiGet([
+    "user",
+    "accessToken",
+    "refreshToken",
+  ]);
+
+  if (response[0][1]) {
+    yield put(
+      loginSuccess({
+        user: JSON.parse(response[0][1]),
+        accessToken: response[1][1],
+        refreshToken: response[2][1],
+      })
+    );
   }
 }
 
+function* onLogin({ payload }: ReturnType<typeof login>) {
+  try {
+    const response = yield call(() => axiosInstance.post("login", payload));
+    response.data.id = response.data._id;
+
+    yield call(saveLoginDataToStore, response.data);
+    yield put(loginSuccess(response.data));
+  } catch (error) {
+    console.log(error, "Line #55 saga.ts");
+
+    yield put(loginFail(error));
+  }
+}
+
+function* onLogout() {
+  yield call(removeLoginDataFromStore);
+  yield logout()
+}
+
 function* AuthSaga() {
-  yield takeLatest(login, onLogin);
+  yield takeLatest(LOGIN, onLogin);
+  yield takeLatest(GET_LOGIN_STORAGE, getLoginStorage);
+  yield takeLatest(LOGOUT, onLogout);
 }
 
 export default AuthSaga;
