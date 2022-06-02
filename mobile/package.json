@@ -4,6 +4,8 @@
     "@react-navigation/drawer": "^6.3.1",
     "@react-navigation/native": "^6.0.8",
     "@react-navigation/native-stack": "^6.5.0",
+    "@rneui/base": "^4.0.0-rc.4",
+    "@rneui/themed": "^4.0.0-rc.4",
     "@walletconnect/react-native-dapp": "1.6.1",
     "axios": "^0.27.2",
     "base-64": "1.0.0",

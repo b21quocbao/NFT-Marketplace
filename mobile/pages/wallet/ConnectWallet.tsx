@@ -1,11 +1,11 @@
 import { useWalletConnect } from "@walletconnect/react-native-dapp";
 import {
   ActivityIndicator,
-  Button,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+import { Button } from "@rneui/base";
 import { useDispatch, useSelector } from "react-redux";
 import { login, logout } from "../../store/auth/actions";
 

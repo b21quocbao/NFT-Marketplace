@@ -33,18 +33,26 @@ function* getLoginStorage() {
         refreshToken: response[2][1],
       })
     );
+  } else {
+    yield put(
+      loginSuccess({
+        user: null,
+        accessToken: "",
+        refreshToken: "",
+      })
+    );
   }
 }
 
 function* onLogin({ payload }: ReturnType<typeof login>) {
   try {
     const response = yield call(() => axiosInstance.post("login", payload));
-    response.data.id = response.data._id;
+    response.data.user.id = response.data.user._id;
 
     yield call(saveLoginDataToStore, response.data);
     yield put(loginSuccess(response.data));
   } catch (error) {
-    console.log(error, "Line #55 saga.ts");
+    console.log(JSON.stringify(error), "Line #55 saga.ts");
 
     yield put(loginFail(error));
   }

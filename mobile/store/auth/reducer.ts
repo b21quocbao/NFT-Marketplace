@@ -3,6 +3,7 @@ import {
   LOGIN_SUCCESS,
   LOGIN_FAIL,
   LOGOUT,
+  GET_LOGIN_STORAGE,
 } from "./actionTypes";
 
 const initialState = {
@@ -18,6 +19,9 @@ const initialState = {
 const AuthReducer = (state = initialState, action: any) => {
   switch (action.type) {
     case LOGIN:
+      state = { ...state, loading: true };
+      break;
+    case GET_LOGIN_STORAGE:
       state = { ...state, loading: true };
       break;
     case LOGIN_SUCCESS:
