@@ -6,11 +6,11 @@ import { Card } from "@rneui/themed";
 import { useSelector } from "react-redux";
 import NFTItemField from "./NftItemField";
 import NFTItemButton from "./NFTItemButton";
-import { Image } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 const { fromWei } = web3.utils;
 
-function NftItem(props: any) {
+function MyNftItem(props: any) {
   const { user } = useSelector((state: any) => state.AuthReducer);
   const [status, setStatus] = useState(props.status);
   const [endAuctionTime, setEndAuctionTime] = useState(undefined as any);
@@ -47,6 +47,7 @@ function NftItem(props: any) {
     <>
       <Card>
         <Card.Image
+          resizeMode='cover'
           style={{ width: 300, height: 300 }}
           source={{
             uri: props.imageUrl,
@@ -56,48 +57,32 @@ function NftItem(props: any) {
         <NFTItemField title="Chain" value={CHAINS[props.chainId]} />
         <NFTItemField title="Status" value={props.status} />
 
-        {status === "LIST" && (
-          <>
-            {props.signedOrder && (
-              <NFTItemField
-                title="Price"
-                value={
-                  fromWei(props.signedOrder.erc20TokenAmount) +
-                  ` ${props.symbol}`
-                }
-              />
-            )}
-            {user && user.id !== props?.userId && <NFTItemButton title="Buy" />}
-          </>
+        {status === "AVAILABLE" && (
+          <View style={styles.container}>
+            <View style={styles.button}>
+              <NFTItemButton title="Sale" />
+            </View>
+            <View style={styles.button}>
+              <NFTItemButton title="Auction" />
+            </View>
+          </View>
         )}
-        {status === "AUCTION" && (
-          <>
-            {props.bidOrders && props.bidOrders.length && (
-              <NFTItemField
-                title="Highest Offer"
-                value={
-                  fromWei(props.bidOrders[0].signedOrder.erc20TokenAmount) +
-                  ` ${props.symbol}`
-                }
-              />
-            )}
-            {!(props.bidOrders && props.bidOrders.length) && (
-              <NFTItemField
-                title="Starting Price"
-                value={fromWei(props.startingPrice) + ` ${props.symbol}`}
-              />
-            )}
-            <NFTItemField
-              title="Expiry Time"
-              value={timeString(endAuctionTime)}
-            />
-            {user && user.id !== props.userId && <NFTItemButton title="Bid" />}
-            <NFTItemButton title="View Offers" />
-          </>
-        )}
+        {status === "LIST" && <NFTItemButton title="Cancel" />}
+        {status === "AUCTION" && <NFTItemButton title="View Offers" />}
       </Card>
     </>
   );
 }
 
-export default NftItem;
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    paddingVertical: 15,
+  },
+  button: {
+    flex: 1,
+    marginHorizontal: 10
+  },
+});
+
+export default MyNftItem;

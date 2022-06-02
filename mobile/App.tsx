@@ -11,6 +11,7 @@ import configureStore from "./store/configureStore";
 import { useEffect } from "react";
 import { getLoginStorage } from "./store/auth/actions";
 import ListNfts from "./pages/nfts/ListNFTs";
+import MyNfts from "./pages/nfts/MyNFTs";
 
 const Drawer = createDrawerNavigator();
 
@@ -47,7 +48,7 @@ function Root() {
           <Drawer.Screen name="All Nfts" component={ListNfts} />
           {user && <Drawer.Screen
             name="My Nfts"
-            component={ListNfts}
+            component={MyNfts}
             initialParams={{ userId: user.id }}
           />}
         </Drawer.Navigator>

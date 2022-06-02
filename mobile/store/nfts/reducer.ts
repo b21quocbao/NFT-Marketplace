@@ -2,10 +2,14 @@ import {
   GET_NFTS,
   GET_NFTS_SUCCESS,
   GET_NFTS_FAIL,
+  GET_MY_NFTS,
+  GET_MY_NFTS_SUCCESS,
+  GET_MY_NFTS_FAIL,
 } from "./actionTypes";
 
 const initialState = {
   nfts: [],
+  myNfts: [],
   loading: false,
   error: {
     message: "",
@@ -21,6 +25,21 @@ const NftReducer = (state = initialState, action: any) => {
       state = { ...state, nfts: action.payload, loading: false };
       break;
     case GET_NFTS_FAIL:
+      state = {
+        ...state,
+        error: {
+          message: "Get NFTs Failed",
+        },
+        loading: false,
+      };
+      break;
+    case GET_MY_NFTS:
+      state = { ...state, loading: true };
+      break;
+    case GET_MY_NFTS_SUCCESS:
+      state = { ...state, myNfts: action.payload, loading: false };
+      break;
+    case GET_MY_NFTS_FAIL:
       state = {
         ...state,
         error: {

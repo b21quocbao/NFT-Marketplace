@@ -1,11 +1,11 @@
 import { takeLatest, put, call } from "redux-saga/effects";
-import { GET_NFTS } from "./actionTypes";
-import { getNftsSuccess, getNftsFail, getNfts } from "./actions";
+import { GET_NFTS, GET_MY_NFTS } from "./actionTypes";
+import { getNftsSuccess, getNftsFail, getNfts, getMyNftsSuccess, getMyNftsFail } from "./actions";
 import { axiosInstance } from "../../helpers/axios";
 
-function* onGetNfts({ payload }: ReturnType<typeof getNfts>) {
+function* onGetNfts() {
   try {
-    const response = yield call(() => axiosInstance.get("nfts", { params: payload }));
+    const response = yield call(() => axiosInstance.get("nfts", {}));
 
     yield put(getNftsSuccess(response.data));
   } catch (error) {
@@ -15,9 +15,21 @@ function* onGetNfts({ payload }: ReturnType<typeof getNfts>) {
   }
 }
 
+function* onGetMyNfts({ payload }: ReturnType<typeof getNfts>) {
+  try {
+    const response = yield call(() => axiosInstance.get("nfts", { params: payload }));
+
+    yield put(getMyNftsSuccess(response.data));
+  } catch (error) {
+    console.log(JSON.stringify(error), "Line #55 saga.ts");
+
+    yield put(getMyNftsFail(error));
+  }
+}
 
 function* NftSaga() {
   yield takeLatest(GET_NFTS, onGetNfts);
+  yield takeLatest(GET_MY_NFTS, onGetMyNfts);
 }
 
 export default NftSaga;

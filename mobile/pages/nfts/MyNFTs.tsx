@@ -1,17 +1,17 @@
 import { useEffect } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import NftList from "../../components/nfts/NftList";
-import { getNfts } from "../../store/nfts/actions";
+import MyNftList from "../../components/nfts/MyNftList";
+import { getMyNfts } from "../../store/nfts/actions";
 
-const ListNfts = ({}) => {
+const MyNfts = ({ route }) => {
   const dispatch = useDispatch();
-  const { nfts, loading, error } = useSelector(
+  const { myNfts, loading, error } = useSelector(
     (state: any) => state.NftReducer
   );
 
   useEffect(() => {
-    dispatch(getNfts({}));
+    dispatch(getMyNfts({ userId: route.params.userId }));
   }, [dispatch]);
 
   return (
@@ -22,7 +22,7 @@ const ListNfts = ({}) => {
         </View>
       ) : null}
       {!loading && (
-        <NftList nfts={nfts} />
+        <MyNftList nfts={myNfts} />
       )}
       {!loading && error.message.length ? (
         <View style={[styles.button]}>
@@ -44,4 +44,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ListNfts;
+export default MyNfts;
