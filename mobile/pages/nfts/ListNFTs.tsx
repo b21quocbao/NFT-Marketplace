@@ -12,7 +12,7 @@ const ListNfts = ({}) => {
 
   useEffect(() => {
     dispatch(getNfts({}));
-  }, [dispatch]);
+  }, []);
 
   return (
     <View style={[styles.container]}>

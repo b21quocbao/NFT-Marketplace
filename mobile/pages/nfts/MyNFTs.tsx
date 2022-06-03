@@ -15,7 +15,7 @@ const MyNfts = () => {
 
   useEffect(() => {
     dispatch(getMyNfts({ userId: user.id }));
-  }, [dispatch]);
+  }, [user.id]);
 
   return (
     <View style={[styles.container]}>

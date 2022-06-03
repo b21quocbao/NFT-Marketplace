@@ -15,7 +15,7 @@ const MyCollections = () => {
 
   useEffect(() => {
     dispatch(getMyCollections({ userId: user.id }));
-  }, [dispatch]);
+  }, [user.id]);
 
   return (
     <View style={[styles.container]}>

@@ -1,10 +1,5 @@
 import { useWalletConnect } from "@walletconnect/react-native-dapp";
-import {
-  ActivityIndicator,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { Button } from "@rneui/base";
 import { useDispatch, useSelector } from "react-redux";
 import { login, logout } from "../../store/auth/actions";
@@ -14,7 +9,7 @@ function ConnectWallet() {
   const { user, loading, error } = useSelector(
     (state: any) => state.AuthReducer
   );
-  
+
   const dispatch = useDispatch();
 
   return (
@@ -70,7 +65,7 @@ function ConnectWallet() {
         <View style={[styles.button]}>
           <Text>Error message: {error.message}</Text>
         </View>
-      ): null}
+      ) : null}
     </View>
   );
 }

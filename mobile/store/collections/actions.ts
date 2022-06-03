@@ -9,6 +9,9 @@ import {
   ADD_COLLECTION_SUCCESS,
   ADD_COLLECTION_FAIL,
   CLEAR_ADDED_COLLECTION,
+  GET_SUPPORT_COLLECTIONS,
+  GET_SUPPORT_COLLECTIONS_SUCCESS,
+  GET_SUPPORT_COLLECTIONS_FAIL,
 } from "./actionTypes";
 
 export const getCollections = (data: any) => {
@@ -49,6 +52,27 @@ export const getMyCollectionsSuccess = (data: any) => {
 export const getMyCollectionsFail = (error: any) => {
   return {
     type: GET_MY_COLLECTIONS_FAIL,
+    payload: error,
+  };
+};
+
+export const getSupportCollections = (data: any) => {
+  return {
+    type: GET_SUPPORT_COLLECTIONS,
+    payload: data,
+  };
+};
+
+export const getSupportCollectionsSuccess = (data: any) => {
+  return {
+    type: GET_SUPPORT_COLLECTIONS_SUCCESS,
+    payload: data,
+  };
+};
+
+export const getSupportCollectionsFail = (error: any) => {
+  return {
+    type: GET_SUPPORT_COLLECTIONS_FAIL,
     payload: error,
   };
 };

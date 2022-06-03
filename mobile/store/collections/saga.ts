@@ -3,15 +3,19 @@ import {
   ADD_COLLECTION,
   GET_COLLECTIONS,
   GET_MY_COLLECTIONS,
+  GET_SUPPORT_COLLECTIONS,
 } from "./actionTypes";
 import {
   getCollectionsSuccess,
   getCollectionsFail,
-  getCollections,
   getMyCollectionsSuccess,
   getMyCollectionsFail,
   addCollection,
   addCollectionSuccess,
+  getSupportCollectionsSuccess,
+  getSupportCollectionsFail,
+  getSupportCollections,
+  getMyCollections,
 } from "./actions";
 import { axiosInstance, ipfsAxiosInstance } from "../../helpers/axios";
 import {
@@ -51,7 +55,7 @@ function* onGetCollections() {
   }
 }
 
-function* onGetMyCollections({ payload }: ReturnType<typeof getCollections>) {
+function* onGetMyCollections({ payload }: ReturnType<typeof getMyCollections>) {
   try {
     const response = yield call(() =>
       axiosInstance.get("collections", { params: payload })
@@ -62,6 +66,22 @@ function* onGetMyCollections({ payload }: ReturnType<typeof getCollections>) {
     console.log(JSON.stringify(error), "Line #55 saga.ts");
 
     yield put(getMyCollectionsFail(error));
+  }
+}
+
+function* onGetSupportCollections({
+  payload,
+}: ReturnType<typeof getSupportCollections>) {
+  try {
+    const response = yield call(() =>
+      axiosInstance.get("collections", { params: payload })
+    );
+
+    yield put(getSupportCollectionsSuccess(response.data));
+  } catch (error) {
+    console.log(JSON.stringify(error), "Line #55 saga.ts");
+
+    yield put(getSupportCollectionsFail(error));
   }
 }
 
@@ -90,6 +110,7 @@ function* onAddCollection({ payload }: ReturnType<typeof addCollection>) {
 function* CollectionSaga() {
   yield takeLatest(GET_COLLECTIONS, onGetCollections);
   yield takeLatest(GET_MY_COLLECTIONS, onGetMyCollections);
+  yield takeLatest(GET_SUPPORT_COLLECTIONS, onGetSupportCollections);
   yield takeLatest(ADD_COLLECTION, onAddCollection);
 }
 

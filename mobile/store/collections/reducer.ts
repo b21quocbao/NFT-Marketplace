@@ -9,11 +9,15 @@ import {
   ADD_COLLECTION_SUCCESS,
   ADD_COLLECTION_FAIL,
   CLEAR_ADDED_COLLECTION,
+  GET_SUPPORT_COLLECTIONS,
+  GET_SUPPORT_COLLECTIONS_SUCCESS,
+  GET_SUPPORT_COLLECTIONS_FAIL,
 } from "./actionTypes";
 
 const initialState = {
   collections: [],
   myCollections: [],
+  supportCollections: [],
   addedCollection: null,
   loading: false,
   error: {
@@ -49,6 +53,21 @@ const CollectionReducer = (state = initialState, action: any) => {
         ...state,
         error: {
           message: "Get My Collection Failed",
+        },
+        loading: false,
+      };
+      break;
+    case GET_SUPPORT_COLLECTIONS:
+      state = { ...state, loading: true };
+      break;
+    case GET_SUPPORT_COLLECTIONS_SUCCESS:
+      state = { ...state, supportCollections: action.payload, loading: false };
+      break;
+    case GET_SUPPORT_COLLECTIONS_FAIL:
+      state = {
+        ...state,
+        error: {
+          message: "Get Support Collection Failed",
         },
         loading: false,
       };

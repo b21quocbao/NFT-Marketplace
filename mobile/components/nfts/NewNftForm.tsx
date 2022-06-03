@@ -20,7 +20,7 @@ const NewNftForm = (props: any) => {
       isValid: true,
     },
     collectionId: {
-      value: "",
+      value: undefined,
     },
   });
 

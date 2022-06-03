@@ -1,24 +1,59 @@
-import { useEffect } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { useWalletConnect } from "@walletconnect/react-native-dapp";
+import { useEffect, useMemo, useState } from "react";
+import {
+  ActivityIndicator,
+  Button,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import NewNftForm from "../../components/nfts/NewNftForm";
-import { getCollections } from "../../store/collections/actions";
+import { getSupportCollections } from "../../store/collections/actions";
+import Web3 from "web3";
+import { getChainConfig } from "../../helpers/ipfs";
+import { erc721ContractAddresses } from "../../contracts/erc721Contracts";
+import erc721ABI from "../../contracts/abi/erc721ABI.json";
+import { clearCreatedNft, createNft } from "../../store/nfts/actions";
 
-function MintNFT({ route }) {
-  const { collections, loading, error } = useSelector(
+function MintNFT({ navigation: { navigate } }) {
+  const connector = useWalletConnect();
+  const dispatch = useDispatch();
+  const [contract, setContract] = useState(undefined as any);
+  const { user } = useSelector((state: any) => state.AuthReducer);
+  const { supportCollections } = useSelector(
     (state: any) => state.CollectionReducer
   );
-  const { user } = useSelector(
-    (state: any) => state.AuthReducer
+  const { createdNft, loading, error } = useSelector(
+    (state: any) => state.NftReducer
   );
-  const dispatch = useDispatch();
 
-  const chainId = 80001;
-  const addNftHandler = async () => {};
+  useMemo(() => {
+    const web3 = new Web3(
+      new Web3.providers.HttpProvider(getChainConfig(connector.chainId))
+    );
+    setContract(new web3.eth.Contract(
+      erc721ABI as any,
+      erc721ContractAddresses[connector.chainId]
+    ));
+  }, [connector]);
 
   useEffect(() => {
-    dispatch(getCollections({ chainId, userId: user.id }));
+    dispatch(
+      getSupportCollections({ chainId: connector.chainId, userId: user.id })
+    );
   }, [dispatch]);
+
+  const addNftHandler = async (enteredData: any) => {
+    dispatch(
+      createNft({
+        ...enteredData,
+        contract,
+        userId: user.id,
+        chainId: connector.chainId.toString(),
+      })
+    );
+  };
 
   return (
     <View style={[styles.container]}>
@@ -27,18 +62,39 @@ function MintNFT({ route }) {
           <ActivityIndicator />
         </View>
       ) : null}
-      {!loading && (
+      {!loading && !error.message.length && !createdNft && (
         <NewNftForm
           onAddNft={addNftHandler}
-          collections={collections}
-          chainId={chainId}
+          collections={supportCollections}
+          chainId={connector.chainId}
         />
       )}
       {!loading && error.message.length ? (
-        <View style={[styles.button]}>
+        <View style={[styles.error]}>
           <Text>Error message: {error.message}</Text>
         </View>
       ) : null}
+      {!loading && createdNft && (
+        <View style={[styles.button]}>
+          <Text>Added collection successfully</Text>
+          <View style={[styles.button]}>
+            <Button
+              title="Go to My NFTs"
+              onPress={() => {
+                navigate("My NFTs");
+              }}
+            />
+          </View>
+          <View style={[styles.button]}>
+            <Button
+              title="Insert New Nft"
+              onPress={() => {
+                dispatch(clearCreatedNft());
+              }}
+            />
+          </View>
+        </View>
+      )}
     </View>
   );
 }
@@ -49,6 +105,10 @@ const styles = StyleSheet.create({
     padding: 15,
   },
   button: {
+    marginVertical: 15,
+  },
+  error: {
+    color: "red",
     marginVertical: 15,
   },
 });

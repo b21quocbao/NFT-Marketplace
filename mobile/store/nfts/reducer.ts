@@ -8,12 +8,17 @@ import {
   GET_COLLECTION_NFTS,
   GET_COLLECTION_NFTS_SUCCESS,
   GET_COLLECTION_NFTS_FAIL,
+  CREATE_NFT,
+  CREATE_NFT_SUCCESS,
+  CREATE_NFT_FAIL,
+  CLEAR_CREATED_NFT,
 } from "./actionTypes";
 
 const initialState = {
   nfts: [],
   myNfts: [],
   nft: null,
+  createdNft: null,
   collectionNfts: [],
   loading: false,
   error: {
@@ -48,7 +53,7 @@ const NftReducer = (state = initialState, action: any) => {
       state = {
         ...state,
         error: {
-          message: "Get NFTs Failed",
+          message: "Get My NFTs Failed",
         },
         loading: false,
       };
@@ -63,10 +68,28 @@ const NftReducer = (state = initialState, action: any) => {
       state = {
         ...state,
         error: {
-          message: "Get NFTs Failed",
+          message: "Get Collection NFTs Failed",
         },
         loading: false,
       };
+      break;
+    case CREATE_NFT:
+      state = { ...state, loading: true };
+      break;
+    case CREATE_NFT_SUCCESS:
+      state = { ...state, createdNft: action.payload, loading: false };
+      break;
+    case CREATE_NFT_FAIL:
+      state = {
+        ...state,
+        error: {
+          message: "Create NFTs Failed",
+        },
+        loading: false,
+      };
+      break;
+    case CLEAR_CREATED_NFT:
+      state = { ...state, createdNft: null, loading: false };
       break;
     default:
       state = { ...state };
