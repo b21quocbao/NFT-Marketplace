@@ -13,16 +13,40 @@ import { getLoginStorage } from "./store/auth/actions";
 import ListNfts from "./pages/nfts/ListNFTs";
 import MyNfts from "./pages/nfts/MyNFTs";
 import MyActions from "./pages/actions/MyActions";
+import MyCollections from "./pages/collections/MyCollections";
+import ListCollections from "./pages/collections/ListCollections";
+import CreateCollection from "./pages/collections/CreateCollection";
+import CollectionNfts from "./pages/nfts/CollectionNFTs";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import NFTOffers from "./pages/offers/NFTOffers";
 
 const Drawer = createDrawerNavigator();
+const Stack = createNativeStackNavigator();
+
+function DrawerNavigator() {
+  const { user } = useSelector((state: any) => state.AuthReducer);
+
+  return (
+    <Drawer.Navigator>
+      <Drawer.Screen name="Homepage" component={Home} />
+      <Drawer.Screen name="Connect Wallet" component={ConnectWallet} />
+      {user && <Drawer.Screen name="My Nfts" component={MyNfts} />}
+      <Drawer.Screen name="All Nfts" component={ListNfts} />
+      {user && (
+        <Drawer.Screen name="My Collections" component={MyCollections} />
+      )}
+      <Drawer.Screen name="All Collections" component={ListCollections} />
+      {user && <Drawer.Screen name="My Actions" component={MyActions} />}
+      {user && (
+        <Drawer.Screen name="Create Collection" component={CreateCollection} />
+      )}
+    </Drawer.Navigator>
+  );
+}
 
 function Root() {
   const dispatch = useDispatch();
-  const { user, loading } = useSelector(
-    (state: any) => state.AuthReducer
-  );
-  console.log(user, 'user');
-  
+  const { loading } = useSelector((state: any) => state.AuthReducer);
 
   useEffect(() => {
     dispatch(getLoginStorage());
@@ -44,21 +68,21 @@ function Root() {
         asyncStorage: AsyncStorage,
       }}
     >
-      {!loading ? <NavigationContainer>
-        <Drawer.Navigator>
-          <Drawer.Screen name="Homepage" component={Home} />
-          <Drawer.Screen name="Connect Wallet" component={ConnectWallet} />
-          <Drawer.Screen name="All Nfts" component={ListNfts} />
-          {user && <Drawer.Screen
-            name="My Nfts"
-            component={MyNfts}
-          />}
-          {user && <Drawer.Screen
-            name="My Actions"
-            component={MyActions}
-          />}
-        </Drawer.Navigator>
-      </NavigationContainer>: null}
+      {!loading && (
+        <NavigationContainer>
+          <Stack.Navigator>
+            <Stack.Screen
+              name="Drawer"
+              component={DrawerNavigator}
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen name="Collection Nfts" component={CollectionNfts} />
+            <Stack.Screen name="NFT Offers" component={NFTOffers} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      )}
     </WalletConnectProvider>
   );
 }

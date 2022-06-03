@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 import NFTItemField from "./NftItemField";
 import NFTItemButton from "./NFTItemButton";
 import { Image } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 const { fromWei } = web3.utils;
 
@@ -14,6 +15,7 @@ function NftItem(props: any) {
   const { user } = useSelector((state: any) => state.AuthReducer);
   const [status, setStatus] = useState(props.status);
   const [endAuctionTime, setEndAuctionTime] = useState(undefined as any);
+  const navigation = useNavigation();
 
   useEffect(() => {
     let { status } = props;
@@ -92,7 +94,15 @@ function NftItem(props: any) {
               value={timeString(endAuctionTime)}
             />
             {user && user.id !== props.userId && <NFTItemButton title="Bid" />}
-            <NFTItemButton title="View Offers" />
+            <NFTItemButton
+              title="View Offers"
+              onPress={() => {
+                navigation.navigate(
+                  "NFT Offers" as never,
+                  { nftId: props.id } as never
+                );
+              }}
+            />
           </>
         )}
       </Card>

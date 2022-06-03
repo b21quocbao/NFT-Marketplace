@@ -5,6 +5,9 @@ import {
   GET_MY_NFTS,
   GET_MY_NFTS_SUCCESS,
   GET_MY_NFTS_FAIL,
+  GET_COLLECTION_NFTS,
+  GET_COLLECTION_NFTS_SUCCESS,
+  GET_COLLECTION_NFTS_FAIL,
 } from "./actionTypes";
 
 export const getNfts = (data: any) => {
@@ -45,6 +48,27 @@ export const getMyNftsSuccess = (data: any) => {
 export const getMyNftsFail = (error: any) => {
   return {
     type: GET_MY_NFTS_FAIL,
+    payload: error,
+  };
+};
+
+export const getCollectionNfts = (data: any) => {
+  return {
+    type: GET_COLLECTION_NFTS,
+    payload: data,
+  };
+};
+
+export const getCollectionNftsSuccess = (data: any) => {
+  return {
+    type: GET_COLLECTION_NFTS_SUCCESS,
+    payload: data,
+  };
+};
+
+export const getCollectionNftsFail = (error: any) => {
+  return {
+    type: GET_COLLECTION_NFTS_FAIL,
     payload: error,
   };
 };

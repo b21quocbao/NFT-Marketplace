@@ -60,7 +60,7 @@ function* onLogin({ payload }: ReturnType<typeof login>) {
 
 function* onLogout() {
   yield call(removeLoginDataFromStore);
-  yield logout()
+  yield logout();
 }
 
 function* AuthSaga() {

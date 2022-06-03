@@ -7,9 +7,21 @@ export default async function handler(req: NextApiRequest, res: any) {
   const db = client.db();
 
   const nftsCollection = db.collection("nfts");
+  const filter = {} as any;
+  if (req.query.userId) {
+    filter.userId = req.query.userId;
+  }
+  if (req.query.collectionId) {
+    filter.collectionId = req.query.collectionId;
+  }
+  if (req.query.nftId) {
+    filter.nftId = req.query.nftId;
+  }
+  console.log(filter, 'Line #17 nfts.ts');
+  
 
   const nfts = await nftsCollection
-    .find(req.query.userId ? { userId: req.query.userId } : {})
+    .find(filter)
     .toArray();
   
 
