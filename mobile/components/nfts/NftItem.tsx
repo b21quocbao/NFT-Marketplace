@@ -100,7 +100,7 @@ function NftItem(props: any) {
                 style={styles.singleButton}
                 onPress={() => {
                   navigation.navigate(
-                    "Bid Nft" as never,
+                    "Bid NFT" as never,
                     { nftId: props.id } as never
                   );
                 }}

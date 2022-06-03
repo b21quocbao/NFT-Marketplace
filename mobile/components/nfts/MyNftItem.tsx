@@ -66,7 +66,7 @@ function MyNftItem(props: any) {
                 title="Sale"
                 onPress={() => {
                   navigation.navigate(
-                    "Sale Nft" as never,
+                    "Sale NFT" as never,
                     { nftId: props.id } as never
                   );
                 }}
@@ -77,7 +77,7 @@ function MyNftItem(props: any) {
                 title="Auction"
                 onPress={() => {
                   navigation.navigate(
-                    "Auction Nft" as never,
+                    "Auction NFT" as never,
                     { nftId: props.id } as never
                   );
                 }}

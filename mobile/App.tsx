@@ -34,9 +34,9 @@ function DrawerNavigator() {
     <Drawer.Navigator>
       <Drawer.Screen name="Homepage" component={Home} />
       <Drawer.Screen name="Connect Wallet" component={ConnectWallet} />
-      {user && <Drawer.Screen name="Mint Nft" component={MintNFT} />}
-      {user && <Drawer.Screen name="My Nfts" component={MyNfts} />}
-      <Drawer.Screen name="All Nfts" component={ListNfts} />
+      {user && <Drawer.Screen name="Mint NFT" component={MintNFT} />}
+      {user && <Drawer.Screen name="My NFTs" component={MyNfts} />}
+      <Drawer.Screen name="All NFTs" component={ListNfts} />
       {user && (
         <Drawer.Screen name="My Collections" component={MyCollections} />
       )}
@@ -83,11 +83,11 @@ function Root() {
                 headerShown: false,
               }}
             />
-            <Stack.Screen name="Collection Nfts" component={CollectionNfts} />
+            <Stack.Screen name="Collection NFTs" component={CollectionNfts} />
             <Stack.Screen name="NFT Offers" component={NFTOffers} />
-            <Stack.Screen name="Auction Nft" component={AuctionNft} />
-            <Stack.Screen name="Sale Nft" component={SaleNft} />
-            <Stack.Screen name="Bid Nft" component={BidNft} />
+            <Stack.Screen name="Auction NFT" component={AuctionNft} />
+            <Stack.Screen name="Sale NFT" component={SaleNft} />
+            <Stack.Screen name="Bid NFT" component={BidNft} />
           </Stack.Navigator>
         </NavigationContainer>
       )}

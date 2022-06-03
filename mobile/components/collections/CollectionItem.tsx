@@ -9,7 +9,7 @@ function CollectionItem(props: any) {
   return (
     <>
       <Pressable onPress={() => {
-        navigation.navigate('Collection Nfts' as never, { collectionId: props.id } as never)
+        navigation.navigate('Collection NFTs' as never, { collectionId: props.id } as never)
       }}>
         <Card>
           <Card.Image
