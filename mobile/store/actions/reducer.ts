@@ -2,6 +2,7 @@ import {
   GET_MY_ACTIONS,
   GET_MY_ACTIONS_SUCCESS,
   GET_MY_ACTIONS_FAIL,
+  CLEAR_ERROR
 } from "./actionTypes";
 
 const initialState = {
@@ -29,6 +30,9 @@ const ActionReducer = (state = initialState, action: any) => {
         },
         loading: false,
       };
+      break;
+    case CLEAR_ERROR:
+      state = { ...state, error: { message: '' }, loading: false };
       break;
     default:
       state = { ...state };

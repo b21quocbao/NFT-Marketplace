@@ -12,6 +12,7 @@ import {
   CREATE_NFT_SUCCESS,
   CREATE_NFT_FAIL,
   CLEAR_CREATED_NFT,
+  CLEAR_ERROR
 } from "./actionTypes";
 
 const initialState = {
@@ -90,6 +91,9 @@ const NftReducer = (state = initialState, action: any) => {
       break;
     case CLEAR_CREATED_NFT:
       state = { ...state, createdNft: null, loading: false };
+      break;
+    case CLEAR_ERROR:
+      state = { ...state, error: { message: '' }, loading: false };
       break;
     default:
       state = { ...state };

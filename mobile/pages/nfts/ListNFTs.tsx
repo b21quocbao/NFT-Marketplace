@@ -1,8 +1,8 @@
 import { useEffect } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Button, StyleSheet, Text, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import NftList from "../../components/nfts/NftList";
-import { getNfts } from "../../store/nfts/actions";
+import { clearErrors, getNfts } from "../../store/nfts/actions";
 
 const ListNfts = ({}) => {
   const dispatch = useDispatch();
@@ -21,12 +21,18 @@ const ListNfts = ({}) => {
           <ActivityIndicator />
         </View>
       ) : null}
-      {!loading && (
+      {!loading && !error.message.length && (
         <NftList nfts={nfts} />
       )}
       {!loading && error.message.length ? (
         <View style={[styles.button]}>
           <Text>Error message: {error.message}</Text>
+          <Button
+            title="Retry"
+            onPress={() => {
+              dispatch(clearErrors());
+            }}
+          />
         </View>
       ) : null}
     </View>

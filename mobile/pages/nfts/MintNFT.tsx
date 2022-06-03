@@ -14,7 +14,7 @@ import Web3 from "web3";
 import { getChainConfig } from "../../helpers/ipfs";
 import { erc721ContractAddresses } from "../../contracts/erc721Contracts";
 import erc721ABI from "../../contracts/abi/erc721ABI.json";
-import { clearCreatedNft, createNft } from "../../store/nfts/actions";
+import { clearCreatedNft, clearErrors, createNft } from "../../store/nfts/actions";
 
 function MintNFT({ navigation: { navigate } }) {
   const connector = useWalletConnect();
@@ -32,11 +32,13 @@ function MintNFT({ navigation: { navigate } }) {
     const web3 = new Web3(
       new Web3.providers.HttpProvider(getChainConfig(connector.chainId))
     );
-    setContract(new web3.eth.Contract(
-      erc721ABI as any,
-      erc721ContractAddresses[connector.chainId]
-    ));
-  }, [connector]);
+    setContract(
+      new web3.eth.Contract(
+        erc721ABI as any,
+        erc721ContractAddresses[connector.chainId]
+      )
+    );
+  }, [connector.chainId]);
 
   useEffect(() => {
     dispatch(
@@ -48,8 +50,10 @@ function MintNFT({ navigation: { navigate } }) {
     dispatch(
       createNft({
         ...enteredData,
+        connector,
         contract,
         userId: user.id,
+        userAddress: user.address,
         chainId: connector.chainId.toString(),
       })
     );
@@ -62,7 +66,7 @@ function MintNFT({ navigation: { navigate } }) {
           <ActivityIndicator />
         </View>
       ) : null}
-      {!loading && !error.message.length && !createdNft && (
+      {!loading && !createdNft && !error.message.length && (
         <NewNftForm
           onAddNft={addNftHandler}
           collections={supportCollections}
@@ -72,6 +76,12 @@ function MintNFT({ navigation: { navigate } }) {
       {!loading && error.message.length ? (
         <View style={[styles.error]}>
           <Text>Error message: {error.message}</Text>
+          <Button
+            title="Retry"
+            onPress={() => {
+              dispatch(clearErrors());
+            }}
+          />
         </View>
       ) : null}
       {!loading && createdNft && (

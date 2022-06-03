@@ -1,10 +1,17 @@
 import {
+  CLEAR_ERROR,
   LOGIN,
   LOGIN_SUCCESS,
   LOGIN_FAIL,
   GET_LOGIN_STORAGE,
   LOGOUT,
 } from "./actionTypes";
+
+export const clearErrors = () => {
+  return {
+    type: CLEAR_ERROR,
+  };
+};
 
 export const getLoginStorage = () => {
   return {

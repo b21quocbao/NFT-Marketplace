@@ -1,8 +1,8 @@
 import { useEffect } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Button, StyleSheet, Text, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import MyActionList from "../../components/actions/MyActionList";
-import { getMyActions } from "../../store/actions/actions";
+import { clearErrors, getMyActions } from "../../store/actions/actions";
 
 const MyActions = () => {
   const dispatch = useDispatch();
@@ -24,12 +24,18 @@ const MyActions = () => {
           <ActivityIndicator />
         </View>
       ) : null}
-      {!loading && (
+      {!loading && !error.message.length && (
         <MyActionList actions={myActions} />
       )}
       {!loading && error.message.length ? (
         <View style={[styles.button]}>
           <Text>Error message: {error.message}</Text>
+          <Button
+            title="Retry"
+            onPress={() => {
+              dispatch(clearErrors());
+            }}
+          />
         </View>
       ) : null}
     </View>

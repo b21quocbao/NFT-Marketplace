@@ -12,6 +12,7 @@ import {
   GET_SUPPORT_COLLECTIONS,
   GET_SUPPORT_COLLECTIONS_SUCCESS,
   GET_SUPPORT_COLLECTIONS_FAIL,
+  CLEAR_ERROR
 } from "./actionTypes";
 
 const initialState = {
@@ -96,6 +97,9 @@ const CollectionReducer = (state = initialState, action: any) => {
         ...state,
         addedCollection: null,
       };
+      break;
+    case CLEAR_ERROR:
+      state = { ...state, error: { message: '' }, loading: false };
       break;
     default:
       state = { ...state };

@@ -1,4 +1,5 @@
 import {
+  CLEAR_ERROR,
   GET_COLLECTIONS,
   GET_COLLECTIONS_SUCCESS,
   GET_COLLECTIONS_FAIL,
@@ -13,6 +14,12 @@ import {
   GET_SUPPORT_COLLECTIONS_SUCCESS,
   GET_SUPPORT_COLLECTIONS_FAIL,
 } from "./actionTypes";
+
+export const clearErrors = () => {
+  return {
+    type: CLEAR_ERROR,
+  };
+};
 
 export const getCollections = (data: any) => {
   return {

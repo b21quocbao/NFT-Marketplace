@@ -1,8 +1,8 @@
 import { useEffect } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Button, StyleSheet, Text, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import CollectionList from "../../components/collections/CollectionList";
-import { getMyCollections } from "../../store/collections/actions";
+import { clearErrors, getMyCollections } from "../../store/collections/actions";
 
 const MyCollections = () => {
   const dispatch = useDispatch();
@@ -24,12 +24,18 @@ const MyCollections = () => {
           <ActivityIndicator />
         </View>
       ) : null}
-      {!loading && (
+      {!loading && !error.message.length && (
         <CollectionList collections={myCollections} />
       )}
       {!loading && error.message.length ? (
         <View style={[styles.button]}>
           <Text>Error message: {error.message}</Text>
+          <Button
+            title="Retry"
+            onPress={() => {
+              dispatch(clearErrors());
+            }}
+          />
         </View>
       ) : null}
     </View>

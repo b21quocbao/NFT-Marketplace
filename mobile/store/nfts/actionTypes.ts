@@ -11,3 +11,4 @@ export const CREATE_NFT = "CREATE_NFT";
 export const CREATE_NFT_SUCCESS = "CREATE_NFT_SUCCESS";
 export const CREATE_NFT_FAIL = "CREATE_NFT_FAIL";
 export const CLEAR_CREATED_NFT = "CLEAR_CREATED_NFT";
+export const CLEAR_ERROR = "CLEAR_ERROR";

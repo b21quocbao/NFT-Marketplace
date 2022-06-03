@@ -11,6 +11,7 @@ import NewCollectionForm from "../../components/collections/NewCollectionForm";
 import {
   addCollection,
   clearAddedCollection,
+  clearErrors,
 } from "../../store/collections/actions";
 
 function CreateCollection({ navigation: { navigate } }) {
@@ -33,7 +34,7 @@ function CreateCollection({ navigation: { navigate } }) {
           <ActivityIndicator />
         </View>
       ) : null}
-      {user && !loading && !addedCollection && (
+      {user && !loading && !addedCollection && !error.message.length && (
         <NewCollectionForm
           onAddCollection={addCollectionHandler}
           loading={loadingForm}
@@ -42,6 +43,12 @@ function CreateCollection({ navigation: { navigate } }) {
       {!loading && error.message.length ? (
         <View style={[styles.button]}>
           <Text>Error message: {error.message}</Text>
+          <Button
+            title="Retry"
+            onPress={() => {
+              dispatch(clearErrors());
+            }}
+          />
         </View>
       ) : null}
       {user && !loading && addedCollection && (

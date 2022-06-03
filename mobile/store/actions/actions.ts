@@ -1,8 +1,15 @@
 import {
+  CLEAR_ERROR,
   GET_MY_ACTIONS,
   GET_MY_ACTIONS_SUCCESS,
   GET_MY_ACTIONS_FAIL,
 } from "./actionTypes";
+
+export const clearErrors = () => {
+  return {
+    type: CLEAR_ERROR,
+  };
+};
 
 export const getMyActions = (data: any) => {
   return {

@@ -20,7 +20,7 @@ import {
 } from "./actions";
 import { axiosInstance } from "../../helpers/axios";
 import { addNft } from "./helper/ipfs";
-import { getTotalSupply } from "./helper/smartcontract";
+import { getTotalSupply, mint } from "./helper/smartcontract/erc721";
 
 function* onGetNfts() {
   try {
@@ -70,6 +70,12 @@ function* onCreateNft({ payload }: ReturnType<typeof createNft>) {
       addNft(payload.image.value, payload.name.value, payload.description.value)
     );
     const totalSupply = yield call(() => getTotalSupply(payload.contract));
+
+    console.log(yield call(() =>
+      mint(payload.connector, payload.contract, payload.userAddress, 1, [
+        metadataUrl,
+      ])
+    ), 'mint yield');
 
     const response = yield call(() =>
       axiosInstance.post("new-nft", {

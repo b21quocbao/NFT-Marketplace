@@ -2,7 +2,7 @@ import { useWalletConnect } from "@walletconnect/react-native-dapp";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { Button } from "@rneui/base";
 import { useDispatch, useSelector } from "react-redux";
-import { login, logout } from "../../store/auth/actions";
+import { clearErrors, login, logout } from "../../store/auth/actions";
 
 function ConnectWallet() {
   const connector = useWalletConnect();
@@ -19,17 +19,17 @@ function ConnectWallet() {
           <ActivityIndicator />
         </View>
       ) : null}
-      {!loading && !connector.connected ? (
+      {!loading && !error.message.length && !connector.connected ? (
         <View style={[styles.button]}>
           <Button title="Connect" onPress={() => connector.connect()} />
         </View>
       ) : null}
-      {!loading && connector.connected ? (
+      {!loading && !error.message.length && connector.connected ? (
         <View style={[styles.button]}>
           <Button title="Disconnect" onPress={() => connector.killSession()} />
         </View>
       ) : null}
-      {!loading && connector.connected && !user ? (
+      {!loading && connector.connected && !error.message.length && !user ? (
         <View style={[styles.button]}>
           <Button
             title="Login"
@@ -51,7 +51,7 @@ function ConnectWallet() {
           />
         </View>
       ) : null}
-      {!loading && connector.connected && user ? (
+      {!loading && connector.connected && !error.message.length && user ? (
         <View style={[styles.button]}>
           <Button
             title="Logout"
@@ -64,6 +64,12 @@ function ConnectWallet() {
       {loading && error.message.length ? (
         <View style={[styles.button]}>
           <Text>Error message: {error.message}</Text>
+          <Button
+            title="Retry"
+            onPress={() => {
+              dispatch(clearErrors());
+            }}
+          />
         </View>
       ) : null}
     </View>

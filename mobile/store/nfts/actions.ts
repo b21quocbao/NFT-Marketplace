@@ -1,4 +1,5 @@
 import {
+  CLEAR_ERROR,
   GET_NFTS,
   GET_NFTS_SUCCESS,
   GET_NFTS_FAIL,
@@ -13,6 +14,12 @@ import {
   CREATE_NFT_FAIL,
   CLEAR_CREATED_NFT,
 } from "./actionTypes";
+
+export const clearErrors = () => {
+  return {
+    type: CLEAR_ERROR,
+  };
+};
 
 export const getNfts = (data: any) => {
   return {

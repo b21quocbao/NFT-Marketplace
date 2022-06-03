@@ -4,6 +4,7 @@ import {
   LOGIN_FAIL,
   LOGOUT,
   GET_LOGIN_STORAGE,
+  CLEAR_ERROR
 } from "./actionTypes";
 
 const initialState = {
@@ -38,6 +39,9 @@ const AuthReducer = (state = initialState, action: any) => {
       break;
     case LOGOUT:
       state = initialState;
+      break;
+    case CLEAR_ERROR:
+      state = { ...state, error: { message: '' }, loading: false };
       break;
     default:
       state = { ...state };
