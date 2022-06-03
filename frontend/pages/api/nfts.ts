@@ -17,14 +17,11 @@ export default async function handler(req: NextApiRequest, res: any) {
   if (req.query.nftId) {
     filter.nftId = req.query.nftId;
   }
-  console.log(filter, 'Line #17 nfts.ts');
-  
 
   const nfts = await nftsCollection
     .find(filter)
     .toArray();
   
-
   res.status(200).json(
     nfts.map((nft) => ({
       ...nft,

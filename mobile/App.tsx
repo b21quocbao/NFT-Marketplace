@@ -1,7 +1,7 @@
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { NavigationContainer } from "@react-navigation/native";
 import WalletConnectProvider from "@walletconnect/react-native-dapp";
-import { Platform } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 import rootSaga from "./store/sagas";
 import { Provider, useDispatch, useSelector } from "react-redux";
 import Home from "./pages/Home";
@@ -19,6 +19,10 @@ import CreateCollection from "./pages/collections/CreateCollection";
 import CollectionNfts from "./pages/nfts/CollectionNFTs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import NFTOffers from "./pages/offers/NFTOffers";
+import AuctionNft from "./pages/nfts/AuctionNFT";
+import SaleNft from "./pages/nfts/SaleNFT";
+import BidNft from "./pages/nfts/BidNFT";
+import MintNFT from "./pages/nfts/MintNFT";
 
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
@@ -30,6 +34,7 @@ function DrawerNavigator() {
     <Drawer.Navigator>
       <Drawer.Screen name="Homepage" component={Home} />
       <Drawer.Screen name="Connect Wallet" component={ConnectWallet} />
+      {user && <Drawer.Screen name="Mint Nft" component={MintNFT} />}
       {user && <Drawer.Screen name="My Nfts" component={MyNfts} />}
       <Drawer.Screen name="All Nfts" component={ListNfts} />
       {user && (
@@ -80,6 +85,9 @@ function Root() {
             />
             <Stack.Screen name="Collection Nfts" component={CollectionNfts} />
             <Stack.Screen name="NFT Offers" component={NFTOffers} />
+            <Stack.Screen name="Auction Nft" component={AuctionNft} />
+            <Stack.Screen name="Sale Nft" component={SaleNft} />
+            <Stack.Screen name="Bid Nft" component={BidNft} />
           </Stack.Navigator>
         </NavigationContainer>
       )}

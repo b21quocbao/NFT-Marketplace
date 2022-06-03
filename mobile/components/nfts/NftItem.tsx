@@ -6,7 +6,7 @@ import { Card } from "@rneui/themed";
 import { useSelector } from "react-redux";
 import NFTItemField from "./NftItemField";
 import NFTItemButton from "./NFTItemButton";
-import { Image } from "react-native";
+import { StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
 const { fromWei } = web3.utils;
@@ -69,7 +69,9 @@ function NftItem(props: any) {
                 }
               />
             )}
-            {user && user.id !== props?.userId && <NFTItemButton title="Buy" />}
+            {user && user.id !== props?.userId && (
+              <NFTItemButton style={styles.singleButton} title="Buy" />
+            )}
           </>
         )}
         {status === "AUCTION" && (
@@ -93,8 +95,20 @@ function NftItem(props: any) {
               title="Expiry Time"
               value={timeString(endAuctionTime)}
             />
-            {user && user.id !== props.userId && <NFTItemButton title="Bid" />}
+            {user && user.id !== props.userId && (
+              <NFTItemButton
+                style={styles.singleButton}
+                onPress={() => {
+                  navigation.navigate(
+                    "Bid Nft" as never,
+                    { nftId: props.id } as never
+                  );
+                }}
+                title="Bid"
+              />
+            )}
             <NFTItemButton
+              style={styles.singleButton}
               title="View Offers"
               onPress={() => {
                 navigation.navigate(
@@ -109,5 +123,11 @@ function NftItem(props: any) {
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  singleButton: {
+    marginTop: 15,
+  },
+});
 
 export default NftItem;

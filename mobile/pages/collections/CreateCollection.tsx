@@ -72,7 +72,7 @@ function CreateCollection({ navigation: { navigate } }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 24,
+    padding: 15,
   },
   button: {
     marginVertical: 15,

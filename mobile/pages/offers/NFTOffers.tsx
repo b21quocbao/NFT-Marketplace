@@ -6,6 +6,7 @@ const NFTOffers = ({ route }) => {
   const { nfts, loading, error } = useSelector(
     (state: any) => state.NftReducer
   );
+  const nft = nfts.filter((nft: any) => nft.id == route.params.nftId)[0];
 
   return (
     <View style={[styles.container]}>
@@ -14,11 +15,7 @@ const NFTOffers = ({ route }) => {
           <ActivityIndicator />
         </View>
       ) : null}
-      {!loading && (
-        <OfferList
-          nft={nfts.filter((nft: any) => nft.id == route.params.nftId)[0]}
-        />
-      )}
+      {!loading && <OfferList nft={nft} />}
       {!loading && error.message.length ? (
         <View style={[styles.button]}>
           <Text>Error message: {error.message}</Text>

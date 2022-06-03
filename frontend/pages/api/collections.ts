@@ -8,10 +8,15 @@ export default async function handler(req: NextApiRequest, res: any) {
 
   const collectionsCollection = db.collection("collections");
 
-  const collections = await collectionsCollection
-    .find(req.query.userId ? { userId: req.query.userId } : {})
-    .toArray();
-  
+  const filter = {} as any;
+  if (req.query.userId) {
+    filter.userId = req.query.userId;
+  }
+  if (req.query.chainId) {
+    filter.chainId = req.query.chainId;
+  }
+
+  const collections = await collectionsCollection.find(filter).toArray();
 
   res.status(200).json(
     collections.map((collection) => ({

@@ -62,10 +62,26 @@ function MyNftItem(props: any) {
         {status === "AVAILABLE" && (
           <View style={styles.container}>
             <View style={styles.button}>
-              <NFTItemButton title="Sale" />
+              <NFTItemButton
+                title="Sale"
+                onPress={() => {
+                  navigation.navigate(
+                    "Sale Nft" as never,
+                    { nftId: props.id } as never
+                  );
+                }}
+              />
             </View>
             <View style={styles.button}>
-              <NFTItemButton title="Auction" />
+              <NFTItemButton
+                title="Auction"
+                onPress={() => {
+                  navigation.navigate(
+                    "Auction Nft" as never,
+                    { nftId: props.id } as never
+                  );
+                }}
+              />
             </View>
           </View>
         )}
@@ -73,6 +89,7 @@ function MyNftItem(props: any) {
         {status === "AUCTION" && (
           <NFTItemButton
             title="View Offers"
+            style={styles.singleButton}
             onPress={() => {
               navigation.navigate(
                 "NFT Offers" as never,
@@ -94,6 +111,9 @@ const styles = StyleSheet.create({
   button: {
     flex: 1,
     marginHorizontal: 10,
+  },
+  singleButton: {
+    marginVertical: 15,
   },
 });
 
