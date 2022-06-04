@@ -1,5 +1,11 @@
 import { useEffect } from "react";
-import { ActivityIndicator, Button, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Button,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import CollectionList from "../../components/collections/CollectionList";
 import { clearErrors, getMyCollections } from "../../store/collections/actions";
@@ -9,12 +15,12 @@ const MyCollections = () => {
   const { myCollections, loading, error } = useSelector(
     (state: any) => state.CollectionReducer
   );
-  const { user } = useSelector(
-    (state: any) => state.AuthReducer
-  );
+  const { user } = useSelector((state: any) => state.AuthReducer);
 
   useEffect(() => {
-    dispatch(getMyCollections({ userId: user.id }));
+    if (!error.message.length) {
+      dispatch(getMyCollections({ userId: user.id }));
+    }
   }, [user.id, error]);
 
   return (

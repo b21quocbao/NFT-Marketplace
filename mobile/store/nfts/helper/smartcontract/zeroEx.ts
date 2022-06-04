@@ -259,7 +259,7 @@ export async function fillSignedOrder(
       from: user.address,
       to: contract.options.address,
       data: encodeAbi,
-      value: needsEthAttached ? erc20TotalAmount : undefined,
+      value: needsEthAttached ? erc20TotalAmount.toString() : undefined,
     });
   } else {
     const encodeAbi = await contract.methods

@@ -1,5 +1,11 @@
 import { useEffect } from "react";
-import { ActivityIndicator, Button, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Button,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import CollectionList from "../../components/collections/CollectionList";
 import { clearErrors, getCollections } from "../../store/collections/actions";
@@ -11,7 +17,9 @@ const ListCollections = ({}) => {
   );
 
   useEffect(() => {
-    dispatch(getCollections({}));
+    if (!error.message.length) {
+      dispatch(getCollections({}));
+    }
   }, [error]);
 
   return (
@@ -21,7 +29,7 @@ const ListCollections = ({}) => {
           <ActivityIndicator />
         </View>
       ) : null}
-      {!loading && !error.message.length &&  (
+      {!loading && !error.message.length && (
         <CollectionList collections={collections} />
       )}
       {!loading && error.message.length ? (

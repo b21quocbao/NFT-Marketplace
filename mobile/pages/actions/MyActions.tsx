@@ -14,7 +14,9 @@ const MyActions = () => {
   );
 
   useEffect(() => {
-    dispatch(getMyActions({ userId: user.id }));
+    if (!error.message.length) {
+      dispatch(getMyActions({ userId: user.id }));
+    }
   }, [error]);
 
   return (
