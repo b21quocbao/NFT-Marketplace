@@ -14,7 +14,7 @@ async function handler(req: any, res: any) {
       await actionsCollection.insertOne({
         name: data.actionName,
         userId: data.actionUserId,
-        nft: data.id,
+        nftId: data.id,
       });
       delete data.actionName;
       delete data.actionUserId;
