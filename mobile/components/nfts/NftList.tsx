@@ -53,8 +53,8 @@ function NftList(props: any) {
   }, [connector.chainId]);
 
   const renderItem = ({ item: nft }) => {
-    const { signedOrder } = nft;
     const buyNftHandler = async () => {
+      const { signedOrder } = nft;
       const erc20Contract = new web3.eth.Contract(
         erc20ABI as any,
         signedOrder.erc20Token
@@ -84,15 +84,15 @@ function NftList(props: any) {
         connector,
         zeroExContract,
         user,
-        props.signedOrder
+        signedOrder
       );
-      const fillTxReceipt = await etherProvider.waitForTransaction(fillTx.hash);
 
       dispatch(
         buyNft({
+          etherProvider,
           nft,
           user,
-          fillTxReceipt,
+          fillTx,
         })
       );
     };

@@ -36,16 +36,7 @@ import {
 } from "./actions";
 import { axiosInstance } from "../../helpers/axios";
 import { addNft } from "./helper/ipfs";
-import {
-  approveTokenOrNftByAsset,
-  getTotalSupply,
-  loadApprovalStatus,
-  mint,
-} from "./helper/smartcontract/erc721";
-import { buildOrder, signOrder } from "./helper/smartcontract/zeroEx";
-import Web3 from "web3";
-
-const { toWei } = Web3.utils;
+import { getTotalSupply, mint } from "./helper/smartcontract/erc721";
 
 function* onGetNfts() {
   try {
@@ -157,7 +148,10 @@ function* onSaleNft({ payload }: ReturnType<typeof saleNft>) {
 
 function* onBuyNft({ payload }: ReturnType<typeof buyNft>) {
   try {
-    const { nft, user, fillTxReceipt } = payload;
+    const { nft, user, fillTx, etherProvider } = payload;
+    const fillTxReceipt = yield call(() =>
+      etherProvider.waitForTransaction(fillTx.hash)
+    );
 
     yield call(() =>
       axiosInstance.post("/api/update-nft", {
