@@ -121,8 +121,8 @@ function* onSaleNft({ payload }: ReturnType<typeof saleNft>) {
   try {
     const { nft, user, saleRoyaltyFee, signedOrder, symbol } = payload;
 
-    yield call(() =>
-      axiosInstance.post("/api/update-nft", {
+    const response = yield call(() =>
+      axiosInstance.post("update-nft", {
         id: nft.id,
         status: "LIST",
         symbol: symbol,
@@ -130,8 +130,8 @@ function* onSaleNft({ payload }: ReturnType<typeof saleNft>) {
         signedOrder,
       })
     );
-    const response = yield call(() =>
-      axiosInstance.post("/api/new-action", {
+    yield call(() =>
+      axiosInstance.post("new-action", {
         userId: user.id,
         nftId: nft.id,
         name: "List for sale",
@@ -153,8 +153,8 @@ function* onBuyNft({ payload }: ReturnType<typeof buyNft>) {
       etherProvider.waitForTransaction(fillTx.hash)
     );
 
-    yield call(() =>
-      axiosInstance.post("/api/update-nft", {
+    const response = yield call(() =>
+      axiosInstance.post("update-nft", {
         id: nft.id,
         status: "AVAILABLE",
         fillTxReceipt,
@@ -162,14 +162,14 @@ function* onBuyNft({ payload }: ReturnType<typeof buyNft>) {
       })
     );
     yield call(() =>
-      axiosInstance.post("/api/new-action", {
+      axiosInstance.post("new-action", {
         userId: user.id,
         nftId: nft.id,
         name: "Buy",
       })
     );
 
-    yield put(buyNftSuccess({}));
+    yield put(buyNftSuccess(response.data));
   } catch (error) {
     console.log(JSON.stringify(error), "Line #55 saga.ts");
 
@@ -179,7 +179,24 @@ function* onBuyNft({ payload }: ReturnType<typeof buyNft>) {
 
 function* onBidNft({ payload }: ReturnType<typeof bidNft>) {
   try {
-    yield put(bidNftSuccess({}));
+    const { nft, bidOrders, user } = payload;
+
+    const response = yield call(() =>
+      axiosInstance.post("update-nft", {
+        id: nft.id,
+        bidOrders: bidOrders,
+      })
+    );
+
+    yield call(() =>
+      axiosInstance.post("new-action", {
+        userId: user.id,
+        nftId: nft.id,
+        name: "Bid",
+      })
+    );
+
+    yield put(bidNftSuccess(response.data));
   } catch (error) {
     console.log(JSON.stringify(error), "Line #55 saga.ts");
 
@@ -189,7 +206,29 @@ function* onBidNft({ payload }: ReturnType<typeof bidNft>) {
 
 function* onConfirmNft({ payload }: ReturnType<typeof confirmNft>) {
   try {
-    yield put(confirmNftSuccess({}));
+    const { userId, nft, user, fillTx, etherProvider } = payload;
+    const fillTxReceipt = yield call(() =>
+      etherProvider.waitForTransaction(fillTx.hash)
+    );
+
+    const response = yield call(() =>
+      axiosInstance.post("update-nft", {
+        id: nft.id,
+        status: "AVAILABLE",
+        fillTxReceipt,
+        userId: userId,
+      })
+    );
+
+    yield call(() =>
+      axiosInstance.post("new-action", {
+        userId: user.id,
+        nftId: nft.id,
+        name: "Confirm offer",
+      })
+    );
+
+    yield put(confirmNftSuccess(response.data));
   } catch (error) {
     console.log(JSON.stringify(error), "Line #55 saga.ts");
 

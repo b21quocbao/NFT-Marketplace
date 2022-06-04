@@ -24,6 +24,7 @@ function NftList(props: any) {
   const dispatch = useDispatch();
   const [web3, setWeb3] = useState(undefined as any);
   const [signer, setSigner] = useState(undefined as any);
+  const [zeroExContract, setZeroExContract] = useState(undefined as any);
   const [etherProvider, setEtherProvider] = useState(undefined as any);
   const { user } = useSelector((state: any) => state.AuthReducer);
 
@@ -33,6 +34,10 @@ function NftList(props: any) {
     );
 
     setWeb3(web3);
+    setZeroExContract(new web3.eth.Contract(
+      zeroExABI as any,
+      zeroContractAddresses[connector.chainId]
+    ));
 
     const retreiveSigner = async () => {
       const provider = new WalletConnectProvider({
@@ -58,10 +63,6 @@ function NftList(props: any) {
       const erc20Contract = new web3.eth.Contract(
         erc20ABI as any,
         signedOrder.erc20Token
-      );
-      const zeroExContract = new web3.eth.Contract(
-        zeroExABI as any,
-        zeroContractAddresses[connector.chainId]
       );
 
       const takerAsset: any = {
