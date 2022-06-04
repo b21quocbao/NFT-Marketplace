@@ -86,7 +86,7 @@ function MintNFT({ navigation: { navigate } }) {
       ) : null}
       {!loading && createdNft && (
         <View style={[styles.button]}>
-          <Text>Added collection successfully</Text>
+          <Text>Mint NFT successfully</Text>
           <View style={[styles.button]}>
             <Button
               title="Go to My NFTs"

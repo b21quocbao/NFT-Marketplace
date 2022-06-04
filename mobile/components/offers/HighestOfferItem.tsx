@@ -18,13 +18,15 @@ import { erc721ContractAddresses } from "../../contracts/erc721Contracts";
 import { fillSignedOrder } from "../../store/nfts/helper/smartcontract/zeroEx";
 import { zeroContractAddresses } from "../../contracts/zeroExContracts";
 import { confirmNft } from "../../store/nfts/actions";
+import { Text, View } from "react-native";
+import ItemField from "./ItemField";
+import { useNavigation } from "@react-navigation/native";
 
 const { fromWei } = Web3.utils;
 
 function HighestOfferItem(props: any) {
   const { nft, offer } = props;
   const { signedOrder, userId, highestBid } = offer;
-  const [loading, setLoading] = useState(false);
   const connector = useWalletConnect();
   const dispatch = useDispatch();
   const [web3, setWeb3] = useState(undefined as any);
@@ -33,6 +35,7 @@ function HighestOfferItem(props: any) {
   const [zeroExContract, setZeroExContract] = useState(undefined as any);
   const [etherProvider, setEtherProvider] = useState(undefined as any);
   const { user } = useSelector((state: any) => state.AuthReducer);
+  const navigation = useNavigation();
 
   useMemo(() => {
     const web3 = new Web3(
@@ -72,12 +75,6 @@ function HighestOfferItem(props: any) {
   }, [connector.chainId]);
 
   const confirmNftHandler = async (enteredNftData: any) => {
-    const takerAsset: any = {
-      tokenAddress: signedOrder.erc721Token,
-      tokenId: signedOrder.erc721TokenId,
-      type: "ERC721",
-    };
-
     // Check if we need to approve the NFT for swapping
     const { contractApproved } = await loadApprovalStatus(
       connector,
@@ -94,8 +91,9 @@ function HighestOfferItem(props: any) {
       connector,
       zeroExContract,
       user,
-      signedOrder,
+      signedOrder
     );
+    navigation.navigate("My NFTs" as never);
 
     dispatch(
       confirmNft({
@@ -109,21 +107,11 @@ function HighestOfferItem(props: any) {
   };
 
   return (
-    <>
-      <p>{`Bidder: ${signedOrder.maker}`}</p>
-      <p>{`Amount: ${fromWei(signedOrder.erc20TokenAmount)}`}</p>
-      {user &&
-        nft.userId == user.id &&
-        highestBid &&
-        new Date(nft.endAuctionTime).getTime() < Date.now() && (
-          <Button
-            title="Confirm this offer"
-            loading={loading}
-            onPress={confirmNftHandler}
-          />
-        )}
-      <hr />
-    </>
+    <View>
+      <ItemField title="Bidder" value={signedOrder.maker} />
+      <ItemField title="Amount" value={fromWei(signedOrder.erc20TokenAmount)} />
+      <Button title="Confirm this offer" onPress={confirmNftHandler} />
+    </View>
   );
 }
 

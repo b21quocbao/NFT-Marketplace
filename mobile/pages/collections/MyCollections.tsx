@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import {
   ActivityIndicator,
   Button,
@@ -12,26 +12,29 @@ import { clearErrors, getMyCollections } from "../../store/collections/actions";
 
 const MyCollections = () => {
   const dispatch = useDispatch();
-  const { myCollections, loading, error } = useSelector(
+  const { myCollections, loading, error, addedCollection } = useSelector(
     (state: any) => state.CollectionReducer
   );
   const { user } = useSelector((state: any) => state.AuthReducer);
+
+  const onRefresh = useCallback(() => {
+    dispatch(getMyCollections({ userId: user.id }));
+  }, []);
 
   useEffect(() => {
     if (!error.message.length) {
       dispatch(getMyCollections({ userId: user.id }));
     }
-  }, [user.id, error]);
+  }, [user.id, error, addedCollection]);
 
   return (
     <View style={[styles.container]}>
-      {loading ? (
-        <View style={[styles.container]}>
-          <ActivityIndicator />
-        </View>
-      ) : null}
-      {!loading && !error.message.length && (
-        <CollectionList collections={myCollections} />
+      {!error.message.length && (
+        <CollectionList
+          loading={loading}
+          onRefresh={onRefresh}
+          collections={myCollections}
+        />
       )}
       {!loading && error.message.length ? (
         <View style={[styles.button]}>

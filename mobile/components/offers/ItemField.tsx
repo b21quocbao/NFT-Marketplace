@@ -1,6 +1,6 @@
 import { View, StyleSheet, Text } from "react-native";
 
-export default function NFTItemField(props: any) {
+export default function ItemField(props: any) {
   return (
     <Text style={styles.title}>
       {props.title}:

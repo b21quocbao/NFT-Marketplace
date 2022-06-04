@@ -1,6 +1,6 @@
 import { useWalletConnect } from "@walletconnect/react-native-dapp";
 import { useMemo, useState } from "react";
-import { FlatList } from "react-native";
+import { FlatList, RefreshControl } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import Web3 from "web3";
 import { getChainConfig } from "../../helpers/ipfs";
@@ -34,10 +34,12 @@ function NftList(props: any) {
     );
 
     setWeb3(web3);
-    setZeroExContract(new web3.eth.Contract(
-      zeroExABI as any,
-      zeroContractAddresses[connector.chainId]
-    ));
+    setZeroExContract(
+      new web3.eth.Contract(
+        zeroExABI as any,
+        zeroContractAddresses[connector.chainId]
+      )
+    );
 
     const retreiveSigner = async () => {
       const provider = new WalletConnectProvider({
@@ -102,6 +104,9 @@ function NftList(props: any) {
 
   return (
     <FlatList
+      refreshControl={
+        <RefreshControl refreshing={props.loading} onRefresh={props.onRefresh} />
+      }
       data={props.nfts}
       renderItem={renderItem}
       keyExtractor={(item) => item.id}

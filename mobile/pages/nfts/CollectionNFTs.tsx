@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import {
   ActivityIndicator,
   Button,
@@ -16,6 +16,10 @@ const CollectionNfts = ({ route }) => {
     (state: any) => state.NftReducer
   );
 
+  const onRefresh = useCallback(() => {
+    dispatch(getCollectionNfts({ collectionId: route.params.collectionId }));
+  }, []);
+
   useEffect(() => {
     if (!error.message.length) {
       dispatch(getCollectionNfts({ collectionId: route.params.collectionId }));
@@ -24,12 +28,13 @@ const CollectionNfts = ({ route }) => {
 
   return (
     <View style={[styles.container]}>
-      {loading ? (
-        <View style={[styles.container]}>
-          <ActivityIndicator />
-        </View>
-      ) : null}
-      {!loading && !error.message.length && <NftList nfts={collectionNfts} />}
+      {!error.message.length && (
+        <NftList
+          loading={loading}
+          onRefresh={onRefresh}
+          nfts={collectionNfts}
+        />
+      )}
       {!loading && error.message.length ? (
         <View style={[styles.button]}>
           <Text>Error message: {error.message}</Text>

@@ -58,7 +58,7 @@ function MyNftItem(props: any) {
         />
         <Card.Title>{nft.name}</Card.Title>
         <NFTItemField title="Chain" value={CHAINS[nft.chainId]} />
-        <NFTItemField title="Status" value={nft.status} />
+        <NFTItemField title="Status" value={status} />
 
         {status === "AVAILABLE" && (
           <View style={styles.container}>
@@ -81,7 +81,7 @@ function MyNftItem(props: any) {
           </View>
         )}
         {status === "LIST" && <NFTItemButton title="Cancel" />}
-        {status === "AUCTION" && (
+        {(status === "AUCTION" || status === "END AUCTION") && (
           <NFTItemButton
             title="View Offers"
             style={styles.singleButton}

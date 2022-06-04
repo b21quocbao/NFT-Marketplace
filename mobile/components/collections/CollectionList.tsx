@@ -1,4 +1,4 @@
-import { FlatList } from "react-native";
+import { FlatList, RefreshControl } from "react-native";
 import CollectionItem from "./CollectionItem";
 
 function CollectionList(props: any) {
@@ -15,6 +15,12 @@ function CollectionList(props: any) {
 
   return (
     <FlatList
+      refreshControl={
+        <RefreshControl
+          refreshing={props.loading}
+          onRefresh={props.onRefresh}
+        />
+      }
       data={props.collections}
       renderItem={renderItem}
       keyExtractor={(item) => item.id}

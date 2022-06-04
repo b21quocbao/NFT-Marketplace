@@ -7,6 +7,7 @@ import {
   SALE_NFT,
   BUY_NFT,
   BID_NFT,
+  AUCTION_NFT,
   CONFIRM_NFT,
 } from "./actionTypes";
 import {
@@ -33,10 +34,16 @@ import {
   bidNftSuccess,
   bidNft,
   bidNftFail,
+  auctionNftSuccess,
+  auctionNft,
+  auctionNftFail,
 } from "./actions";
 import { axiosInstance } from "../../helpers/axios";
 import { addNft } from "./helper/ipfs";
 import { getTotalSupply, mint } from "./helper/smartcontract/erc721";
+import Web3 from "web3";
+
+const { toWei } = Web3.utils;
 
 function* onGetNfts() {
   try {
@@ -122,19 +129,14 @@ function* onSaleNft({ payload }: ReturnType<typeof saleNft>) {
     const { nft, user, saleRoyaltyFee, signedOrder, symbol } = payload;
 
     const response = yield call(() =>
-      axiosInstance.post("update-nft", {
+      axiosInstance.put("update-nft", {
         id: nft.id,
         status: "LIST",
         symbol: symbol,
         saleRoyaltyFee: saleRoyaltyFee,
+        actionName: "List for sale",
+        actionUserId: user.id,
         signedOrder,
-      })
-    );
-    yield call(() =>
-      axiosInstance.post("new-action", {
-        userId: user.id,
-        nftId: nft.id,
-        name: "List for sale",
       })
     );
 
@@ -150,22 +152,17 @@ function* onBuyNft({ payload }: ReturnType<typeof buyNft>) {
   try {
     const { nft, user, fillTx, etherProvider } = payload;
     const fillTxReceipt = yield call(() =>
-      etherProvider.waitForTransaction(fillTx.hash)
+      etherProvider.waitForTransaction(fillTx)
     );
 
     const response = yield call(() =>
-      axiosInstance.post("update-nft", {
+      axiosInstance.put("update-nft", {
         id: nft.id,
         status: "AVAILABLE",
         fillTxReceipt,
+        actionName: "Buy",
+        actionUserId: user.id,
         userId: user.id,
-      })
-    );
-    yield call(() =>
-      axiosInstance.post("new-action", {
-        userId: user.id,
-        nftId: nft.id,
-        name: "Buy",
       })
     );
 
@@ -182,17 +179,11 @@ function* onBidNft({ payload }: ReturnType<typeof bidNft>) {
     const { nft, bidOrders, user } = payload;
 
     const response = yield call(() =>
-      axiosInstance.post("update-nft", {
+      axiosInstance.put("update-nft", {
         id: nft.id,
         bidOrders: bidOrders,
-      })
-    );
-
-    yield call(() =>
-      axiosInstance.post("new-action", {
-        userId: user.id,
-        nftId: nft.id,
-        name: "Bid",
+        actionName: "Bid",
+        actionUserId: user.id,
       })
     );
 
@@ -207,24 +198,21 @@ function* onBidNft({ payload }: ReturnType<typeof bidNft>) {
 function* onConfirmNft({ payload }: ReturnType<typeof confirmNft>) {
   try {
     const { userId, nft, user, fillTx, etherProvider } = payload;
+    console.log(fillTx, 'Line #201 saga.ts');
+    
+
     const fillTxReceipt = yield call(() =>
-      etherProvider.waitForTransaction(fillTx.hash)
+      etherProvider.waitForTransaction(fillTx)
     );
 
     const response = yield call(() =>
-      axiosInstance.post("update-nft", {
+      axiosInstance.put("update-nft", {
         id: nft.id,
         status: "AVAILABLE",
         fillTxReceipt,
         userId: userId,
-      })
-    );
-
-    yield call(() =>
-      axiosInstance.post("new-action", {
-        userId: user.id,
-        nftId: nft.id,
-        name: "Confirm offer",
+        actionName: "Confirm offer",
+        actionUserId: user.id,
       })
     );
 
@@ -233,6 +221,45 @@ function* onConfirmNft({ payload }: ReturnType<typeof confirmNft>) {
     console.log(JSON.stringify(error), "Line #55 saga.ts");
 
     yield put(confirmNftFail(error));
+  }
+}
+
+function* onAuctionNft({ payload }: ReturnType<typeof auctionNft>) {
+  try {
+    const {
+      nft,
+      user,
+      symbol,
+      erc20TokenAddress,
+      bidRoyaltyFee,
+      startingPrice,
+      expiry,
+    } = payload;
+    console.log("onAuctionNft", 'Line #236 saga.ts');
+    
+
+    const response = yield call(() =>
+      axiosInstance.put("update-nft", {
+        id: nft.id,
+        status: "AUCTION",
+        symbol: symbol,
+        erc20TokenAddress: erc20TokenAddress,
+        bidRoyaltyFee: bidRoyaltyFee,
+        startingPrice: toWei(startingPrice.toFixed(10).toString()),
+        startAuctionTime: new Date(Date.now()),
+        endAuctionTime: new Date(Date.now() + expiry * 1000),
+        actionName: "List for auction",
+        actionUserId: user.id,
+      })
+    );
+    console.log(response, 'Line #253 saga.ts');
+    
+
+    yield put(auctionNftSuccess(response.data));
+  } catch (error) {
+    console.log(JSON.stringify(error), "Line #55 saga.ts");
+
+    yield put(auctionNftFail(error));
   }
 }
 
@@ -245,6 +272,7 @@ function* NftSaga() {
   yield takeLatest(BUY_NFT, onBuyNft);
   yield takeLatest(BID_NFT, onBidNft);
   yield takeLatest(CONFIRM_NFT, onConfirmNft);
+  yield takeLatest(AUCTION_NFT, onAuctionNft);
 }
 
 export default NftSaga;

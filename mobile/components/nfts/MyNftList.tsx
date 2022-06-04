@@ -1,4 +1,4 @@
-import { FlatList } from "react-native";
+import { FlatList, RefreshControl } from "react-native";
 import MyNftItem from "./MyNftItem";
 
 function MyNftList(props: any) {
@@ -6,6 +6,12 @@ function MyNftList(props: any) {
 
   return (
     <FlatList
+      refreshControl={
+        <RefreshControl
+          refreshing={props.loading}
+          onRefresh={props.onRefresh}
+        />
+      }
       data={props.nfts}
       renderItem={renderItem}
       keyExtractor={(item) => item.id}

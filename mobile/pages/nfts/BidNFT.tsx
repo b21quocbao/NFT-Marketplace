@@ -1,4 +1,3 @@
-import web3 from "web3";
 import { useMemo, useState } from "react";
 import BidNftForm from "../../components/nfts/BidNftForm";
 import Web3 from "web3";
@@ -23,11 +22,10 @@ import {
 } from "../../store/nfts/helper/smartcontract/zeroEx";
 import { TradeDirection } from "../../constants/zeroEx";
 
-const { fromWei, toWei } = web3.utils;
+const { fromWei, toWei } = Web3.utils;
 
 function BidNft({ route }) {
   const nft = route.params.nft;
-  const [loading, setLoading] = useState(false);
   const connector = useWalletConnect();
   const dispatch = useDispatch();
   const [web3, setWeb3] = useState(undefined as any);
@@ -131,7 +129,6 @@ function BidNft({ route }) {
     <BidNftForm
       minPrice={fromWei(nft.startingPrice)}
       onBidNft={bidNftHandler}
-      loading={loading}
     />
   );
 }

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import {
   ActivityIndicator,
   Button,
@@ -12,25 +12,43 @@ import { clearErrors, getMyNfts } from "../../store/nfts/actions";
 
 const MyNfts = () => {
   const dispatch = useDispatch();
-  const { myNfts, loading, error } = useSelector(
-    (state: any) => state.NftReducer
-  );
+  const {
+    myNfts,
+    loading,
+    error,
+    auctionedNft,
+    soldNft,
+    confirmedNft,
+    boughtNft,
+    bidedNft,
+    createdNFT,
+  } = useSelector((state: any) => state.NftReducer);
   const { user } = useSelector((state: any) => state.AuthReducer);
+
+  const onRefresh = useCallback(() => {
+    dispatch(getMyNfts({ userId: user.id }));
+  }, []);
 
   useEffect(() => {
     if (!error.message.length) {
       dispatch(getMyNfts({ userId: user.id }));
     }
-  }, [user.id, error]);
+  }, [
+    user.id,
+    error,
+    auctionedNft,
+    soldNft,
+    confirmedNft,
+    boughtNft,
+    bidedNft,
+    createdNFT,
+  ]);
 
   return (
     <View style={[styles.container]}>
-      {loading ? (
-        <View style={[styles.container]}>
-          <ActivityIndicator />
-        </View>
-      ) : null}
-      {!loading && !error.message.length && <MyNftList nfts={myNfts} />}
+      {!error.message.length && (
+        <MyNftList loading={loading} onRefresh={onRefresh} nfts={myNfts} />
+      )}
       {!loading && error.message.length ? (
         <View style={[styles.button]}>
           <Text>Error message: {error.message}</Text>

@@ -23,6 +23,7 @@ import "@ethersproject/shims";
 import { ethers } from "ethers";
 import { NATIVE_COINS } from "../../constants/chain";
 import { NATIVE_TOKEN, TradeDirection } from "../../constants/zeroEx";
+import { getSymbol } from "../../store/nfts/helper/smartcontract/erc20";
 
 const { toWei } = Web3.utils;
 
@@ -78,7 +79,7 @@ function SaleNft({ route }) {
         erc20ABI as any,
         erc20TokenAddress
       );
-      symbol = await symbol(erc20Contract);
+      symbol = await getSymbol(erc20Contract);
     }
 
     saleRoyaltyFee = (saleRoyaltyFee * amount) / 100;
@@ -133,9 +134,8 @@ function SaleNft({ route }) {
       })
     );
   };
-  const [loading, setLoading] = useState(false);
 
-  return <SaleNftForm onSaleNft={saleNftHandler} loading={loading} />;
+  return <SaleNftForm onSaleNft={saleNftHandler}/>;
 }
 
 export default SaleNft;

@@ -25,6 +25,9 @@ import {
   CONFIRM_NFT,
   CONFIRM_NFT_SUCCESS,
   CONFIRM_NFT_FAIL,
+  AUCTION_NFT,
+  AUCTION_NFT_SUCCESS,
+  AUCTION_NFT_FAIL,
 } from "./actionTypes";
 
 export const clearErrors = () => {
@@ -197,6 +200,27 @@ export const confirmNftSuccess = (data: any) => {
 export const confirmNftFail = (error: any) => {
   return {
     type: CONFIRM_NFT_FAIL,
+    payload: error,
+  };
+};
+
+export const auctionNft = (data: any) => {
+  return {
+    type: AUCTION_NFT,
+    payload: data,
+  };
+};
+
+export const auctionNftSuccess = (data: any) => {
+  return {
+    type: AUCTION_NFT_SUCCESS,
+    payload: data,
+  };
+};
+
+export const auctionNftFail = (error: any) => {
+  return {
+    type: AUCTION_NFT_FAIL,
     payload: error,
   };
 };

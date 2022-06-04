@@ -3,6 +3,8 @@ import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { Button } from "@rneui/base";
 import { useDispatch, useSelector } from "react-redux";
 import { clearErrors, login, logout } from "../../store/auth/actions";
+import NFTItemField from "../../components/nfts/NftItemField";
+import { CHAINS } from "../../constants/chain";
 
 function ConnectWallet() {
   const connector = useWalletConnect();
@@ -19,6 +21,16 @@ function ConnectWallet() {
           <ActivityIndicator />
         </View>
       ) : null}
+      {!loading && !error.message.length && connector.connected ? (
+        <View>
+          <NFTItemField title="Address" value={connector.accounts} />
+        </View>
+      ) : null}
+      {!loading && !error.message.length && connector.connected ? (
+        <View>
+          <NFTItemField title="Chain" value={CHAINS[connector.chainId]} />
+        </View>
+      ) : null}
       {!loading && !error.message.length && !connector.connected ? (
         <View style={[styles.button]}>
           <Button title="Connect" onPress={() => connector.connect()} />
@@ -26,7 +38,13 @@ function ConnectWallet() {
       ) : null}
       {!loading && !error.message.length && connector.connected ? (
         <View style={[styles.button]}>
-          <Button title="Disconnect" onPress={() => connector.killSession()} />
+          <Button
+            title="Disconnect"
+            onPress={() => {
+              connector.killSession();
+              dispatch(logout());
+            }}
+          />
         </View>
       ) : null}
       {!loading && connector.connected && !error.message.length && !user ? (

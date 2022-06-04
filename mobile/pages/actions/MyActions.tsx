@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { ActivityIndicator, Button, StyleSheet, Text, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import MyActionList from "../../components/actions/MyActionList";
@@ -13,6 +13,10 @@ const MyActions = () => {
     (state: any) => state.AuthReducer
   );
 
+  const onRefresh = useCallback(() => {
+    dispatch(getMyActions({ userId: user.id }));
+  }, []);
+
   useEffect(() => {
     if (!error.message.length) {
       dispatch(getMyActions({ userId: user.id }));
@@ -21,13 +25,8 @@ const MyActions = () => {
 
   return (
     <View style={[styles.container]}>
-      {loading ? (
-        <View style={[styles.container]}>
-          <ActivityIndicator />
-        </View>
-      ) : null}
-      {!loading && !error.message.length && (
-        <MyActionList actions={myActions} />
+      {!error.message.length && (
+        <MyActionList loading={loading} onRefresh={onRefresh} actions={myActions} />
       )}
       {!loading && error.message.length ? (
         <View style={[styles.button]}>

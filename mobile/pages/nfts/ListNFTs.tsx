@@ -1,7 +1,9 @@
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Button,
+  RefreshControl,
+  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -12,24 +14,41 @@ import { clearErrors, getNfts } from "../../store/nfts/actions";
 
 const ListNfts = ({}) => {
   const dispatch = useDispatch();
-  const { nfts, loading, error } = useSelector(
-    (state: any) => state.NftReducer
-  );
+  const {
+    nfts,
+    loading,
+    error,
+    auctionedNft,
+    soldNft,
+    confirmedNft,
+    boughtNft,
+    bidedNft,
+    createdNFT,
+  } = useSelector((state: any) => state.NftReducer);
+
+  const onRefresh = useCallback(() => {
+    dispatch(getNfts({}));
+  }, []);
 
   useEffect(() => {
     if (!error.message.length) {
       dispatch(getNfts({}));
     }
-  }, [error]);
+  }, [
+    error,
+    auctionedNft,
+    soldNft,
+    confirmedNft,
+    boughtNft,
+    bidedNft,
+    createdNFT,
+  ]);
 
   return (
     <View style={[styles.container]}>
-      {loading ? (
-        <View style={[styles.container]}>
-          <ActivityIndicator />
-        </View>
-      ) : null}
-      {!loading && !error.message.length && <NftList nfts={nfts} />}
+      {!error.message.length && (
+        <NftList loading={loading} onRefresh={onRefresh} nfts={nfts} />
+      )}
       {!loading && error.message.length ? (
         <View style={[styles.button]}>
           <Text>Error message: {error.message}</Text>

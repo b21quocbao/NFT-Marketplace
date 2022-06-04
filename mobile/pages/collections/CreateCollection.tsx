@@ -15,7 +15,6 @@ import {
 } from "../../store/collections/actions";
 
 function CreateCollection({ navigation: { navigate } }) {
-  const [loadingForm, setLoadingForm] = useState(false);
   const dispatch = useDispatch();
   const { user } = useSelector((state: any) => state.AuthReducer);
   const { loading, error, addedCollection } = useSelector(
@@ -23,7 +22,6 @@ function CreateCollection({ navigation: { navigate } }) {
   );
 
   async function addCollectionHandler(enteredCollectionData: any) {
-    setLoadingForm(true);
     dispatch(addCollection({ ...enteredCollectionData, userId: user.id }));
   }
 
@@ -35,10 +33,7 @@ function CreateCollection({ navigation: { navigate } }) {
         </View>
       ) : null}
       {user && !loading && !addedCollection && !error.message.length && (
-        <NewCollectionForm
-          onAddCollection={addCollectionHandler}
-          loading={loadingForm}
-        />
+        <NewCollectionForm onAddCollection={addCollectionHandler} />
       )}
       {!loading && error.message.length ? (
         <View style={[styles.button]}>
