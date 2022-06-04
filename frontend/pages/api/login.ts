@@ -39,7 +39,9 @@ export default async function handler(
     throw new Error("WRONG_SIGNATURE");
   }
 
-  let user = await usersCollection.findOne({ address: req.body.username });
+  let user = await usersCollection.findOne({
+    address: { $regex: new RegExp(req.body.username, "i") },
+  });
 
   if (!user) {
     await usersCollection.insertOne({ address: req.body.username });

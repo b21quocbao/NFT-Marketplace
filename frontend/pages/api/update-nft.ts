@@ -8,10 +8,22 @@ async function handler(req: any, res: any) {
     const db = client.db();
 
     const nftsCollection = db.collection("nfts");
-    console.log(data, 'data');
-    
+    const actionsCollection = db.collection("actions");
 
-    const result = await nftsCollection.updateOne({ _id: new ObjectId(data.id) }, { $set: data });
+    if (data.actionName) {
+      await actionsCollection.insertOne({
+        name: data.actionName,
+        userId: data.actionUserId,
+        nft: data.id,
+      });
+      delete data.actionName;
+      delete data.actionUserId;
+    }
+
+    const result = await nftsCollection.updateOne(
+      { _id: new ObjectId(data.id) },
+      { $set: data }
+    );
 
     console.log(result);
 

@@ -1,12 +1,7 @@
-import ActionList from "../../../components/actions/ActionList";
+import type { NextApiRequest } from "next";
 import { MongoClient } from "mongodb";
-import { NextPage } from "next";
 
-const MyActions: NextPage = (props: any) => {
-  return <ActionList actions={props.actions} />;
-};
-
-export async function getServerSideProps(ctx: any) {
+export default async function handler(req: NextApiRequest, res: any) {
   // fetch data from an API
   const client = await MongoClient.connect(process.env.MONGODB_URI as string);
 
@@ -17,7 +12,7 @@ export async function getServerSideProps(ctx: any) {
   const actions = await actionsCollection.aggregate([
     {
       '$match': {
-        'userId': ctx.params.userId
+        'userId': req.query.userId
       }
     },
     {
@@ -53,20 +48,16 @@ export async function getServerSideProps(ctx: any) {
 
   client.close();
 
-  return {
-    props: {
-      actions: actions.map((action) => ({
-        ...action,
-        id: action._id.toString(),
+  res.status(200).json(
+    actions.map((action) => ({
+      ...action,
+      id: action._id.toString(),
+      _id: null,
+      nft: {
+        ...action.nft,
+        id: action.nft._id.toString(),
         _id: null,
-        nft: {
-          ...action.nft,
-          id: action.nft._id.toString(),
-          _id: null,
-        }
-      })),
-    },
-  };
+      }
+    })),
+  );
 }
-
-export default MyActions;
