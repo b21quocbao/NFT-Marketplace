@@ -12,18 +12,19 @@ import { useNavigation } from "@react-navigation/native";
 const { fromWei } = web3.utils;
 
 function MyNftItem(props: any) {
+  const { nft } = props;
   const { user } = useSelector((state: any) => state.AuthReducer);
-  const [status, setStatus] = useState(props.status);
+  const [status, setStatus] = useState(nft.status);
   const [endAuctionTime, setEndAuctionTime] = useState(undefined as any);
   const navigation = useNavigation();
 
   useEffect(() => {
-    let { status } = props;
+    let { status } = nft;
 
     const checkStatus = () => {
       if (
         status === "AUCTION" &&
-        new Date(props.endAuctionTime).getTime() < Date.now()
+        new Date(nft.endAuctionTime).getTime() < Date.now()
       ) {
         setStatus("END AUCTION");
       }
@@ -31,11 +32,11 @@ function MyNftItem(props: any) {
     checkStatus();
     const interval = setInterval(checkStatus, 1000);
     return () => clearInterval(interval);
-  }, [props]);
+  }, [nft.endAuctionTime, nft.status]);
 
   useEffect(() => {
-    if (props.endAuctionTime) {
-      setEndAuctionTime(new Date(props.endAuctionTime).getTime() - Date.now());
+    if (nft.endAuctionTime) {
+      setEndAuctionTime(new Date(nft.endAuctionTime).getTime() - Date.now());
 
       const minusAuctionTime = () => {
         setEndAuctionTime((value: number) => value - 1000);
@@ -43,7 +44,7 @@ function MyNftItem(props: any) {
       const interval = setInterval(minusAuctionTime, 1000);
       return () => clearInterval(interval);
     }
-  }, [props]);
+  }, [nft.endAuctionTime]);
 
   return (
     <>
@@ -52,12 +53,12 @@ function MyNftItem(props: any) {
           resizeMode="cover"
           style={{ width: 300, height: 300 }}
           source={{
-            uri: props.imageUrl,
+            uri: nft.imageUrl,
           }}
         />
-        <Card.Title>{props.name}</Card.Title>
-        <NFTItemField title="Chain" value={CHAINS[props.chainId]} />
-        <NFTItemField title="Status" value={props.status} />
+        <Card.Title>{nft.name}</Card.Title>
+        <NFTItemField title="Chain" value={CHAINS[nft.chainId]} />
+        <NFTItemField title="Status" value={nft.status} />
 
         {status === "AVAILABLE" && (
           <View style={styles.container}>
@@ -65,10 +66,7 @@ function MyNftItem(props: any) {
               <NFTItemButton
                 title="Sale"
                 onPress={() => {
-                  navigation.navigate(
-                    "Sale NFT" as never,
-                    { nftId: props.id } as never
-                  );
+                  navigation.navigate("Sale NFT" as never, { nft } as never);
                 }}
               />
             </View>
@@ -76,10 +74,7 @@ function MyNftItem(props: any) {
               <NFTItemButton
                 title="Auction"
                 onPress={() => {
-                  navigation.navigate(
-                    "Auction NFT" as never,
-                    { nftId: props.id } as never
-                  );
+                  navigation.navigate("Auction NFT" as never, { nft } as never);
                 }}
               />
             </View>
@@ -91,10 +86,7 @@ function MyNftItem(props: any) {
             title="View Offers"
             style={styles.singleButton}
             onPress={() => {
-              navigation.navigate(
-                "NFT Offers" as never,
-                { nftId: props.id } as never
-              );
+              navigation.navigate("NFT Offers" as never, { nft } as never);
             }}
           />
         )}

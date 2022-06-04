@@ -15,7 +15,7 @@ const MyActions = () => {
 
   useEffect(() => {
     dispatch(getMyActions({ userId: user.id }));
-  }, []);
+  }, [error]);
 
   return (
     <View style={[styles.container]}>

@@ -12,7 +12,19 @@ import {
   CREATE_NFT_SUCCESS,
   CREATE_NFT_FAIL,
   CLEAR_CREATED_NFT,
-  CLEAR_ERROR
+  SALE_NFT,
+  SALE_NFT_SUCCESS,
+  SALE_NFT_FAIL,
+  BUY_NFT,
+  BUY_NFT_SUCCESS,
+  BUY_NFT_FAIL,
+  BID_NFT,
+  BID_NFT_SUCCESS,
+  BID_NFT_FAIL,
+  CONFIRM_NFT,
+  CONFIRM_NFT_SUCCESS,
+  CONFIRM_NFT_FAIL,
+  CLEAR_ERROR,
 } from "./actionTypes";
 
 const initialState = {
@@ -20,6 +32,10 @@ const initialState = {
   myNfts: [],
   nft: null,
   createdNft: null,
+  saleNft: null,
+  buyNft: null,
+  bidNft: null,
+  confirmNft: null,
   collectionNfts: [],
   loading: false,
   error: {
@@ -93,8 +109,73 @@ const NftReducer = (state = initialState, action: any) => {
       state = { ...state, createdNft: null, loading: false };
       break;
     case CLEAR_ERROR:
-      state = { ...state, error: { message: '' }, loading: false };
+      state = { ...state, error: { message: "" }, loading: false };
       break;
+
+    case SALE_NFT:
+      state = { ...state, loading: true };
+      break;
+    case SALE_NFT_SUCCESS:
+      state = { ...state, saleNft: action.payload, loading: false };
+      break;
+    case SALE_NFT_FAIL:
+      state = {
+        ...state,
+        error: {
+          message: "Create NFTs Failed",
+        },
+        loading: false,
+      };
+      break;
+
+    case BUY_NFT:
+      state = { ...state, loading: true };
+      break;
+    case BUY_NFT_SUCCESS:
+      state = { ...state, buyNft: action.payload, loading: false };
+      break;
+    case BUY_NFT_FAIL:
+      state = {
+        ...state,
+        error: {
+          message: "Create NFTs Failed",
+        },
+        loading: false,
+      };
+      break;
+
+    case BID_NFT:
+      state = { ...state, loading: true };
+      break;
+    case BID_NFT_SUCCESS:
+      state = { ...state, bidNft: action.payload, loading: false };
+      break;
+    case BID_NFT_FAIL:
+      state = {
+        ...state,
+        error: {
+          message: "Create NFTs Failed",
+        },
+        loading: false,
+      };
+      break;
+
+    case CONFIRM_NFT:
+      state = { ...state, loading: true };
+      break;
+    case CONFIRM_NFT_SUCCESS:
+      state = { ...state, confirmNft: action.payload, loading: false };
+      break;
+    case CONFIRM_NFT_FAIL:
+      state = {
+        ...state,
+        error: {
+          message: "Create NFTs Failed",
+        },
+        loading: false,
+      };
+      break;
+
     default:
       state = { ...state };
       break;

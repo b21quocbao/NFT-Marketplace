@@ -12,18 +12,19 @@ import { useNavigation } from "@react-navigation/native";
 const { fromWei } = web3.utils;
 
 function NftItem(props: any) {
+  const { nft } = props;
   const { user } = useSelector((state: any) => state.AuthReducer);
-  const [status, setStatus] = useState(props.status);
+  const [status, setStatus] = useState(nft.status);
   const [endAuctionTime, setEndAuctionTime] = useState(undefined as any);
   const navigation = useNavigation();
 
   useEffect(() => {
-    let { status } = props;
+    let { status } = nft;
 
     const checkStatus = () => {
       if (
         status === "AUCTION" &&
-        new Date(props.endAuctionTime).getTime() < Date.now()
+        new Date(nft.endAuctionTime).getTime() < Date.now()
       ) {
         setStatus("END AUCTION");
       }
@@ -31,11 +32,11 @@ function NftItem(props: any) {
     checkStatus();
     const interval = setInterval(checkStatus, 1000);
     return () => clearInterval(interval);
-  }, [props]);
+  }, [nft.endAuctionTime, nft.status]);
 
   useEffect(() => {
-    if (props.endAuctionTime) {
-      setEndAuctionTime(new Date(props.endAuctionTime).getTime() - Date.now());
+    if (nft.endAuctionTime) {
+      setEndAuctionTime(new Date(nft.endAuctionTime).getTime() - Date.now());
 
       const minusAuctionTime = () => {
         setEndAuctionTime((value: number) => value - 1000);
@@ -43,7 +44,7 @@ function NftItem(props: any) {
       const interval = setInterval(minusAuctionTime, 1000);
       return () => clearInterval(interval);
     }
-  }, [props]);
+  }, [nft.endAuctionTime]);
 
   return (
     <>
@@ -51,58 +52,54 @@ function NftItem(props: any) {
         <Card.Image
           style={{ width: 300, height: 300 }}
           source={{
-            uri: props.imageUrl,
+            uri: nft.imageUrl,
           }}
         />
-        <Card.Title>{props.name}</Card.Title>
-        <NFTItemField title="Chain" value={CHAINS[props.chainId]} />
-        <NFTItemField title="Status" value={props.status} />
+        <Card.Title>{nft.name}</Card.Title>
+        <NFTItemField title="Chain" value={CHAINS[nft.chainId]} />
+        <NFTItemField title="Status" value={nft.status} />
 
         {status === "LIST" && (
           <>
-            {props.signedOrder && (
+            {nft.signedOrder && (
               <NFTItemField
                 title="Price"
                 value={
-                  fromWei(props.signedOrder.erc20TokenAmount) +
-                  ` ${props.symbol}`
+                  fromWei(nft.signedOrder.erc20TokenAmount) + ` ${nft.symbol}`
                 }
               />
             )}
-            {user && user.id !== props?.userId && (
-              <NFTItemButton style={styles.singleButton} title="Buy" />
+            {user && user.id !== nft?.userId && (
+              <NFTItemButton style={styles.singleButton} onPress={props.onBuyNft} title="Buy" />
             )}
           </>
         )}
         {status === "AUCTION" && (
           <>
-            {props.bidOrders && props.bidOrders.length && (
+            {nft.bidOrders && nft.bidOrders.length && (
               <NFTItemField
                 title="Highest Offer"
                 value={
-                  fromWei(props.bidOrders[0].signedOrder.erc20TokenAmount) +
-                  ` ${props.symbol}`
+                  fromWei(nft.bidOrders[0].signedOrder.erc20TokenAmount) +
+                  ` ${nft.symbol}`
                 }
               />
             )}
-            {!(props.bidOrders && props.bidOrders.length) && (
+            {!(nft.bidOrders && nft.bidOrders.length) && (
               <NFTItemField
                 title="Starting Price"
-                value={fromWei(props.startingPrice) + ` ${props.symbol}`}
+                value={fromWei(nft.startingPrice) + ` ${nft.symbol}`}
               />
             )}
             <NFTItemField
               title="Expiry Time"
               value={timeString(endAuctionTime)}
             />
-            {user && user.id !== props.userId && (
+            {user && user.id !== nft.userId && (
               <NFTItemButton
                 style={styles.singleButton}
                 onPress={() => {
-                  navigation.navigate(
-                    "Bid NFT" as never,
-                    { nftId: props.id } as never
-                  );
+                  navigation.navigate("Bid NFT" as never, { nft } as never);
                 }}
                 title="Bid"
               />
@@ -111,10 +108,7 @@ function NftItem(props: any) {
               style={styles.singleButton}
               title="View Offers"
               onPress={() => {
-                navigation.navigate(
-                  "NFT Offers" as never,
-                  { nftId: props.id } as never
-                );
+                navigation.navigate("NFT Offers" as never, { nft } as never);
               }}
             />
           </>

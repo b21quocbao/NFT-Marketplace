@@ -2,34 +2,36 @@ import { FlatList } from "react-native";
 import OfferItem from "./OfferItem";
 
 function OfferList(props: any) {
-  if (!props.nft.bidOrders) {
-    props.nft.bidOrders = [];
+  const nft = JSON.parse(JSON.stringify(props.nft));
+  
+  if (!nft.bidOrders) {
+    nft.bidOrders = [];
   }
   
-  if (props.nft.bidOrders && props.nft.bidOrders.length) {
-    props.nft.bidOrders[0].highestBidder = true;
+  if (nft.bidOrders && nft.bidOrders.length) {
+    nft.bidOrders[0].highestBidder = true;
   }
 
-  for (let idx = 0; idx < props.nft.bidOrders.length; ++idx) {
-    props.nft.bidOrders[idx].id = idx;
+  for (let idx = 0; idx < nft.bidOrders.length; ++idx) {
+    nft.bidOrders[idx].id = idx;
   }
 
   const renderItem = ({ item }) => (
     <OfferItem
       key={item.id}
-      id={props.nft.id}
-      chainId={props.nft.chainId}
+      id={nft.id}
+      chainId={nft.chainId}
       offer={item.signedOrder}
-      endAuctionTime={props.nft.endAuctionTime}
+      endAuctionTime={nft.endAuctionTime}
       highestBid={item.highestBidder}
       userId={item.userId}
-      makerUserId={props.nft.userId}
+      makerUserId={nft.userId}
     />
   );
 
   return (
     <FlatList
-      data={props.nft.bidOrders}
+      data={nft.bidOrders}
       renderItem={renderItem}
       keyExtractor={(item) => item.id}
     />

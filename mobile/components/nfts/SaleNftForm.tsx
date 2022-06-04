@@ -1,32 +1,33 @@
 import { useState } from "react";
 import { Button, StyleSheet, View } from "react-native";
+import { NATIVE_TOKEN } from "../../constants/zeroEx";
 import Input from "./Input";
 
 const SaleNftForm = (props: any) => {
   function submitHandler() {
     const expenseData = {
       amount: +inputs.amount.value,
-      bidRoyaltyFee: +inputs.bidRoyaltyFee.value,
+      saleRoyaltyFee: +inputs.saleRoyaltyFee.value,
       erc20TokenAddress: inputs.erc20TokenAddress.value,
     };
 
     const amountIsValid = !isNaN(expenseData.amount) && expenseData.amount > 0;
-    const bidRoyaltyFeeIsValid =
-      !isNaN(expenseData.bidRoyaltyFee) && expenseData.bidRoyaltyFee > 0;
+    const saleRoyaltyFeeIsValid =
+      !isNaN(expenseData.saleRoyaltyFee) && expenseData.saleRoyaltyFee > 0;
     const erc20TokenAddressIsValid =
       expenseData.erc20TokenAddress.trim().length > 0 &&
       expenseData.erc20TokenAddress.startsWith("0x");
 
-    if (!erc20TokenAddressIsValid || !amountIsValid || !bidRoyaltyFeeIsValid) {
+    if (!erc20TokenAddressIsValid || !amountIsValid || !saleRoyaltyFeeIsValid) {
       setInputs((curInputs) => {
         return {
           amount: {
             value: curInputs.amount.value,
             isValid: amountIsValid,
           },
-          bidRoyaltyFee: {
-            value: curInputs.bidRoyaltyFee.value,
-            isValid: bidRoyaltyFeeIsValid,
+          saleRoyaltyFee: {
+            value: curInputs.saleRoyaltyFee.value,
+            isValid: saleRoyaltyFeeIsValid,
           },
           erc20TokenAddress: {
             value: curInputs.erc20TokenAddress.value,
@@ -46,10 +47,10 @@ const SaleNftForm = (props: any) => {
       isValid: true,
     },
     erc20TokenAddress: {
-      value: "",
+      value: NATIVE_TOKEN,
       isValid: true,
     },
-    bidRoyaltyFee: {
+    saleRoyaltyFee: {
       value: "2.5",
       isValid: true,
     },
@@ -85,11 +86,11 @@ const SaleNftForm = (props: any) => {
       />
       <Input
         label="Royalty Fee"
-        invalid={!inputs.bidRoyaltyFee.isValid}
+        invalid={!inputs.saleRoyaltyFee.isValid}
         textInputConfig={{
           keyboardType: "decimal-pad",
-          onChangeText: inputChangedHandler.bind(this, "bidRoyaltyFee"),
-          value: inputs.bidRoyaltyFee.value,
+          onChangeText: inputChangedHandler.bind(this, "saleRoyaltyFee"),
+          value: inputs.saleRoyaltyFee.value,
         }}
       />
       <View style={styles.button}>

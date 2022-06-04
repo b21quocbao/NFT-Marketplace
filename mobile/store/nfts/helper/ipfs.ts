@@ -1,3 +1,4 @@
+import React from "react";
 import { call } from "redux-saga/effects";
 import { ipfsAxiosInstance } from "../../../helpers/axios";
 import {
@@ -14,9 +15,6 @@ export function* addImage(data: any) {
     type: data.type,
     name: data.fileName,
   } as any);
-  console.log(NEXT_PUBLIC_INFURA_PROJECT_ID, 'Line #17 ipfs.ts');
-  console.log(NEXT_PUBLIC_INFURA_PROJECT_SECRET, 'Line #17 ipfs.ts');
-  
 
   return yield call(() =>
     ipfsAxiosInstance.post("add?pin=true", formData, {

@@ -12,7 +12,7 @@ const ListCollections = ({}) => {
 
   useEffect(() => {
     dispatch(getCollections({}));
-  }, []);
+  }, [error]);
 
   return (
     <View style={[styles.container]}>

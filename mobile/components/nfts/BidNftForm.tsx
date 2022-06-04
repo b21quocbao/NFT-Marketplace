@@ -27,7 +27,7 @@ const BidNftForm = (props: any) => {
 
   const [inputs, setInputs] = useState({
     amount: {
-      value: "",
+      value: props.minPrice,
       isValid: true,
     },
   });

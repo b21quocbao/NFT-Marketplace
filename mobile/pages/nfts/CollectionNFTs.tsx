@@ -12,7 +12,7 @@ const CollectionNfts = ({ route }) => {
 
   useEffect(() => {
     dispatch(getCollectionNfts({ collectionId: route.params.collectionId }));
-  }, [route.params.collectionId]);
+  }, [route.params.collectionId, error]);
 
   return (
     <View style={[styles.container]}>

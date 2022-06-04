@@ -13,6 +13,18 @@ import {
   CREATE_NFT_SUCCESS,
   CREATE_NFT_FAIL,
   CLEAR_CREATED_NFT,
+  SALE_NFT,
+  SALE_NFT_SUCCESS,
+  SALE_NFT_FAIL,
+  BUY_NFT,
+  BUY_NFT_SUCCESS,
+  BUY_NFT_FAIL,
+  BID_NFT,
+  BID_NFT_SUCCESS,
+  BID_NFT_FAIL,
+  CONFIRM_NFT,
+  CONFIRM_NFT_SUCCESS,
+  CONFIRM_NFT_FAIL,
 } from "./actionTypes";
 
 export const clearErrors = () => {
@@ -101,6 +113,90 @@ export const createNftSuccess = (data: any) => {
 export const createNftFail = (error: any) => {
   return {
     type: CREATE_NFT_FAIL,
+    payload: error,
+  };
+};
+
+export const saleNft = (data: any) => {
+  return {
+    type: SALE_NFT,
+    payload: data,
+  };
+};
+
+export const saleNftSuccess = (data: any) => {
+  return {
+    type: SALE_NFT_SUCCESS,
+    payload: data,
+  };
+};
+
+export const saleNftFail = (error: any) => {
+  return {
+    type: SALE_NFT_FAIL,
+    payload: error,
+  };
+};
+
+export const buyNft = (data: any) => {
+  return {
+    type: BUY_NFT,
+    payload: data,
+  };
+};
+
+export const buyNftSuccess = (data: any) => {
+  return {
+    type: BUY_NFT_SUCCESS,
+    payload: data,
+  };
+};
+
+export const buyNftFail = (error: any) => {
+  return {
+    type: BUY_NFT_FAIL,
+    payload: error,
+  };
+};
+
+export const bidNft = (data: any) => {
+  return {
+    type: BID_NFT,
+    payload: data,
+  };
+};
+
+export const bidNftSuccess = (data: any) => {
+  return {
+    type: BID_NFT_SUCCESS,
+    payload: data,
+  };
+};
+
+export const bidNftFail = (error: any) => {
+  return {
+    type: BID_NFT_FAIL,
+    payload: error,
+  };
+};
+
+export const confirmNft = (data: any) => {
+  return {
+    type: CONFIRM_NFT,
+    payload: data,
+  };
+};
+
+export const confirmNftSuccess = (data: any) => {
+  return {
+    type: CONFIRM_NFT_SUCCESS,
+    payload: data,
+  };
+};
+
+export const confirmNftFail = (error: any) => {
+  return {
+    type: CONFIRM_NFT_FAIL,
     payload: error,
   };
 };
