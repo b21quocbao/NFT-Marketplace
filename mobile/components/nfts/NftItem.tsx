@@ -21,6 +21,7 @@ function NftItem(props: any) {
   useEffect(() => {
     let { status } = nft;
 
+    setStatus(status);
     const checkStatus = () => {
       if (
         status === "AUCTION" &&

@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Web3 from "web3";
 import SaleNftForm from "../../components/nfts/SaleNftForm";
 import { getChainConfig } from "../../helpers/ipfs";
-import { saleNft } from "../../store/nfts/actions";
+import { clearErrors, saleNft } from "../../store/nfts/actions";
 import erc721ABI from "../../contracts/abi/erc721ABI.json";
 import erc20ABI from "../../contracts/abi/erc20ABI.json";
 import { erc721ContractAddresses } from "../../contracts/erc721Contracts";
@@ -24,6 +24,8 @@ import { ethers } from "ethers";
 import { NATIVE_COINS } from "../../constants/chain";
 import { NATIVE_TOKEN, TradeDirection } from "../../constants/zeroEx";
 import { getSymbol } from "../../store/nfts/helper/smartcontract/erc20";
+import { ActivityIndicator, Button, StyleSheet, Text, View } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 const { toWei } = Web3.utils;
 
@@ -34,7 +36,9 @@ function SaleNft({ route }) {
   const [contract, setContract] = useState(undefined as any);
   const [signer, setSigner] = useState(undefined as any);
   const { user } = useSelector((state: any) => state.AuthReducer);
+  const { loading, error } = useSelector((state: any) => state.NftReducer);
   const { nft } = route.params;
+  const navigation = useNavigation();
 
   useMemo(() => {
     const web3 = new Web3(
@@ -133,9 +137,45 @@ function SaleNft({ route }) {
         symbol,
       })
     );
+
+    navigation.navigate("My NFTs" as never);
   };
 
-  return <SaleNftForm onSaleNft={saleNftHandler}/>;
+  return <View style={[styles.container]}>
+    {loading ? (
+      <View style={[styles.container]}>
+        <ActivityIndicator />
+      </View>
+    ) : null}
+    {!loading && !error.message.length && (
+      <SaleNftForm onSaleNft={saleNftHandler} />
+    )}
+    {!loading && error.message.length ? (
+      <View style={[styles.error]}>
+        <Text>Error message: {error.message}</Text>
+        <Button
+          title="Retry"
+          onPress={() => {
+            dispatch(clearErrors());
+          }}
+        />
+      </View>
+    ) : null}
+  </View>;
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 15,
+  },
+  button: {
+    marginVertical: 15,
+  },
+  error: {
+    color: "red",
+    marginVertical: 15,
+  },
+});
 
 export default SaleNft;
