@@ -3,15 +3,17 @@ import web3 from "web3";
 import { CHAINS } from "../../constants/chain";
 import { timeString } from "../../helpers/basic";
 import { Card } from "@rneui/themed";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import NFTItemField from "./NftItemField";
 import NFTItemButton from "./NFTItemButton";
 import { StyleSheet, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { cancelNft } from "../../store/nfts/actions";
 
 const { fromWei } = web3.utils;
 
 function MyNftItem(props: any) {
+  const dispatch = useDispatch();
   const { nft } = props;
   const { user } = useSelector((state: any) => state.AuthReducer);
   const [status, setStatus] = useState(nft.status);
@@ -21,6 +23,7 @@ function MyNftItem(props: any) {
   useEffect(() => {
     let { status } = nft;
 
+    setStatus(status);
     const checkStatus = () => {
       if (
         status === "AUCTION" &&
@@ -80,7 +83,9 @@ function MyNftItem(props: any) {
             </View>
           </View>
         )}
-        {status === "LIST" && <NFTItemButton title="Cancel" />}
+        {status === "LIST" && <NFTItemButton title="Cancel" onPress={() => {
+          dispatch(cancelNft({ nft }))
+        }}/>}
         {(status === "AUCTION" || status === "END AUCTION") && (
           <NFTItemButton
             title="View Offers"

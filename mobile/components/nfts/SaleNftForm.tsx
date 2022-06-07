@@ -66,7 +66,7 @@ const SaleNftForm = (props: any) => {
   }
 
   return (
-    <View style={styles.container}>
+    <View>
       <Input
         label="Amount"
         invalid={!inputs.amount.isValid}
@@ -101,9 +101,6 @@ const SaleNftForm = (props: any) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 15,
-  },
   button: {
     marginTop: 15,
   },

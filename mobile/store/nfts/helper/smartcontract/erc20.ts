@@ -23,7 +23,6 @@ export async function loadApprovalStatus(
     user.address,
     zeroContractAddresses[connector.chainId]
   ).call());
-  console.log(erc20AllowanceBigNumber, 'Line #26 erc20.ts');
   
   const MAX_APPROVAL_WITH_BUFFER = BigNumber.from(MAX_APPROVAL.toString()).sub(
     "100000000000000000"

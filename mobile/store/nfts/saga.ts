@@ -9,6 +9,7 @@ import {
   BID_NFT,
   AUCTION_NFT,
   CONFIRM_NFT,
+  CANCEL_NFT,
 } from "./actionTypes";
 import {
   getNftsSuccess,
@@ -37,6 +38,9 @@ import {
   auctionNftSuccess,
   auctionNft,
   auctionNftFail,
+  cancelNftSuccess,
+  cancelNftFail,
+  cancelNft,
 } from "./actions";
 import { axiosInstance } from "../../helpers/axios";
 import { addNft } from "./helper/ipfs";
@@ -140,7 +144,7 @@ function* onSaleNft({ payload }: ReturnType<typeof saleNft>) {
       })
     );
 
-    yield put(saleNftSuccess(response.data));
+    yield put(saleNftSuccess(`Nft #${nft.id} sold at ${Date.now()}`));
   } catch (error) {
     console.log(JSON.stringify(error), "Line #55 saga.ts");
 
@@ -155,7 +159,7 @@ function* onBuyNft({ payload }: ReturnType<typeof buyNft>) {
       etherProvider.waitForTransaction(fillTx)
     );
 
-    const response = yield call(() =>
+    yield call(() =>
       axiosInstance.put("update-nft", {
         id: nft.id,
         status: "AVAILABLE",
@@ -166,7 +170,7 @@ function* onBuyNft({ payload }: ReturnType<typeof buyNft>) {
       })
     );
 
-    yield put(buyNftSuccess(response.data));
+    yield put(buyNftSuccess(`Nft #${nft.id} bought at ${Date.now()}`));
   } catch (error) {
     console.log(JSON.stringify(error), "Line #55 saga.ts");
 
@@ -178,7 +182,7 @@ function* onBidNft({ payload }: ReturnType<typeof bidNft>) {
   try {
     const { nft, bidOrders, user } = payload;
 
-    const response = yield call(() =>
+    yield call(() =>
       axiosInstance.put("update-nft", {
         id: nft.id,
         bidOrders: bidOrders,
@@ -187,7 +191,7 @@ function* onBidNft({ payload }: ReturnType<typeof bidNft>) {
       })
     );
 
-    yield put(bidNftSuccess(response.data));
+    yield put(bidNftSuccess(`Nft #${nft.id} bidded at ${Date.now()}`));
   } catch (error) {
     console.log(JSON.stringify(error), "Line #55 saga.ts");
 
@@ -198,14 +202,12 @@ function* onBidNft({ payload }: ReturnType<typeof bidNft>) {
 function* onConfirmNft({ payload }: ReturnType<typeof confirmNft>) {
   try {
     const { userId, nft, user, fillTx, etherProvider } = payload;
-    console.log(fillTx, 'Line #201 saga.ts');
-    
 
     const fillTxReceipt = yield call(() =>
       etherProvider.waitForTransaction(fillTx)
     );
 
-    const response = yield call(() =>
+    yield call(() =>
       axiosInstance.put("update-nft", {
         id: nft.id,
         status: "AVAILABLE",
@@ -216,7 +218,7 @@ function* onConfirmNft({ payload }: ReturnType<typeof confirmNft>) {
       })
     );
 
-    yield put(confirmNftSuccess(response.data));
+    yield put(confirmNftSuccess(`Nft #${nft.id} confirmed at ${Date.now()}`));
   } catch (error) {
     console.log(JSON.stringify(error), "Line #55 saga.ts");
 
@@ -235,10 +237,8 @@ function* onAuctionNft({ payload }: ReturnType<typeof auctionNft>) {
       startingPrice,
       expiry,
     } = payload;
-    console.log("onAuctionNft", 'Line #236 saga.ts');
-    
 
-    const response = yield call(() =>
+    yield call(() =>
       axiosInstance.put("update-nft", {
         id: nft.id,
         status: "AUCTION",
@@ -252,14 +252,32 @@ function* onAuctionNft({ payload }: ReturnType<typeof auctionNft>) {
         actionUserId: user.id,
       })
     );
-    console.log(response, 'Line #253 saga.ts');
-    
 
-    yield put(auctionNftSuccess(response.data));
+    yield put(auctionNftSuccess(`Nft #${nft.id} auctioned at ${Date.now()}`));
   } catch (error) {
     console.log(JSON.stringify(error), "Line #55 saga.ts");
 
     yield put(auctionNftFail(error));
+  }
+}
+
+function* onCancelNft({ payload }: ReturnType<typeof cancelNft>) {
+  try {
+    const { nft } = payload;
+
+    yield call(() =>
+      axiosInstance.put("update-nft", {
+        id: nft.id,
+        status: "AVAILABLE",
+        signedOrder: null,
+      })
+    );
+
+    yield put(cancelNftSuccess(`Nft #${nft.id} canceled at ${Date.now()}`));
+  } catch (error) {
+    console.log(JSON.stringify(error), "Line #55 saga.ts");
+
+    yield put(cancelNftFail(error));
   }
 }
 
@@ -273,6 +291,7 @@ function* NftSaga() {
   yield takeLatest(BID_NFT, onBidNft);
   yield takeLatest(CONFIRM_NFT, onConfirmNft);
   yield takeLatest(AUCTION_NFT, onAuctionNft);
+  yield takeLatest(CANCEL_NFT, onCancelNft);
 }
 
 export default NftSaga;
