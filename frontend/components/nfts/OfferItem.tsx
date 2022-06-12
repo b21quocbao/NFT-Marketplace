@@ -1,48 +1,25 @@
 import { NftSwapV4 as NftSwap } from "@traderxyz/nft-swap-sdk";
-import { useWeb3React } from "@web3-react/core";
 import { Button } from "antd";
 // import { ObjectId } from "mongodb";
-import { useEffect, useState } from "react";
-import StorageUtils from "../../utils/storage";
-import { useEagerConnect, useInactiveListener } from "../wallet/Hooks";
+import { useState } from "react";
 import web3 from "web3";
 import { useRouter } from "next/router";
 import { zeroContractAddresses } from "../../contracts/zeroExContracts";
+import useConnectionInfo from "../../hooks/connectionInfo";
 
 const { fromWei } = web3.utils;
 
 function OfferItem(props: any) {
-  const context = useWeb3React();
+  const { user, library, chainId } = useConnectionInfo();
   const router = useRouter();
-  const { library, active, connector, chainId } = context;
-  const [user, setUser] = useState({} as any);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    setUser(StorageUtils.getUser());
-  }, [library]);
-
-  const [activatingConnector, setActivatingConnector] = useState();
-  useEffect(() => {
-    console.log("running");
-    if (activatingConnector && activatingConnector === connector) {
-      setActivatingConnector(undefined);
-    }
-  }, [activatingConnector, connector]);
-
-  // handle logic to eagerly connect to the injected ethereum provider, if it exists and has granted access already
-  const triedEager = useEagerConnect();
-
-  // handle logic to connect in reaction to certain events on the injected ethereum provider, if it exists
-  useInactiveListener(!triedEager || !!activatingConnector);
-  console.log(props.userId, 'props.userId');
-  
 
   return (
     <>
       <p>{`Bidder: ${props.offer.maker}`}</p>
       <p>{`Amount: ${fromWei(props.offer.erc20TokenAmount)}`}</p>
-      {user && props.makerUserId == user.id &&
+      {user &&
+        props.makerUserId == user.id &&
         props.highestBid &&
         new Date(props.endAuctionTime).getTime() < Date.now() && (
           <Button
@@ -68,7 +45,9 @@ function OfferItem(props: any) {
                   await new Promise((resolve) => setTimeout(resolve, 5000));
                 } catch (e: any) {
                   if (e.code === 4902) {
-                    window.alert(`Please add chain with id ${props.nft.chainId} to your wallet then try again`);
+                    window.alert(
+                      `Please add chain with id ${props.nft.chainId} to your wallet then try again`
+                    );
                   }
                 }
               }
@@ -81,18 +60,13 @@ function OfferItem(props: any) {
                 type: "ERC721",
               };
 
-              const nftSwapSdk = new NftSwap(
-                library,
-                signer,
-                chainId,
-                {
-                  zeroExExchangeProxyContractAddress: zeroContractAddresses[
-                    Number(chainId)
-                  ]
-                    ? zeroContractAddresses[Number(chainId)]
-                    : undefined,
-                }
-              );
+              const nftSwapSdk = new NftSwap(library, signer, chainId, {
+                zeroExExchangeProxyContractAddress: zeroContractAddresses[
+                  Number(chainId)
+                ]
+                  ? zeroContractAddresses[Number(chainId)]
+                  : undefined,
+              });
 
               // Check if we need to approve the NFT for swapping
               const approvalStatusForUserB =
@@ -119,7 +93,7 @@ function OfferItem(props: any) {
                 fillTx.hash
               );
               console.log(props.userId, "props.userId");
-              
+
               await fetch("/api/update-nft", {
                 method: "PUT",
                 body: JSON.stringify({
@@ -138,7 +112,7 @@ function OfferItem(props: any) {
                 body: JSON.stringify({
                   userId: user.id,
                   nftId: props.id,
-                  name: "Confirm offer"
+                  name: "Confirm offer",
                 }),
                 headers: {
                   "Content-Type": "application/json",

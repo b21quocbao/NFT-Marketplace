@@ -1,17 +1,9 @@
-import { Fragment, useEffect, useState } from "react";
-import Head from "next/head";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { create as ipfsHttpClient } from "ipfs-http-client";
-
 import NewNftForm from "../../../components/nfts/NewNftForm";
-import StorageUtils from "../../../utils/storage";
-import { useWeb3React } from "@web3-react/core";
 import erc721ABI from "../../../contracts/abi/erc721ABI.json";
 import { Contract } from "@ethersproject/contracts";
-import {
-  useEagerConnect,
-  useInactiveListener,
-} from "../../../components/wallet/Hooks";
 import {
   ensureIpfsUriPrefix,
   makeNFTMetadata,
@@ -21,6 +13,8 @@ import path from "path";
 import { MongoClient } from "mongodb";
 import web3 from "web3";
 import { erc721ContractAddresses } from "../../../contracts/erc721Contracts";
+import useConnectionInfo from "../../../hooks/connectionInfo";
+import { actions } from "@metaplex/js";
 
 const { toWei } = web3.utils;
 
@@ -44,45 +38,21 @@ const client = ipfsHttpClient({
 
 function NewNftPage(props: any) {
   const router = useRouter();
-  const [user, setUser] = useState({} as any);
   const [loading, setLoading] = useState(false);
   const [collections, setCollections] = useState(props.collections);
-  const context = useWeb3React();
-  const { library, active, connector, chainId } = context;
-
-  const [activatingConnector, setActivatingConnector] = useState();
-  useEffect(() => {
-    console.log("running");
-    if (activatingConnector && activatingConnector === connector) {
-      setActivatingConnector(undefined);
-    }
-  }, [activatingConnector, connector]);
-
-  // handle logic to eagerly connect to the injected ethereum provider, if it exists and has granted access already
-  const triedEager = useEagerConnect();
-
-  // handle logic to connect in reaction to certain events on the injected ethereum provider, if it exists
-  useInactiveListener(!triedEager || !!activatingConnector);
+  const { user, library, chainId, connection, wallet } = useConnectionInfo();
 
   useEffect(() => {
-    setUser(StorageUtils.getUser());
-  }, []);
-
-  useEffect(() => {
-    setCollections(props.collections.filter((col: any) => col.chainId == chainId))
+    setCollections(
+      props.collections.filter((col: any) => col.chainId == chainId)
+    );
   }, [chainId, props.collections]);
 
   async function addNftHandler(enteredNftData: any) {
-    setLoading(true);
+    // setLoading(true);
     const cost = 0;
-    const signer = library.getSigner();
     const numNft = enteredNftData.images.length;
     const assetCids = [] as any[];
-    const contract = new Contract(
-      erc721ContractAddresses[Number(chainId)] as string,
-      erc721ABI,
-      signer
-    );
 
     const ipfsAddAssets = enteredNftData.images.map((image: any) => {
       const filePath = image.originFileObj.name;
@@ -109,24 +79,30 @@ function NewNftPage(props: any) {
       imageUrl: [] as string[],
     };
 
-    const ipfsAddMetadatas = await Promise.all(Array.from(Array(numNft).keys()).map(async(idx) => {
-      const filePath = enteredNftData.images[idx].originFileObj.name;
-      const basename = path.basename(filePath);
-      const assetCid = assetCids[idx];
-      const assetURI = ensureIpfsUriPrefix(assetCid) + "/" + basename;
-      const metadata = await makeNFTMetadata(assetURI, enteredNftData);
+    const ipfsAddMetadatas = await Promise.all(
+      Array.from(Array(numNft).keys()).map(async (idx) => {
+        const filePath = enteredNftData.images[idx].originFileObj.name;
+        const basename = path.basename(filePath);
+        const assetCid = assetCids[idx];
+        const assetURI = ensureIpfsUriPrefix(assetCid) + "/" + basename;
+        console.log(enteredNftData.assets[idx], "xocviu");
+        
+        const metadata = await makeNFTMetadata(assetURI, user.address, enteredNftData.assets[idx]);
+        console.log(metadata, 'metadata');
+        
 
-      processedDatas.assetURI.push(assetURI);
-      processedDatas.imageUrl.push(
-        `https://ipfs.io/ipfs/${stripIpfsUriPrefix(assetURI)}`
-      );
+        processedDatas.assetURI.push(assetURI);
+        processedDatas.imageUrl.push(
+          `https://ipfs.infura.io/ipfs/${stripIpfsUriPrefix(assetURI)}`
+        );
 
-      // add the metadata to IPFS
-      return {
-        path: `/nft/metadata.json`,
-        content: JSON.stringify(metadata),
-      };
-    }));
+        // add the metadata to IPFS
+        return {
+          path: `/nft/metadata.json`,
+          content: JSON.stringify(metadata),
+        };
+      })
+    );
 
     // for await (const file of client.addAll(ipfsAddMetadatas)) {
     for (const ipfsAddMetadata of ipfsAddMetadatas) {
@@ -137,29 +113,48 @@ function NewNftPage(props: any) {
       processedDatas.metadataURI.push(metadataURI);
     }
 
-    const totalSupply = (await contract.totalSupply()).toNumber();
+    if (!user.solana) {
+      const signer = library.getSigner();
+      const contract = new Contract(
+        erc721ContractAddresses[Number(chainId)] as string,
+        erc721ABI,
+        signer
+      );
 
-    await fetch("/api/new-nft", {
-      method: "POST",
-      body: JSON.stringify({
-        imageUrls: processedDatas.imageUrl,
-        assetURIs: processedDatas.assetURI,
-        metadataURIs: processedDatas.metadataURI,
-        assets: enteredNftData.assets,
-        collectionId: enteredNftData.collectionId,
-        chainId: chainId?.toString(),
-        status: "AVAILABLE",
-        tokenId: Number(totalSupply) + 1,
-        userId: user._id,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+      const totalSupply = (await contract.totalSupply()).toNumber();
 
-    await contract.mint(user.address, numNft, processedDatas.metadataURI, {
-      value: toWei((cost * numNft).toString()),
-    });
+      await fetch("/api/new-nft", {
+        method: "POST",
+        body: JSON.stringify({
+          imageUrls: processedDatas.imageUrl,
+          assetURIs: processedDatas.assetURI,
+          metadataURIs: processedDatas.metadataURI,
+          assets: enteredNftData.assets,
+          collectionId: enteredNftData.collectionId,
+          chainId: chainId?.toString(),
+          status: "AVAILABLE",
+          tokenId: Number(totalSupply) + 1,
+          userId: user._id,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      await contract.mint(user.address, numNft, processedDatas.metadataURI, {
+        value: toWei((cost * numNft).toString()),
+      });
+    } else if (connection && wallet) {
+      const mintNFTResponse = await actions.mintNFT({
+        connection,
+        wallet: wallet as any,
+        uri: `https://ipfs.infura.io/ipfs/${stripIpfsUriPrefix(processedDatas.metadataURI[0])}`,
+        maxSupply: 0,
+      });
+
+      console.log(mintNFTResponse, "mintNFTResponse");
+      
+    }
 
     setLoading(false);
 
@@ -167,11 +162,12 @@ function NewNftPage(props: any) {
   }
 
   return (
-    <>
-      {active && (
-        <NewNftForm onAddNft={addNftHandler} collections={collections} chainId={chainId} loading={loading} />
-      )}
-    </>
+    <NewNftForm
+      onAddNft={addNftHandler}
+      collections={collections}
+      chainId={chainId}
+      loading={loading}
+    />
   );
 }
 
@@ -183,7 +179,9 @@ export async function getServerSideProps(ctx: any) {
 
   const collectionsCollection = db.collection("collections");
 
-  const collections = await collectionsCollection.find({ userId: ctx.params.userId }).toArray();
+  const collections = await collectionsCollection
+    .find({ userId: ctx.params.userId })
+    .toArray();
 
   client.close();
 

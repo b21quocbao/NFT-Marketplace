@@ -1,41 +1,22 @@
 import { MongoClient, ObjectId } from "mongodb";
 import SaleNftForm from "../../../../components/nfts/SaleNftForm";
 import { useEffect, useState } from "react";
-import { useWeb3React } from "@web3-react/core";
-import {
-  useEagerConnect,
-  useInactiveListener,
-} from "../../../../components/wallet/Hooks";
 import { NftSwapV4 as NftSwap } from "@traderxyz/nft-swap-sdk";
 import web3 from "web3";
 import { useRouter } from "next/router";
-import StorageUtils from "../../../../utils/storage";
 import { Contract } from "@ethersproject/contracts";
-import { erc20ABI } from "../../../../contracts/abi/erc20ABI";
-import { CHAINS, NATIVE_COINS } from "../../../../constants/chain";
+import erc20ABI from "../../../../contracts/abi/erc20ABI.json";
+import { NATIVE_COINS } from "../../../../constants/chain";
 import { erc721ContractAddresses } from "../../../../contracts/erc721Contracts";
 import { zeroContractAddresses } from "../../../../contracts/zeroExContracts";
+import useConnectionInfo from "../../../../hooks/connectionInfo";
 
 const { toWei } = web3.utils;
 
 function SaleNftPage(props: any) {
-  const context = useWeb3React();
   const router = useRouter();
-  const { library, active, connector, chainId } = context;
-  const [user, setUser] = useState({} as any);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    setUser(StorageUtils.getUser());
-  }, [library]);
-
-  const [activatingConnector, setActivatingConnector] = useState();
-  useEffect(() => {
-    console.log("running");
-    if (activatingConnector && activatingConnector === connector) {
-      setActivatingConnector(undefined);
-    }
-  }, [activatingConnector, connector]);
+  const { user, library, chainId } = useConnectionInfo();
 
   useEffect(() => {
     const { ethereum } = window;
@@ -60,12 +41,6 @@ function SaleNftPage(props: any) {
 
     changeChain();
   }, [chainId, props.nft.chainId]);
-
-  // handle logic to eagerly connect to the injected ethereum provider, if it exists and has granted access already
-  const triedEager = useEagerConnect();
-
-  // handle logic to connect in reaction to certain events on the injected ethereum provider, if it exists
-  useInactiveListener(!triedEager || !!activatingConnector);
 
   async function saleNftHandler(enteredNftData: any) {
     setLoading(true);

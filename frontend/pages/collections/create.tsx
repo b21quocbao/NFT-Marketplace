@@ -5,6 +5,7 @@ import { create as ipfsHttpClient } from "ipfs-http-client";
 
 import NewCollectionForm from "../../components/collections/NewCollectionForm";
 import StorageUtils from "../../utils/storage";
+import useConnectionInfo from "../../hooks/connectionInfo";
 const auth =
   "Basic " +
   Buffer.from(
@@ -24,12 +25,8 @@ const client = ipfsHttpClient({
 });
 function NewCollectionPage() {
   const router = useRouter();
-  const [user, setUser] = useState({} as any);
+  const { user } = useConnectionInfo();
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    setUser(StorageUtils.getUser());
-  }, []);
 
   async function addCollectionHandler(enteredCollectionData: any) {
     setLoading(true);

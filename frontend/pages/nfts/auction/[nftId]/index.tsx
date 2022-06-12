@@ -2,40 +2,18 @@ import { MongoClient, ObjectId } from "mongodb";
 import { useRouter } from "next/router";
 import AuctionNftForm from "../../../../components/nfts/AuctionNftForm";
 import web3 from "web3";
-import { useEffect, useState } from "react";
-import StorageUtils from "../../../../utils/storage";
-import { useEagerConnect, useInactiveListener } from "../../../../components/wallet/Hooks";
-import { useWeb3React } from "@web3-react/core";
-import { erc20ABI } from "../../../../contracts/abi/erc20ABI";
+import { useState } from "react";
+import erc20ABI from "../../../../contracts/abi/erc20ABI.json";
 import { NATIVE_COINS } from "../../../../constants/chain";
 import { Contract } from "@ethersproject/contracts";
+import useConnectionInfo from "../../../../hooks/connectionInfo";
 
 const { toWei } = web3.utils;
 
 function AuctionNftPage(props: any) {
   const router = useRouter();
-  const [user, setUser] = useState({} as any);
-  const context = useWeb3React();
-  const { connector, chainId, library } = context;
+  const { user, library, chainId } = useConnectionInfo();
   const [loading, setLoading] = useState(false);
-
-  const [activatingConnector, setActivatingConnector] = useState();
-  useEffect(() => {
-    console.log("running");
-    if (activatingConnector && activatingConnector === connector) {
-      setActivatingConnector(undefined);
-    }
-  }, [activatingConnector, connector]);
-
-  // handle logic to eagerly connect to the injected ethereum provider, if it exists and has granted access already
-  const triedEager = useEagerConnect();
-
-  // handle logic to connect in reaction to certain events on the injected ethereum provider, if it exists
-  useInactiveListener(!triedEager || !!activatingConnector);
-
-  useEffect(() => {
-    setUser(StorageUtils.getUser());
-  }, []);
 
   async function auctionNftHandler(enteredNftData: any) {
     setLoading(true);

@@ -17,11 +17,26 @@ export function stripIpfsUriPrefix(cidOrURI: string) {
   return cidOrURI;
 }
 
-export async function makeNFTMetadata(assetURI: string, options: any) {
+export async function makeNFTMetadata(
+  assetURI: string,
+  address: string,
+  options: any
+) {
   const { name, description } = options;
   assetURI = ensureIpfsUriPrefix(assetURI);
   return {
     name,
+    symbol: "NFT",
+    properties: {
+      category: "image",
+      maxSupply: 0,
+      creators: [
+        {
+          address,
+          share: 100,
+        },
+      ],
+    },
     description,
     image: assetURI,
   };

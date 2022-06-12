@@ -2,6 +2,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { MongoClient } from "mongodb";
 import jwt from "jsonwebtoken";
+import { sign } from "tweetnacl";
+import bs58 from 'bs58';
 // eslint-disable-next-line
 const Web3 = require("web3");
 
@@ -23,20 +25,32 @@ export default async function handler(
 
   const web3 = new Web3();
 
-  try {
-    const recover = await web3.eth.accounts.recover(
-      req.body.message,
-      req.body.password
-    );
-
-    const recoverConvert = Web3.utils.toChecksumAddress(recover);
-    const addressConvert = Web3.utils.toChecksumAddress(req.body.username);
-
-    if (addressConvert !== recoverConvert) {
+  if (req.body.solana) {
+    if (
+      !sign.detached.verify(
+        new TextEncoder().encode(req.body.message),
+        bs58.decode(req.body.password),
+        new Uint8Array(JSON.parse(req.body.publicKey))
+      )
+    ) {
       throw new Error("WRONG_SIGNATURE");
     }
-  } catch (err) {
-    throw new Error("WRONG_SIGNATURE");
+  } else {
+    try {
+      const recover = await web3.eth.accounts.recover(
+        req.body.message,
+        req.body.password
+      );
+
+      const recoverConvert = Web3.utils.toChecksumAddress(recover);
+      const addressConvert = Web3.utils.toChecksumAddress(req.body.username);
+
+      if (addressConvert !== recoverConvert) {
+        throw new Error("WRONG_SIGNATURE");
+      }
+    } catch (err) {
+      throw new Error("WRONG_SIGNATURE");
+    }
   }
 
   let user = await usersCollection.findOne({
@@ -44,7 +58,7 @@ export default async function handler(
   });
 
   if (!user) {
-    await usersCollection.insertOne({ address: req.body.username });
+    await usersCollection.insertOne({ address: req.body.username, solana: req.body.solana });
     user = await usersCollection.findOne({ address: req.body.username });
   }
 

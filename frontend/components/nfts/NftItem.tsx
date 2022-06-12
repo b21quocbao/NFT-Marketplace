@@ -1,16 +1,12 @@
-import { useWeb3React } from "@web3-react/core";
 import { Button, Card, Image } from "antd";
-import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useEagerConnect, useInactiveListener } from "../wallet/Hooks";
 import { NftSwapV4 as NftSwap } from "@traderxyz/nft-swap-sdk";
-import StorageUtils from "../../utils/storage";
-import Countdown from "react-countdown";
 const { Meta } = Card;
 import web3 from "web3";
 import { useRouter } from "next/router";
 import { CHAINS } from "../../constants/chain";
 import { zeroContractAddresses } from "../../contracts/zeroExContracts";
+import useConnectionInfo from "../../hooks/connectionInfo";
 
 const { fromWei } = web3.utils;
 
@@ -30,10 +26,8 @@ const timeString = (time: number) => {
 };
 
 function NftItem(props: any) {
-  const context = useWeb3React();
   const router = useRouter();
-  const { library, active, connector, chainId, activate } = context;
-  const [user, setUser] = useState({} as any);
+  const { user, library, chainId } = useConnectionInfo();
   const [status, setStatus] = useState(props.status);
   const [loading, setLoading] = useState(false);
   const [endAuctionTime, setEndAuctionTime] = useState(undefined as any);
@@ -51,7 +45,6 @@ function NftItem(props: any) {
     };
     checkStatus();
     const interval = setInterval(checkStatus, 1000);
-    setUser(StorageUtils.getUser());
     return () => clearInterval(interval);
   }, [props]);
 
@@ -66,20 +59,6 @@ function NftItem(props: any) {
       return () => clearInterval(interval);
     }
   }, [props]);
-
-  const [activatingConnector, setActivatingConnector] = useState();
-  useEffect(() => {
-    console.log("running");
-    if (activatingConnector && activatingConnector === connector) {
-      setActivatingConnector(undefined);
-    }
-  }, [activatingConnector, connector]);
-
-  // handle logic to eagerly connect to the injected ethereum provider, if it exists and has granted access already
-  const triedEager = useEagerConnect();
-
-  // handle logic to connect in reaction to certain events on the injected ethereum provider, if it exists
-  useInactiveListener(!triedEager || !!activatingConnector);
 
   return (
     <>

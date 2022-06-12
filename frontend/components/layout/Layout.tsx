@@ -7,13 +7,14 @@ import StorageUtils from "../../utils/storage";
 import { useEffect, useState } from "react";
 import { useWeb3React } from "@web3-react/core";
 import { useEagerConnect, useInactiveListener } from "../wallet/Hooks";
+import useConnectionInfo from "../../hooks/connectionInfo";
 
 function Layout(props: any) {
   const router = useRouter();
   const [logined, setLogined] = useState(false);
-  const [user, setUser] = useState({} as any);
+  const { user } = useConnectionInfo();
   const context = useWeb3React();
-  const { connector, chainId } = context;
+  const { connector } = context;
 
   const [activatingConnector, setActivatingConnector] = useState();
   useEffect(() => {
@@ -32,18 +33,19 @@ function Layout(props: any) {
   useEffect(() => {
     const logined = !!StorageUtils.getToken()
     setLogined(logined);
-    setUser(StorageUtils.getUser() || {});
     if (
       !logined &&
       ![
         "/",
+        "/wallet/all-connect",
+        "/wallet/solana-connect",
         "/wallet/connect",
         "/nfts",
         "/collections",
         "/nfts/offers/[nftId]",
       ].includes(router.pathname)
     ) {
-      router.push('/wallet/connect');
+      router.push('/wallet/all-connect');
       window.alert(`You must connect to your wallet then login to continue.`);
     }
   }, [router]);
@@ -94,7 +96,7 @@ function Layout(props: any) {
                 router.push(`/actions/${user.id}`);
                 break;
               case 8:
-                router.push("/wallet/connect");
+                router.push("/wallet/all-connect");
                 break;
             }
           }}
