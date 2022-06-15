@@ -104,7 +104,7 @@ function BidNft({ route }) {
           amount: toWei(marketplaceFee.toFixed(10).toString()),
         },
         {
-          recipient: user.address,
+          recipient: nft.creator,
           amount: toWei(bidRoyaltyFee.toFixed(10).toString()),
         },
       ],

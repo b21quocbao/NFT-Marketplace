@@ -21,7 +21,7 @@ import WalletConnectProvider from "@walletconnect/web3-provider";
 import "react-native-get-random-values";
 import "@ethersproject/shims";
 import { ethers } from "ethers";
-import { NATIVE_COINS } from "../../constants/chain";
+import { CHAIN_DATA } from "../../constants/chain";
 import { NATIVE_TOKEN, TradeDirection } from "../../constants/zeroEx";
 import { getSymbol } from "../../store/nfts/helper/smartcontract/erc20";
 import { ActivityIndicator, Button, StyleSheet, Text, View } from "react-native";
@@ -76,7 +76,7 @@ function SaleNft({ route }) {
     const marketplaceFee = (Number(NEXT_PUBLIC_MARKETPLACE_FEE) * amount) / 100;
     const erc721TokenAddress =
       erc721ContractAddresses[Number(connector.chainId)];
-    let symbol = NATIVE_COINS[Number(connector.chainId)];
+    let symbol = CHAIN_DATA[Number(connector.chainId)].symbol;
 
     if (erc20TokenAddress != NATIVE_TOKEN) {
       const erc20Contract = new web3.eth.Contract(
@@ -120,7 +120,7 @@ function SaleNft({ route }) {
           amount: toWei(marketplaceFee.toFixed(10).toString()),
         },
         {
-          recipient: user.address,
+          recipient: nft.creator,
           amount: toWei(saleRoyaltyFee.toFixed(10).toString()),
         },
       ],
