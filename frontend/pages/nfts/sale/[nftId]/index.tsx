@@ -138,7 +138,7 @@ function SaleNftPage(props: any) {
           amount: toWei(marketplaceFee.toFixed(10).toString()),
         },
         {
-          recipient: props.user.address,
+          recipient: props.nft.creator,
           amount: toWei(saleRoyaltyFee.toFixed(10).toString()),
         },
       ],

@@ -146,6 +146,7 @@ function NewNftPage(props: any) {
         assetURIs: processedDatas.assetURI,
         metadataURIs: processedDatas.metadataURI,
         assets: enteredNftData.assets,
+        creator: user.address,
         collectionId: enteredNftData.collectionId,
         chainId: chainId?.toString(),
         status: "AVAILABLE",

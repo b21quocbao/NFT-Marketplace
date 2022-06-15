@@ -123,7 +123,7 @@ function BidNftPage(props: any) {
           amount: toWei(marketplaceFee.toFixed(10).toString()),
         },
         {
-          recipient: props.user.address,
+          recipient: props.nft.creator,
           amount: toWei(bidRoyaltyFee.toFixed(10).toString()),
         },
       ],

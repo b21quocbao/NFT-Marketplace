@@ -23,6 +23,7 @@ async function handler(req: any, res: any) {
       await nftsCollection.insertOne({
         imageUrl,
         assetURI,
+        creator: data.creator,
         metadataURI,
         collectionId,
         chainId,

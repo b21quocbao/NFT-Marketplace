@@ -13,7 +13,7 @@ function CollectionItem(props: any) {
         }}
         cover={<Image alt="example" src={props.imageUrl} />}
       >
-        <Meta title={props.name} description={CHAIN_DATA[props.chainId].name} />
+        <Meta title={props.name} description={CHAIN_DATA[props.chainId]?.name} />
       </Card>
     </Link>
   );

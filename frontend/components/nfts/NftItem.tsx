@@ -93,7 +93,7 @@ function NftItem(props: any) {
         <Meta title={props.name} description={status} />
         <br />
         <b>Chain: </b>
-        <p>{CHAIN_DATA[props.chainId].name}</p>
+        <p>{CHAIN_DATA[props.chainId]?.name}</p>
         <br />
 
         {status === "LIST" && (

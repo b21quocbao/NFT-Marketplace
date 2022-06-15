@@ -21,7 +21,7 @@ function MyNftItem(props: any) {
         <Meta title={props.name} description={props.status} />
         <br />
         <b>Chain: </b>
-        <p>{CHAIN_DATA[props.chainId].name}</p>
+        <p>{CHAIN_DATA[props.chainId]?.name}</p>
         <br />
         {props.status == "AVAILABLE" && (
           <Button
