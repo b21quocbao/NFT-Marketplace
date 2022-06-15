@@ -31,7 +31,7 @@ function OfferItem(props: any) {
 
               const { ethereum } = window;
 
-              if (props.chainId != chainId) {
+              if (user.id && !user.solana && props.chainId != chainId) {
                 try {
                   await ethereum.request({
                     method: "wallet_switchEthereumChain",

@@ -1,33 +1,25 @@
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useWeb3React } from "@web3-react/core";
 import { useEffect, useState } from "react";
+import { useConnection, useSolanaWallet } from "../solana-helper";
 import StorageUtils from "../utils/storage";
 
 const useConnectionInfo = () => {
   const [user, setUser] = useState({} as any);
+  const connection = useConnection();
+  const wallet = useSolanaWallet();
+  const context = useWeb3React();
+  const { chainId, library } = context;
+
   useEffect(() => {
     setUser(StorageUtils.getUser());
   }, []);
 
-  if (user.solana) {
-    const { connection } = useConnection();
-    const wallet = useWallet();
-
-    return {
-      user,
-      chainId: 103,
-      connection,
-      wallet,
-    };
-  } else {
-    const context = useWeb3React();
-    const { chainId, library } = context;
-
-    return {
-      chainId,
-      library,
-      user,
-    };
+  return {
+    user,
+    chainId: (user && user.solana) ? 103 : chainId,
+    connection,
+    wallet,
+    library,
   }
 };
 

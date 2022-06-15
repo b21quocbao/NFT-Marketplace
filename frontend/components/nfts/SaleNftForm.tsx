@@ -66,7 +66,7 @@ const SaleNftForm = (props: any) => {
         name="erc20TokenAddress"
         label="Token Address"
         tooltip="Address of token you want to process. Please use 0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee for native tokens."
-        initialValue="0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+        initialValue={props.initialValue}
         rules={[
           {
             required: true,

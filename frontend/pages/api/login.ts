@@ -3,7 +3,9 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { MongoClient } from "mongodb";
 import jwt from "jsonwebtoken";
 import { sign } from "tweetnacl";
-import bs58 from 'bs58';
+import bs58 from "bs58";
+import axios from "axios";
+import { getStoreID } from "../../solana-helper";
 // eslint-disable-next-line
 const Web3 = require("web3");
 
@@ -12,6 +14,30 @@ type Data = {
   refreshToken: string;
   user: any;
 };
+
+async function getProgramAccount(address: string) {
+  const masterReq = {
+    jsonrpc: "2.0",
+    id: 1,
+    method: "getProgramAccounts",
+    params: [
+      "p1exdMJcjVao65QdewkaZRUnU6VPSXhus9n2GzWfh98",
+      {
+        encoding: "base64",
+        dataSlice: {
+          offset: 0,
+          length: 0,
+        },
+      },
+    ],
+  };
+  const { data: masterRes } = await axios.post(
+    "https://api.devnet.solana.com",
+    masterReq
+  );
+
+  return masterRes.result.filter((x: any) => x.pubkey == address).length > 0;
+}
 
 export default async function handler(
   req: NextApiRequest,
@@ -58,11 +84,30 @@ export default async function handler(
   });
 
   if (!user) {
-    await usersCollection.insertOne({ address: req.body.username, solana: req.body.solana });
+    await usersCollection.insertOne({
+      address: req.body.username,
+      solana: req.body.solana,
+    });
     user = await usersCollection.findOne({ address: req.body.username });
   }
 
   if (user) {
+    if (user.solana && !user.store) {
+      const storeAddress = await getStoreID(user.address);
+      console.log(storeAddress, 'Line #96 login.ts');
+      
+      if (storeAddress) {
+        user.store = await getProgramAccount(storeAddress);
+        console.log(user.store, 'Line #98 login.ts');
+        
+        await usersCollection.updateOne(
+          { _id: user._id },
+          {
+            $set: { store: user.store },
+          }
+        );
+      }
+    }
     const payload = {
       sub: user.id,
       address: user.address,
@@ -91,7 +136,7 @@ export default async function handler(
     };
 
     await usersCollection.updateOne(
-      { _id: user.id },
+      { _id: user._id },
       {
         $set: { refreshToken: response.refreshToken },
       }

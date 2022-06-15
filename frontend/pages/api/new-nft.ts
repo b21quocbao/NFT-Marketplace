@@ -10,6 +10,7 @@ async function handler(req: any, res: any) {
     const nftsCollection = db.collection("nfts");
 
     for (let idx = 0; idx < data.assets.length; ++idx) {
+      const metadata = data.metadatas[idx];
       const imageUrl = data.imageUrls[idx];
       const assetURI = data.assetURIs[idx];
       const metadataURI = data.metadataURIs[idx];
@@ -17,10 +18,11 @@ async function handler(req: any, res: any) {
       const collectionId = data.collectionId;
       const chainId = data.chainId;
       const status = data.status;
-      const tokenId = data.tokenId + idx;
+      const tokenId = isNaN(data.tokenId) ? data.tokenId : data.token + idx;
       const userId = data.userId;
 
       await nftsCollection.insertOne({
+        metadata,
         imageUrl,
         assetURI,
         metadataURI,

@@ -10,6 +10,9 @@ export const CHAINS: any = {
   42: "Kovan Testnet",
   4002: "Fantom Testnet",
   80001: "Polygon Testnet",
+  101: "Solana Mainnet",
+  102: "Solana Testnet",
+  103: "Solana Devnet",
 }
 
 export const NATIVE_COINS: any = {
@@ -24,4 +27,7 @@ export const NATIVE_COINS: any = {
   42: "ETH",
   4002: "FTM",
   80001: "MATIC",
+  101: "SOL",
+  102: "SOL",
+  103: "SOL",
 }

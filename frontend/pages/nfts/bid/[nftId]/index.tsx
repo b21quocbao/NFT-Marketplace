@@ -19,7 +19,7 @@ function BidNftPage(props: any) {
   useEffect(() => {
     const { ethereum } = window;
     const changeChain = async() => {
-      if (props.nft.chainId != chainId) {
+      if (user.id && !user.solana && props.nft.chainId != chainId) {
         try {
           await ethereum.request({
             method: 'wallet_switchEthereumChain',
@@ -34,7 +34,7 @@ function BidNftPage(props: any) {
     }
 
     changeChain();
-  }, [chainId, props.nft.chainId]);
+  }, [chainId, props.nft.chainId, user]);
 
   async function bidNftHandler(enteredNftData: any) {
     setLoading(true);

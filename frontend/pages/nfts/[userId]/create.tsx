@@ -104,6 +104,9 @@ function NewNftPage(props: any) {
       })
     );
 
+    let tokenId = undefined as any;
+    const metadatas = [];
+
     // for await (const file of client.addAll(ipfsAddMetadatas)) {
     for (const ipfsAddMetadata of ipfsAddMetadatas) {
       const file = await client.add(ipfsAddMetadata);
@@ -123,27 +126,11 @@ function NewNftPage(props: any) {
 
       const totalSupply = (await contract.totalSupply()).toNumber();
 
-      await fetch("/api/new-nft", {
-        method: "POST",
-        body: JSON.stringify({
-          imageUrls: processedDatas.imageUrl,
-          assetURIs: processedDatas.assetURI,
-          metadataURIs: processedDatas.metadataURI,
-          assets: enteredNftData.assets,
-          collectionId: enteredNftData.collectionId,
-          chainId: chainId?.toString(),
-          status: "AVAILABLE",
-          tokenId: Number(totalSupply) + 1,
-          userId: user._id,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
       await contract.mint(user.address, numNft, processedDatas.metadataURI, {
         value: toWei((cost * numNft).toString()),
       });
+
+      tokenId = Number(totalSupply) + 1;
     } else if (connection && wallet) {
       const mintNFTResponse = await actions.mintNFT({
         connection,
@@ -151,10 +138,28 @@ function NewNftPage(props: any) {
         uri: `https://ipfs.infura.io/ipfs/${stripIpfsUriPrefix(processedDatas.metadataURI[0])}`,
         maxSupply: 0,
       });
-
-      console.log(mintNFTResponse, "mintNFTResponse");
-      
+      metadatas.push(mintNFTResponse);
+      tokenId = mintNFTResponse.mint;
     }
+
+    await fetch("/api/new-nft", {
+      method: "POST",
+      body: JSON.stringify({
+        imageUrls: processedDatas.imageUrl,
+        assetURIs: processedDatas.assetURI,
+        metadataURIs: processedDatas.metadataURI,
+        assets: enteredNftData.assets,
+        collectionId: enteredNftData.collectionId,
+        metadatas: metadatas,
+        chainId: chainId?.toString(),
+        status: "AVAILABLE",
+        tokenId: tokenId,
+        userId: user._id,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
     setLoading(false);
 

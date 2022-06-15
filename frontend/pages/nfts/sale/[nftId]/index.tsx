@@ -10,18 +10,76 @@ import { NATIVE_COINS } from "../../../../constants/chain";
 import { erc721ContractAddresses } from "../../../../contracts/erc721Contracts";
 import { zeroContractAddresses } from "../../../../contracts/zeroExContracts";
 import useConnectionInfo from "../../../../hooks/connectionInfo";
+import {
+  AmountRange,
+  IPartialCreateAuctionArgs,
+  MasterEditionV2,
+  METADATA_SCHEMA,
+  NonWinningConstraint,
+  ParticipationConfigV2,
+  PriceFloor,
+  PriceFloorType,
+  useMeta,
+  useTokenList,
+  WinnerLimit,
+  WinnerLimitType,
+  WinningConfigType,
+  WinningConstraint,
+} from "../../../../solana-helper";
+import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+import { createAuctionManager } from "../../../../solana-helper/actions/createAuctionManager";
+import BN from "bn.js";
+import { MetadataData } from "@metaplex-foundation/mpl-token-metadata";
+import { deserializeUnchecked } from "borsh";
+export enum AuctionCategory {
+  InstantSale,
+  Limited,
+  Single,
+  Open,
+  Tiered,
+}
+
+async function combine(metadata: any, masterEdition: any, tokenAccount: any) {
+  let winningConfigType: WinningConfigType;
+  if (masterEdition.info.maxSupply) {
+    winningConfigType = WinningConfigType.PrintingV2;
+  } else {
+    winningConfigType = WinningConfigType.Participation;
+  }
+
+  return {
+    holding: tokenAccount.pubkey,
+    edition: undefined,
+    masterEdition,
+    metadata: metadata,
+    printingMintHolding: undefined,
+    winningConfigType,
+    amountRanges: [],
+    participationConfig:
+      winningConfigType == WinningConfigType.Participation
+        ? new ParticipationConfigV2({
+            winnerConstraint: WinningConstraint.ParticipationPrizeGiven,
+            nonWinningConstraint: NonWinningConstraint.GivenForFixedPrice,
+            fixedPrice: new BN(0),
+          })
+        : undefined,
+  };
+}
 
 const { toWei } = web3.utils;
 
 function SaleNftPage(props: any) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const { user, library, chainId } = useConnectionInfo();
+  const tokenList = useTokenList();
+  const { user, library, chainId, connection, wallet } = useConnectionInfo();
+  const { whitelistedCreatorsByCreator, storeIndexer } = useMeta();
+  console.log(tokenList, "tokenList");
 
   useEffect(() => {
     const { ethereum } = window;
     const changeChain = async () => {
-      if (props.nft.chainId != chainId) {
+      if (user.id && !user.solana && props.nft.chainId != chainId) {
         try {
           await ethereum.request({
             method: "wallet_switchEthereumChain",
@@ -40,7 +98,7 @@ function SaleNftPage(props: any) {
     };
 
     changeChain();
-  }, [chainId, props.nft.chainId]);
+  }, [chainId, props.nft.chainId, user]);
 
   async function saleNftHandler(enteredNftData: any) {
     setLoading(true);
@@ -128,20 +186,11 @@ function SaleNftPage(props: any) {
         id: props.nft.id,
         status: "LIST",
         symbol: symbol,
+        price: enteredNftData.amount,
         saleRoyaltyFee: enteredNftData.saleRoyaltyFee,
+        action: "List for sale",
+        actionUserId: user.id,
         signedOrder,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    await fetch("/api/new-action", {
-      method: "POST",
-      body: JSON.stringify({
-        userId: user.id,
-        nftId: props.nft.id,
-        name: "List for sale",
       }),
       headers: {
         "Content-Type": "application/json",
@@ -151,7 +200,106 @@ function SaleNftPage(props: any) {
     router.push(`/nfts`);
   }
 
-  return <SaleNftForm onSaleNft={saleNftHandler} loading={loading} />;
+  const saleSolanaNftHandler = async (enteredNftData: any) => {
+    setLoading(true);
+    enteredNftData.erc20TokenAddress = new PublicKey(
+      enteredNftData.erc20TokenAddress
+    ).toBase58();
+    const { itemData } = props.nft;
+    console.log(itemData, "itemData");
+
+    itemData.metadata.info = MetadataData.deserialize(
+      Buffer.from(itemData.metadata.account.data, "base64")
+    );
+    
+    itemData.masterEdition.info = deserializeUnchecked(
+      METADATA_SCHEMA,
+      MasterEditionV2,
+      Buffer.from(itemData.masterEdition.account.data, "base64")
+    );
+    const item: any = await combine(
+      itemData.metadata,
+      itemData.masterEdition,
+      itemData.tokenAccount
+    );
+    item.metadata.info.masterEdition = item.masterEdition.pubkey
+    item.metadata.info.edition = item.masterEdition.pubkey  
+    console.log(item, "item");
+    
+
+    item.winningConfigType = WinningConfigType.TokenOnlyTransfer;
+    item.amountRanges = [
+      new AmountRange({
+        amount: new BN(1),
+        length: new BN(1),
+      }),
+    ];
+
+    const auctionSettings: IPartialCreateAuctionArgs = {
+      winners: new WinnerLimit({
+        type: WinnerLimitType.Capped,
+        usize: new BN(1),
+      }),
+      priceFloor: new PriceFloor({
+        type: PriceFloorType.Minimum,
+        minPrice: new BN(enteredNftData.amount * LAMPORTS_PER_SOL),
+      }),
+      tokenMint: enteredNftData.erc20TokenAddress,
+      instantSalePrice: new BN(enteredNftData.amount * LAMPORTS_PER_SOL),
+      endAuctionAt: null,
+      auctionGap: null,
+      gapTickSizePercentage: null,
+      tickSize: null,
+      name: null,
+    };
+
+    const auctionData = await createAuctionManager(
+      connection,
+      wallet,
+      whitelistedCreatorsByCreator,
+      auctionSettings,
+      [item],
+      undefined,
+      enteredNftData.erc20TokenAddress,
+      storeIndexer
+    );
+
+    await fetch("/api/update-nft", {
+      method: "PUT",
+      body: JSON.stringify({
+        id: props.nft.id,
+        status: "LIST",
+        price: enteredNftData.amount,
+        symbol: tokenList.tokenMap.get(enteredNftData.erc20TokenAddress)
+          ?.symbol,
+        saleRoyaltyFee: enteredNftData.saleRoyaltyFee,
+        action: "List for sale",
+        actionUserId: user.id,
+        auctionData,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    router.push(`/nfts`);
+  };
+
+  return (
+    <>
+      {user.id && (
+        <SaleNftForm
+          initialValue={
+            user.solana
+              ? "So11111111111111111111111111111111111111112"
+              : "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+          }
+          onSaleNft={user.solana ? saleSolanaNftHandler : saleNftHandler}
+          loading={loading}
+        />
+      )}
+    </>
+  );
 }
 
 export async function getServerSideProps(ctx: any) {

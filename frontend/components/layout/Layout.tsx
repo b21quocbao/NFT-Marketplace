@@ -11,7 +11,6 @@ import useConnectionInfo from "../../hooks/connectionInfo";
 
 function Layout(props: any) {
   const router = useRouter();
-  const [logined, setLogined] = useState(false);
   const { user } = useConnectionInfo();
   const context = useWeb3React();
   const { connector } = context;
@@ -31,8 +30,7 @@ function Layout(props: any) {
   useInactiveListener(!triedEager || !!activatingConnector);
 
   useEffect(() => {
-    const logined = !!StorageUtils.getToken()
-    setLogined(logined);
+    const logined = !!StorageUtils.getToken();
     if (
       !logined &&
       ![
@@ -45,7 +43,7 @@ function Layout(props: any) {
         "/nfts/offers/[nftId]",
       ].includes(router.pathname)
     ) {
-      router.push('/wallet/all-connect');
+      router.push("/wallet/all-connect");
       window.alert(`You must connect to your wallet then login to continue.`);
     }
   }, [router]);
@@ -75,9 +73,23 @@ function Layout(props: any) {
                 router.push("/");
                 break;
               case 1:
+                if (!user) {
+                  router.push("/wallet/all-connect");
+                  window.alert(
+                    `You must connect to your wallet then login to continue.`
+                  );
+                  break;
+                }
                 router.push(`/nfts/${user.id}/create`);
                 break;
               case 2:
+                if (!user) {
+                  router.push("/wallet/all-connect");
+                  window.alert(
+                    `You must connect to your wallet then login to continue.`
+                  );
+                  break;
+                }
                 router.push(`/nfts/${user.id}`);
                 break;
               case 3:
@@ -87,12 +99,26 @@ function Layout(props: any) {
                 router.push("/collections/create");
                 break;
               case 5:
+                if (!user) {
+                  router.push("/wallet/all-connect");
+                  window.alert(
+                    `You must connect to your wallet then login to continue.`
+                  );
+                  break;
+                }
                 router.push(`/collections/${user.id}`);
                 break;
               case 6:
                 router.push(`/collections`);
                 break;
               case 7:
+                if (!user) {
+                  router.push("/wallet/all-connect");
+                  window.alert(
+                    `You must connect to your wallet then login to continue.`
+                  );
+                  break;
+                }
                 router.push(`/actions/${user.id}`);
                 break;
               case 8:
