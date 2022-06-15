@@ -10,11 +10,8 @@ import { NftSwapV4 as NftSwap } from "@traderxyz/nft-swap-sdk";
 import StorageUtils from "../../../../utils/storage";
 import web3 from "web3";
 import { useRouter } from "next/router";
-import { Contract } from "@ethersproject/contracts";
-import { erc20ABI } from "../../../../contracts/abi/erc20ABI";
-import { NATIVE_COINS } from "../../../../constants/chain";
-import { erc721ContractAddresses } from "../../../../contracts/erc721Contracts";
 import { zeroContractAddresses } from "../../../../contracts/zeroExContracts";
+import { CHAIN_DATA } from "../../../../constants/chain";
 
 const { toWei, fromWei } = web3.utils;
 
@@ -68,7 +65,7 @@ function BidNftPage(props: any) {
     const signer = library.getSigner();
 
     const takerAsset: any = {
-      tokenAddress: erc721ContractAddresses[Number(chainId)],
+      tokenAddress: CHAIN_DATA[Number(chainId)].erc721,
       tokenId: props.nft.tokenId,
       type: "ERC721",
     };
@@ -126,7 +123,7 @@ function BidNftPage(props: any) {
           amount: toWei(marketplaceFee.toFixed(10).toString()),
         },
         {
-          recipient: props.user.address,
+          recipient: props.nft.creator,
           amount: toWei(bidRoyaltyFee.toFixed(10).toString()),
         },
       ],

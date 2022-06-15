@@ -6,8 +6,8 @@ import { useEffect, useState } from "react";
 import StorageUtils from "../../../../utils/storage";
 import { useEagerConnect, useInactiveListener } from "../../../../components/wallet/Hooks";
 import { useWeb3React } from "@web3-react/core";
-import { erc20ABI } from "../../../../contracts/abi/erc20ABI";
-import { NATIVE_COINS } from "../../../../constants/chain";
+import erc20ABI from "../../../../contracts/abi/erc20ABI.json";
+import { CHAIN_DATA } from "../../../../constants/chain";
 import { Contract } from "@ethersproject/contracts";
 
 const { toWei } = web3.utils;
@@ -42,7 +42,7 @@ function AuctionNftPage(props: any) {
     const signer = library.getSigner();
 
     enteredNftData.erc20TokenAddress = enteredNftData.erc20TokenAddress.toLowerCase();
-    let symbol = NATIVE_COINS[Number(chainId)];
+    let symbol = CHAIN_DATA[Number(chainId)].symbol;
   
     if (enteredNftData.erc20TokenAddress != "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee") {
       const contract = new Contract(

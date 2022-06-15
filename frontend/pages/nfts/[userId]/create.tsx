@@ -20,7 +20,7 @@ import {
 import path from "path";
 import { MongoClient } from "mongodb";
 import web3 from "web3";
-import { erc721ContractAddresses } from "../../../contracts/erc721Contracts";
+import { CHAIN_DATA } from "../../../constants/chain";
 
 const { toWei } = web3.utils;
 
@@ -79,7 +79,7 @@ function NewNftPage(props: any) {
     const numNft = enteredNftData.images.length;
     const assetCids = [] as any[];
     const contract = new Contract(
-      erc721ContractAddresses[Number(chainId)] as string,
+      CHAIN_DATA[Number(chainId)].erc721 as string,
       erc721ABI,
       signer
     );
@@ -146,6 +146,7 @@ function NewNftPage(props: any) {
         assetURIs: processedDatas.assetURI,
         metadataURIs: processedDatas.metadataURI,
         assets: enteredNftData.assets,
+        creator: user.address,
         collectionId: enteredNftData.collectionId,
         chainId: chainId?.toString(),
         status: "AVAILABLE",
