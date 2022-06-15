@@ -2,7 +2,7 @@ import { Button, Card, Image } from "antd";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { CHAINS } from "../../constants/chain";
+import { CHAIN_DATA } from "../../constants/chain";
 const { Meta } = Card;
 
 function MyNftItem(props: any) {
@@ -21,7 +21,7 @@ function MyNftItem(props: any) {
         <Meta title={props.name} description={props.status} />
         <br />
         <b>Chain: </b>
-        <p>{CHAINS[props.chainId]}</p>
+        <p>{CHAIN_DATA[props.chainId].name}</p>
         <br />
         {props.status == "AVAILABLE" && (
           <Button

@@ -11,9 +11,8 @@ import web3 from "web3";
 import { useRouter } from "next/router";
 import StorageUtils from "../../../../utils/storage";
 import { Contract } from "@ethersproject/contracts";
-import { erc20ABI } from "../../../../contracts/abi/erc20ABI";
-import { CHAINS, NATIVE_COINS } from "../../../../constants/chain";
-import { erc721ContractAddresses } from "../../../../contracts/erc721Contracts";
+import erc20ABI from "../../../../contracts/abi/erc20ABI.json";
+import { CHAIN_DATA } from "../../../../constants/chain";
 import { zeroContractAddresses } from "../../../../contracts/zeroExContracts";
 
 const { toWei } = web3.utils;
@@ -72,7 +71,7 @@ function SaleNftPage(props: any) {
     const signer = library.getSigner();
     enteredNftData.erc20TokenAddress =
       enteredNftData.erc20TokenAddress.toLowerCase();
-    let symbol = NATIVE_COINS[Number(chainId)];
+    let symbol = CHAIN_DATA[Number(chainId)].symbol;
 
     if (
       enteredNftData.erc20TokenAddress !=
@@ -87,7 +86,7 @@ function SaleNftPage(props: any) {
     }
 
     const makerAsset: any = {
-      tokenAddress: erc721ContractAddresses[Number(chainId)],
+      tokenAddress: CHAIN_DATA[Number(chainId)].erc721,
       tokenId: props.nft.tokenId,
       type: "ERC721",
     };

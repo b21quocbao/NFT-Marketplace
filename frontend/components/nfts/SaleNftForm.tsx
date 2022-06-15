@@ -1,4 +1,6 @@
+import { useWeb3React } from "@web3-react/core";
 import { Button, Form, Input, InputNumber, Select, Upload } from "antd";
+import { CHAIN_DATA } from "../../constants/chain";
 const layout = {
   labelCol: {
     span: 8,
@@ -20,15 +22,19 @@ const validateMessages = {
   },
 };
 
+const { Option } = Select;
+
 /* eslint-enable no-template-curly-in-string */
 
 const SaleNftForm = (props: any) => {
+  const { chainId } = useWeb3React();
+  
   const onFinish = (values: any) => {
     props.onSaleNft(values);
   };
 
   return (
-    <Form
+    chainId && <Form
       {...layout}
       name="nest-messages"
       onFinish={onFinish}
@@ -65,15 +71,16 @@ const SaleNftForm = (props: any) => {
       <Form.Item
         name="erc20TokenAddress"
         label="Token Address"
-        tooltip="Address of token you want to process. Please use 0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee for native tokens."
-        initialValue="0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
-        rules={[
-          {
-            required: true,
-          },
-        ]}
+        initialValue={CHAIN_DATA[chainId].erc20[0].address}
+        hasFeedback
       >
-        <Input />
+        <Select placeholder="Select payment token address">
+          {CHAIN_DATA[chainId].erc20.map((token: any) => (
+            <Option key={token.address} value={token.address}>
+              {`${token.name} - ${token.symbol}`}
+            </Option>
+          ))}
+        </Select>
       </Form.Item>
       <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
         <Button type="primary" htmlType="submit" loading={props.loading}>

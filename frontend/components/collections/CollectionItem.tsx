@@ -1,6 +1,6 @@
 import { Card, Image } from "antd";
 import Link from "next/link";
-import { CHAINS } from "../../constants/chain";
+import { CHAIN_DATA } from "../../constants/chain";
 const { Meta } = Card;
 
 function CollectionItem(props: any) {
@@ -13,7 +13,7 @@ function CollectionItem(props: any) {
         }}
         cover={<Image alt="example" src={props.imageUrl} />}
       >
-        <Meta title={props.name} description={CHAINS[props.chainId]} />
+        <Meta title={props.name} description={CHAIN_DATA[props.chainId].name} />
       </Card>
     </Link>
   );

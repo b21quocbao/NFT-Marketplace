@@ -12,7 +12,6 @@ import {
 import { InboxOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import styles from "./NewNftForm.module.css";
-import { CHAINS } from "../../constants/chain";
 const { Dragger } = Upload;
 const { Option } = Select;
 /* eslint-disable no-template-curly-in-string */

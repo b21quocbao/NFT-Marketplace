@@ -9,7 +9,7 @@ import Countdown from "react-countdown";
 const { Meta } = Card;
 import web3 from "web3";
 import { useRouter } from "next/router";
-import { CHAINS } from "../../constants/chain";
+import { CHAIN_DATA } from "../../constants/chain";
 import { zeroContractAddresses } from "../../contracts/zeroExContracts";
 
 const { fromWei } = web3.utils;
@@ -93,7 +93,7 @@ function NftItem(props: any) {
         <Meta title={props.name} description={status} />
         <br />
         <b>Chain: </b>
-        <p>{CHAINS[props.chainId]}</p>
+        <p>{CHAIN_DATA[props.chainId].name}</p>
         <br />
 
         {status === "LIST" && (
