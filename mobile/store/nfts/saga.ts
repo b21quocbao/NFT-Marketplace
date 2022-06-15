@@ -114,6 +114,7 @@ function* onCreateNft({ payload }: ReturnType<typeof createNft>) {
         ],
         collectionId: payload.collectionId.value,
         chainId: payload.chainId,
+        creator: payload.userAddress,
         status: "AVAILABLE",
         tokenId: totalSupply,
         userId: payload.userId,

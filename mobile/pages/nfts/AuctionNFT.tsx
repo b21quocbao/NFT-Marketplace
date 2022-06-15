@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Web3 from "web3";
 import AuctionNftForm from "../../components/nfts/AuctionNftForm";
-import { NATIVE_COINS } from "../../constants/chain";
+import { CHAIN_DATA } from "../../constants/chain";
 import { getChainConfig } from "../../helpers/ipfs";
 import erc20ABI from "../../contracts/abi/erc20ABI.json";
 import { getSymbol } from "../../store/nfts/helper/smartcontract/erc20";
@@ -36,7 +36,7 @@ function AuctionNft({ route }) {
     } = enteredData;
 
     erc20TokenAddress = erc20TokenAddress.toLowerCase();
-    let symbol = NATIVE_COINS[Number(connector.chainId)];
+    let symbol = CHAIN_DATA[Number(connector.chainId)].symbol;
 
     if (erc20TokenAddress != "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee") {
       const contract = new web3.eth.Contract(erc20ABI, erc20TokenAddress);

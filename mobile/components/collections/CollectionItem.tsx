@@ -1,4 +1,4 @@
-import { CHAINS } from "../../constants/chain";
+import { CHAIN_DATA } from "../../constants/chain";
 import { Card } from "@rneui/themed";
 import CollectionItemField from "./CollectionItemField";
 import { Pressable } from "react-native";
@@ -19,7 +19,7 @@ function CollectionItem(props: any) {
             }}
           />
           <Card.Title>{props.name}</Card.Title>
-          <CollectionItemField title="Chain" value={CHAINS[props.chainId]} />
+          <CollectionItemField title="Chain" value={CHAIN_DATA[props.chainId]?.name} />
         </Card>
       </Pressable>
     </>

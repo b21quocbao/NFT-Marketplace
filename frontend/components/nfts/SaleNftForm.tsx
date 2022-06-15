@@ -28,66 +28,79 @@ const { Option } = Select;
 
 const SaleNftForm = (props: any) => {
   const { chainId } = useWeb3React();
-  
+
   const onFinish = (values: any) => {
     props.onSaleNft(values);
   };
-
+  const tokenList = chainId
+    ? [
+        {
+          symbol: CHAIN_DATA[chainId].symbol,
+          name: "Native Coin",
+          address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        },
+        ...CHAIN_DATA[chainId].erc20,
+      ]
+    : [];
   return (
-    chainId && <Form
-      {...layout}
-      name="nest-messages"
-      onFinish={onFinish}
-      validateMessages={validateMessages}
-    >
-      <Form.Item
-        name="amount"
-        label="Amount"
-        rules={[
-          {
-            required: true,
-          },
-        ]}
-      >
-        <InputNumber />
-      </Form.Item>
-      <Form.Item
-        name="saleRoyaltyFee"
-        label="Royalty Fee"
-        initialValue={2.5}
-        rules={[
-          {
-            required: true,
-          },
-        ]}
-      >
-        <InputNumber
-          min={0}
-          max={10}
-          formatter={(value) => `${value}%`}
-          parser={(value: any) => value.replace("%", "")}
-        />
-      </Form.Item>
-      <Form.Item
-        name="erc20TokenAddress"
-        label="Token Address"
-        initialValue={CHAIN_DATA[chainId].erc20[0].address}
-        hasFeedback
-      >
-        <Select placeholder="Select payment token address">
-          {CHAIN_DATA[chainId].erc20.map((token: any) => (
-            <Option key={token.address} value={token.address}>
-              {`${token.name} - ${token.symbol}`}
-            </Option>
-          ))}
-        </Select>
-      </Form.Item>
-      <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
-        <Button type="primary" htmlType="submit" loading={props.loading}>
-          Submit
-        </Button>
-      </Form.Item>
-    </Form>
+    <>
+      {chainId && (
+        <Form
+          {...layout}
+          name="nest-messages"
+          onFinish={onFinish}
+          validateMessages={validateMessages}
+        >
+          <Form.Item
+            name="amount"
+            label="Amount"
+            rules={[
+              {
+                required: true,
+              },
+            ]}
+          >
+            <InputNumber />
+          </Form.Item>
+          <Form.Item
+            name="saleRoyaltyFee"
+            label="Royalty Fee"
+            initialValue={2.5}
+            rules={[
+              {
+                required: true,
+              },
+            ]}
+          >
+            <InputNumber
+              min={0}
+              max={10}
+              formatter={(value) => `${value}%`}
+              parser={(value: any) => value.replace("%", "")}
+            />
+          </Form.Item>
+          <Form.Item
+            name="erc20TokenAddress"
+            label="Token Address"
+            initialValue={tokenList[0].address}
+            hasFeedback
+          >
+            <Select placeholder="Select payment token address">
+              {tokenList.map((token: any) => (
+                <Option key={token.address} value={token.address}>
+                  {`${token.name} - ${token.symbol}`}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
+            <Button type="primary" htmlType="submit" loading={props.loading}>
+              Submit
+            </Button>
+          </Form.Item>
+        </Form>
+      )}
+    </>
   );
 };
 

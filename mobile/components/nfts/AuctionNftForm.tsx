@@ -1,8 +1,13 @@
+import { useWalletConnect } from "@walletconnect/react-native-dapp";
 import { useState } from "react";
+import RNPickerSelect from "react-native-picker-select";
 import { Button, StyleSheet, View } from "react-native";
+import { CHAIN_DATA } from "../../constants/chain";
 import Input from "./Input";
 
 const AuctionNftForm = (props: any) => {
+  const { chainId } = useWalletConnect();
+
   function submitHandler() {
     const expenseData = {
       expiry: +inputs.expiry.value,
@@ -78,45 +83,51 @@ const AuctionNftForm = (props: any) => {
   }
 
   return (
-    <View style={styles.container}>
-      <Input
-        label="Expiry"
-        invalid={!inputs.expiry.isValid}
-        textInputConfig={{
-          keyboardType: "decimal-pad",
-          onChangeText: inputChangedHandler.bind(this, "expiry"),
-          value: inputs.expiry.value,
-        }}
-      />
-      <Input
-        label="Starting Price"
-        invalid={!inputs.startingPrice.isValid}
-        textInputConfig={{
-          keyboardType: "decimal-pad",
-          onChangeText: inputChangedHandler.bind(this, "startingPrice"),
-          value: inputs.startingPrice.value,
-        }}
-      />
-      <Input
-        label="Token Address"
-        invalid={!inputs.erc20TokenAddress.isValid}
-        textInputConfig={{
-          onChangeText: inputChangedHandler.bind(this, "erc20TokenAddress"),
-          value: inputs.erc20TokenAddress.value,
-        }}
-      />
-      <Input
-        label="Royalty Fee"
-        invalid={!inputs.bidRoyaltyFee.isValid}
-        textInputConfig={{
-          keyboardType: "decimal-pad",
-          onChangeText: inputChangedHandler.bind(this, "bidRoyaltyFee"),
-          value: inputs.bidRoyaltyFee.value,
-        }}
-      />
-      <View style={styles.button}>
-        <Button title="Submit" onPress={submitHandler} />
-      </View>
+    <View>
+      {chainId && (
+        <View style={styles.container}>
+          <Input
+            label="Expiry"
+            invalid={!inputs.expiry.isValid}
+            textInputConfig={{
+              keyboardType: "decimal-pad",
+              onChangeText: inputChangedHandler.bind(this, "expiry"),
+              value: inputs.expiry.value,
+            }}
+          />
+          <Input
+            label="Starting Price"
+            invalid={!inputs.startingPrice.isValid}
+            textInputConfig={{
+              keyboardType: "decimal-pad",
+              onChangeText: inputChangedHandler.bind(this, "startingPrice"),
+              value: inputs.startingPrice.value,
+            }}
+          />
+          <RNPickerSelect
+            onValueChange={inputChangedHandler.bind(this, "erc20TokenAddress")}
+            placeholder={{ label: "Select a token..." }}
+            style={pickerSelectStyles}
+            useNativeAndroidPickerStyle={false}
+            items={CHAIN_DATA[chainId].erc20.map((token: any) => ({
+              label: `${token.name} - ${token.symbol}`,
+              value: token.address,
+            }))}
+          />
+          <Input
+            label="Royalty Fee"
+            invalid={!inputs.bidRoyaltyFee.isValid}
+            textInputConfig={{
+              keyboardType: "decimal-pad",
+              onChangeText: inputChangedHandler.bind(this, "bidRoyaltyFee"),
+              value: inputs.bidRoyaltyFee.value,
+            }}
+          />
+          <View style={styles.button}>
+            <Button title="Submit" onPress={submitHandler} />
+          </View>
+        </View>
+      )}
     </View>
   );
 };
@@ -127,6 +138,31 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 15,
+  },
+});
+
+const pickerSelectStyles = StyleSheet.create({
+  inputIOS: {
+    fontSize: 16,
+    paddingVertical: 12,
+    marginVertical: 12,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 4,
+    color: "black",
+    paddingRight: 30, // to ensure the text is never behind the icon
+  },
+  inputAndroid: {
+    fontSize: 16,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    marginVertical: 8,
+    borderWidth: 0.5,
+    borderColor: "black",
+    borderRadius: 8,
+    color: "black",
+    paddingRight: 30, // to ensure the text is never behind the icon
   },
 });
 
