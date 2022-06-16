@@ -22,10 +22,11 @@ export async function makeNFTMetadata(
   address: string,
   options: any
 ) {
-  const { name, description } = options;
+  const { name, description, royaltyFee } = options;
   assetURI = ensureIpfsUriPrefix(assetURI);
   return {
     name,
+    seller_fee_basis_points: royaltyFee * 100,
     symbol: "NFT",
     properties: {
       category: "image",

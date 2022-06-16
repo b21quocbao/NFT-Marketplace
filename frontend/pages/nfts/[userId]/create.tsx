@@ -13,8 +13,17 @@ import path from "path";
 import { MongoClient } from "mongodb";
 import web3 from "web3";
 import useConnectionInfo from "../../../hooks/connectionInfo";
-import { actions } from "@metaplex/js";
+import { actions, Wallet } from "@metaplex/js";
 import { CHAIN_DATA } from "../../../constants/chain";
+import {
+  CreateMasterEdition,
+  CreateMetadata,
+  Creator,
+  MasterEdition,
+  Metadata,
+  MetadataDataData,
+} from "@metaplex-foundation/mpl-token-metadata";
+import BN from "bn.js";
 
 const { toWei } = web3.utils;
 
@@ -49,7 +58,7 @@ function NewNftPage(props: any) {
   }, [chainId, props.collections]);
 
   async function addNftHandler(enteredNftData: any) {
-    // setLoading(true);
+    setLoading(true);
     const cost = 0;
     const numNft = enteredNftData.images.length;
     const assetCids = [] as any[];
@@ -85,11 +94,13 @@ function NewNftPage(props: any) {
         const basename = path.basename(filePath);
         const assetCid = assetCids[idx];
         const assetURI = ensureIpfsUriPrefix(assetCid) + "/" + basename;
-        console.log(enteredNftData.assets[idx], "xocviu");
-        
-        const metadata = await makeNFTMetadata(assetURI, user.address, enteredNftData.assets[idx]);
-        console.log(metadata, 'metadata');
-        
+
+        const metadata = await makeNFTMetadata(
+          assetURI,
+          user.address,
+          enteredNftData.assets[idx]
+        );
+        console.log(metadata, "metadata");
 
         processedDatas.assetURI.push(assetURI);
         processedDatas.imageUrl.push(
@@ -104,8 +115,8 @@ function NewNftPage(props: any) {
       })
     );
 
-    let tokenId = undefined as any;
-    const metadatas = [];
+    let tokenIds = [] as any;
+    let metadatas = [] as any;
 
     // for await (const file of client.addAll(ipfsAddMetadatas)) {
     for (const ipfsAddMetadata of ipfsAddMetadatas) {
@@ -129,17 +140,150 @@ function NewNftPage(props: any) {
       await contract.mint(user.address, numNft, processedDatas.metadataURI, {
         value: toWei((cost * numNft).toString()),
       });
+      const tokenId = Number(totalSupply) + 1;
 
-      tokenId = Number(totalSupply) + 1;
-    } else if (connection && wallet) {
-      const mintNFTResponse = await actions.mintNFT({
-        connection,
-        wallet: wallet as any,
-        uri: `https://ipfs.infura.io/ipfs/${stripIpfsUriPrefix(processedDatas.metadataURI[0])}`,
-        maxSupply: 0,
+      for (let i = 0; i < ipfsAddMetadatas.length; ++i) {
+        tokenIds.push(tokenId + i);
+      }
+    } else if (connection && wallet && wallet.publicKey) {
+      const { publicKey } = wallet;
+
+      const mintDatas = await Promise.all(
+        Array.from(Array(ipfsAddMetadatas.length).keys()).map(async () => {
+          const {
+            mint,
+            createMintTx,
+            createAssociatedTokenAccountTx,
+            mintToTx,
+          } = await actions.prepareTokenAccountAndMintTxs(
+            connection,
+            publicKey
+          );
+          const metadataPDA = await Metadata.getPDA(mint.publicKey);
+          const editionPDA = await MasterEdition.getPDA(mint.publicKey);
+          return {
+            mint,
+            createMintTx,
+            createAssociatedTokenAccountTx,
+            mintToTx,
+            metadataPDA,
+            editionPDA,
+          };
+        })
+      );
+
+      const txs = ipfsAddMetadatas.map((data, index) => {
+        const uri = `https://ipfs.infura.io/ipfs/${stripIpfsUriPrefix(
+          processedDatas.metadataURI[index]
+        )}`;
+        const {
+          mint,
+          createMintTx,
+          createAssociatedTokenAccountTx,
+          mintToTx,
+          metadataPDA,
+          editionPDA,
+        } = mintDatas[index];
+        const {
+          name,
+          symbol,
+          seller_fee_basis_points,
+          properties: { creators },
+        } = JSON.parse(data.content);
+
+        const creatorsData = (creators as Creator[]).reduce<Creator[]>(
+          (memo, { address, share }) => {
+            const verified = address === publicKey.toString();
+
+            const creator = new Creator({
+              address,
+              share,
+              verified,
+            });
+
+            memo = [...memo, creator];
+
+            return memo;
+          },
+          []
+        );
+
+        const metadataData = new MetadataDataData({
+          name,
+          symbol,
+          uri,
+          sellerFeeBasisPoints: seller_fee_basis_points,
+          creators: creatorsData,
+        });
+
+        const createMetadataTx = new CreateMetadata(
+          {
+            feePayer: publicKey,
+          },
+          {
+            metadata: metadataPDA,
+            metadataData,
+            updateAuthority: publicKey,
+            mint: mint.publicKey,
+            mintAuthority: publicKey,
+          }
+        );
+
+        const masterEditionTx: any = new CreateMasterEdition(
+          { feePayer: publicKey },
+          {
+            edition: editionPDA,
+            metadata: metadataPDA,
+            updateAuthority: publicKey,
+            mint: mint.publicKey,
+            mintAuthority: publicKey,
+            maxSupply: new BN(0),
+          }
+        );
+        return {
+          createMintTx,
+          createMetadataTx,
+          createAssociatedTokenAccountTx,
+          mintToTx,
+          masterEditionTx,
+        };
       });
-      metadatas.push(mintNFTResponse);
-      tokenId = mintNFTResponse.mint;
+
+      const txIds = [] as any;
+
+      for (let i = 0; i < txs.length; ++i) {
+        const mint = mintDatas[i].mint;
+        const {
+          createMintTx,
+          createMetadataTx,
+          createAssociatedTokenAccountTx,
+          mintToTx,
+          masterEditionTx,
+        } = txs[i];
+        txIds.push(
+          await actions.sendTransaction({
+            connection,
+            signers: [mint],
+            txs: [
+              createMintTx,
+              createMetadataTx,
+              createAssociatedTokenAccountTx,
+              mintToTx,
+              masterEditionTx,
+            ],
+            wallet: wallet as Wallet,
+          })
+        );
+      }
+
+      metadatas = mintDatas.map((x, index) => ({
+        txId: txIds[index],
+        mint: x.mint.publicKey,
+        metadata: x.metadataPDA,
+        edition: x.editionPDA,
+      }));
+
+      tokenIds = metadatas.map((x: any) => x.mint);
     }
 
     await fetch("/api/new-nft", {
@@ -154,7 +298,7 @@ function NewNftPage(props: any) {
         metadatas: metadatas,
         chainId: chainId?.toString(),
         status: "AVAILABLE",
-        tokenId: tokenId,
+        tokenIds: tokenIds,
         userId: user._id,
       }),
       headers: {

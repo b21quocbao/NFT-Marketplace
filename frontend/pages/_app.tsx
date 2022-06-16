@@ -27,7 +27,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     <ConnectionProvider endpointIndex={2}>
       <WalletProvider>
         <SPLTokenListProvider>
-          <StoreProvider ownerAddress={user?.address}>
+          <StoreProvider ownerAddress={user?.solana ? user?.address : ""}>
             <Web3ReactProvider getLibrary={getLibrary}>
               <Layout key={router.asPath}>
                 <Component {...pageProps} />
