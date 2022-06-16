@@ -63,23 +63,6 @@ const SaleNftForm = (props: any) => {
             <InputNumber />
           </Form.Item>
           <Form.Item
-            name="saleRoyaltyFee"
-            label="Royalty Fee"
-            initialValue={2.5}
-            rules={[
-              {
-                required: true,
-              },
-            ]}
-          >
-            <InputNumber
-              min={0}
-              max={10}
-              formatter={(value) => `${value}%`}
-              parser={(value: any) => value.replace("%", "")}
-            />
-          </Form.Item>
-          <Form.Item
             name="erc20TokenAddress"
             label="Token Address"
             initialValue={tokenList[0].address}
