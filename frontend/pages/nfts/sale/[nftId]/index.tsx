@@ -6,8 +6,7 @@ import web3 from "web3";
 import { useRouter } from "next/router";
 import { Contract } from "@ethersproject/contracts";
 import erc20ABI from "../../../../contracts/abi/erc20ABI.json";
-import { NATIVE_COINS } from "../../../../constants/chain";
-import { erc721ContractAddresses } from "../../../../contracts/erc721Contracts";
+import { CHAIN_DATA } from "../../../../constants/chain";
 import { zeroContractAddresses } from "../../../../contracts/zeroExContracts";
 import useConnectionInfo from "../../../../hooks/connectionInfo";
 import {
@@ -105,7 +104,7 @@ function SaleNftPage(props: any) {
     const signer = library.getSigner();
     enteredNftData.erc20TokenAddress =
       enteredNftData.erc20TokenAddress.toLowerCase();
-    let symbol = NATIVE_COINS[Number(chainId)];
+    let symbol = CHAIN_DATA[Number(chainId)].symbol;
 
     if (
       enteredNftData.erc20TokenAddress !=
@@ -120,7 +119,7 @@ function SaleNftPage(props: any) {
     }
 
     const makerAsset: any = {
-      tokenAddress: erc721ContractAddresses[Number(chainId)],
+      tokenAddress: CHAIN_DATA[Number(chainId)].erc721,
       tokenId: props.nft.tokenId,
       type: "ERC721",
     };
@@ -161,8 +160,8 @@ function SaleNftPage(props: any) {
       (Number(process.env.NEXT_PUBLIC_MARKETPLACE_FEE) *
         enteredNftData.amount) /
       100;
-    const saleRoyaltyFee =
-      (enteredNftData.saleRoyaltyFee * enteredNftData.amount) / 100;
+    const royaltyFee =
+      (props.nft.royaltyFee * enteredNftData.amount) / 100;
 
     // Create the order (Remember, User A initiates the trade, so User A creates the order)
     const order = nftSwapSdk.buildOrder(makerAsset, takerAsset, makerAddress, {
@@ -172,8 +171,8 @@ function SaleNftPage(props: any) {
           amount: toWei(marketplaceFee.toFixed(10).toString()),
         },
         {
-          recipient: props.user.address,
-          amount: toWei(saleRoyaltyFee.toFixed(10).toString()),
+          recipient: props.nft.creator,
+          amount: toWei(royaltyFee.toFixed(10).toString()),
         },
       ],
     });
@@ -187,7 +186,6 @@ function SaleNftPage(props: any) {
         status: "LIST",
         symbol: symbol,
         price: enteredNftData.amount,
-        saleRoyaltyFee: enteredNftData.saleRoyaltyFee,
         action: "List for sale",
         actionUserId: user.id,
         signedOrder,

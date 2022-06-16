@@ -4,7 +4,7 @@ import { Button } from "@rneui/base";
 import { useDispatch, useSelector } from "react-redux";
 import { clearErrors, login, logout } from "../../store/auth/actions";
 import NFTItemField from "../../components/nfts/NftItemField";
-import { CHAINS } from "../../constants/chain";
+import { CHAIN_DATA } from "../../constants/chain";
 
 function ConnectWallet() {
   const connector = useWalletConnect();
@@ -28,7 +28,7 @@ function ConnectWallet() {
       ) : null}
       {!loading && !error.message.length && connector.connected ? (
         <View>
-          <NFTItemField title="Chain" value={CHAINS[connector.chainId]} />
+          <NFTItemField title="Chain" value={CHAIN_DATA[connector.chainId]?.name} />
         </View>
       ) : null}
       {!loading && !error.message.length && !connector.connected ? (
@@ -79,7 +79,7 @@ function ConnectWallet() {
           />
         </View>
       ) : null}
-      {loading && error.message.length ? (
+      {!loading && error.message.length ? (
         <View style={[styles.button]}>
           <Text>Error message: {error.message}</Text>
           <Button

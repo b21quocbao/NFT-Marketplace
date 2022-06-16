@@ -8,7 +8,7 @@ import WalletConnectProvider from "@walletconnect/web3-provider";
 import "react-native-get-random-values";
 import "@ethersproject/shims";
 import { ethers } from "ethers";
-import { bidNft } from "../../store/nfts/actions";
+import { bidNft, clearErrors } from "../../store/nfts/actions";
 import { erc721ContractAddresses } from "../../contracts/erc721Contracts";
 import {
   approveTokenOrNftByAsset,
@@ -21,6 +21,9 @@ import {
   signOrder,
 } from "../../store/nfts/helper/smartcontract/zeroEx";
 import { TradeDirection } from "../../constants/zeroEx";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { Button } from "@rneui/themed";
+import { useNavigation } from "@react-navigation/native";
 
 const { fromWei, toWei } = Web3.utils;
 
@@ -33,6 +36,8 @@ function BidNft({ route }) {
   const [contract, setContract] = useState(undefined as any);
   const [etherProvider, setEtherProvider] = useState(undefined as any);
   const { user } = useSelector((state: any) => state.AuthReducer);
+  const { loading, error } = useSelector((state: any) => state.NftReducer);
+  const navigation = useNavigation();
 
   useMemo(() => {
     const web3 = new Web3(
@@ -99,7 +104,7 @@ function BidNft({ route }) {
           amount: toWei(marketplaceFee.toFixed(10).toString()),
         },
         {
-          recipient: user.address,
+          recipient: nft.creator,
           amount: toWei(bidRoyaltyFee.toFixed(10).toString()),
         },
       ],
@@ -123,14 +128,50 @@ function BidNft({ route }) {
         user,
       })
     );
+
+    navigation.navigate("All NFTs" as never);
   };
 
   return (
-    <BidNftForm
-      minPrice={fromWei(nft.startingPrice)}
-      onBidNft={bidNftHandler}
-    />
+    <View style={[styles.container]}>
+      {loading ? (
+        <View style={[styles.container]}>
+          <ActivityIndicator />
+        </View>
+      ) : null}
+      {!loading && !error.message.length && (
+        <BidNftForm
+          minPrice={fromWei(nft.startingPrice)}
+          onBidNft={bidNftHandler}
+        />
+      )}
+      {!loading && error.message.length ? (
+        <View style={[styles.error]}>
+          <Text>Error message: {error.message}</Text>
+          <Button
+            title="Retry"
+            onPress={() => {
+              dispatch(clearErrors());
+            }}
+          />
+        </View>
+      ) : null}
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 15,
+  },
+  button: {
+    marginVertical: 15,
+  },
+  error: {
+    color: "red",
+    marginVertical: 15,
+  },
+});
 
 export default BidNft;

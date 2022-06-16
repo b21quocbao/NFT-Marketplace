@@ -27,6 +27,9 @@ import {
   AUCTION_NFT,
   AUCTION_NFT_SUCCESS,
   AUCTION_NFT_FAIL,
+  CANCEL_NFT,
+  CANCEL_NFT_SUCCESS,
+  CANCEL_NFT_FAIL,
   CLEAR_ERROR,
 } from "./actionTypes";
 
@@ -34,6 +37,7 @@ const initialState = {
   nfts: [],
   myNfts: [],
   nft: null,
+  canceledNft: null,
   createdNft: null,
   soldNft: null,
   boughtNft: null,
@@ -179,7 +183,7 @@ const NftReducer = (state = initialState, action: any) => {
         loading: false,
       };
       break;
-      
+
     case AUCTION_NFT:
       state = { ...state, loading: true };
       break;
@@ -191,6 +195,22 @@ const NftReducer = (state = initialState, action: any) => {
         ...state,
         error: {
           message: "Create NFTs Failed",
+        },
+        loading: false,
+      };
+      break;
+
+    case CANCEL_NFT:
+      state = { ...state, loading: true };
+      break;
+    case CANCEL_NFT_SUCCESS:
+      state = { ...state, canceledNft: action.payload, loading: false };
+      break;
+    case CANCEL_NFT_FAIL:
+      state = {
+        ...state,
+        error: {
+          message: "Cancel List NFTs Failed",
         },
         loading: false,
       };

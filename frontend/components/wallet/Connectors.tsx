@@ -10,7 +10,7 @@ import { PortisConnector } from "@web3-react/portis-connector";
 import { SquarelinkConnector } from "@web3-react/squarelink-connector";
 import { TorusConnector } from "@web3-react/torus-connector";
 import { AuthereumConnector } from "@web3-react/authereum-connector";
-import { CHAINS } from "../../constants/chain";
+import { CHAIN_DATA } from "../../constants/chain";
 
 const POLLING_INTERVAL = 12000;
 const RPC_URLS = {
@@ -19,7 +19,7 @@ const RPC_URLS = {
 };
 
 export const injected = new InjectedConnector({
-  supportedChainIds: Object.keys(CHAINS).map(x => Number(x))
+  supportedChainIds: Object.keys(CHAIN_DATA).map(x => Number(x))
 });
 
 export const network = new NetworkConnector({

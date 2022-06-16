@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import web3 from "web3";
-import { CHAINS } from "../../constants/chain";
+import { CHAIN_DATA } from "../../constants/chain";
 import { timeString } from "../../helpers/basic";
 import { Card } from "@rneui/themed";
 import { useSelector } from "react-redux";
@@ -21,6 +21,7 @@ function NftItem(props: any) {
   useEffect(() => {
     let { status } = nft;
 
+    setStatus(status);
     const checkStatus = () => {
       if (
         status === "AUCTION" &&
@@ -56,7 +57,7 @@ function NftItem(props: any) {
           }}
         />
         <Card.Title>{nft.name}</Card.Title>
-        <NFTItemField title="Chain" value={CHAINS[nft.chainId]} />
+        <NFTItemField title="Chain" value={CHAIN_DATA[props.chainId]?.name} />
         <NFTItemField title="Status" value={nft.status} />
 
         {status === "LIST" && (

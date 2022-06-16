@@ -12,7 +12,6 @@ import {
 import { InboxOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import styles from "./NewNftForm.module.css";
-import { CHAINS } from "../../constants/chain";
 const { Dragger } = Upload;
 const { Option } = Select;
 /* eslint-disable no-template-curly-in-string */
@@ -137,6 +136,24 @@ const NewNftForm = (props: any) => {
                       ]}
                     >
                       <Input placeholder="Name" />
+                    </Form.Item>
+                    <Form.Item
+                      key={"royaltyFee_" + key}
+                      label={"Royalty fee #" + (key + 1)}
+                      name={[name, "royaltyFee"]}
+                      initialValue={5}
+                      rules={[
+                        {
+                          required: true,
+                        },
+                      ]}
+                    >
+                      <InputNumber
+                        min={0}
+                        max={10}
+                        formatter={(value) => `${value}%`}
+                        parser={(value: any) => value.replace("%", "")}
+                      />
                     </Form.Item>
                     <Form.Item
                       key={"description_" + key}

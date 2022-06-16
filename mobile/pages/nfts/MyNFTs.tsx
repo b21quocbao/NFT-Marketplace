@@ -22,6 +22,7 @@ const MyNfts = () => {
     boughtNft,
     bidedNft,
     createdNFT,
+    canceledNft,
   } = useSelector((state: any) => state.NftReducer);
   const { user } = useSelector((state: any) => state.AuthReducer);
 
@@ -42,6 +43,7 @@ const MyNfts = () => {
     boughtNft,
     bidedNft,
     createdNFT,
+    canceledNft,
   ]);
 
   return (

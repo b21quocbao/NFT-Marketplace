@@ -14,7 +14,7 @@ async function handler(req: any, res: any) {
       const imageUrl = data.imageUrls[idx];
       const assetURI = data.assetURIs[idx];
       const metadataURI = data.metadataURIs[idx];
-      const { name, description } = data.assets[idx];
+      const { name, description, royaltyFee } = data.assets[idx];
       const collectionId = data.collectionId;
       const chainId = data.chainId;
       const status = data.status;
@@ -25,6 +25,7 @@ async function handler(req: any, res: any) {
         metadata,
         imageUrl,
         assetURI,
+        creator: data.creator,
         metadataURI,
         collectionId,
         chainId,
@@ -32,6 +33,7 @@ async function handler(req: any, res: any) {
         tokenId,
         userId,
         name,
+        royaltyFee,
         description
       })
     }

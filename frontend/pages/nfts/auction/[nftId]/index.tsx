@@ -2,9 +2,12 @@ import { MongoClient, ObjectId } from "mongodb";
 import { useRouter } from "next/router";
 import AuctionNftForm from "../../../../components/nfts/AuctionNftForm";
 import web3 from "web3";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import erc20ABI from "../../../../contracts/abi/erc20ABI.json";
-import { NATIVE_COINS } from "../../../../constants/chain";
+import StorageUtils from "../../../../utils/storage";
+import { useEagerConnect, useInactiveListener } from "../../../../components/wallet/Hooks";
+import { useWeb3React } from "@web3-react/core";
+import { CHAIN_DATA } from "../../../../constants/chain";
 import { Contract } from "@ethersproject/contracts";
 import useConnectionInfo from "../../../../hooks/connectionInfo";
 
@@ -20,7 +23,7 @@ function AuctionNftPage(props: any) {
     const signer = library.getSigner();
 
     enteredNftData.erc20TokenAddress = enteredNftData.erc20TokenAddress.toLowerCase();
-    let symbol = NATIVE_COINS[Number(chainId)];
+    let symbol = CHAIN_DATA[Number(chainId)].symbol;
   
     if (enteredNftData.erc20TokenAddress != "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee") {
       const contract = new Contract(
@@ -38,7 +41,6 @@ function AuctionNftPage(props: any) {
         status: "AUCTION",
         symbol: symbol,
         erc20TokenAddress: enteredNftData.erc20TokenAddress,
-        bidRoyaltyFee: enteredNftData.bidRoyaltyFee,
         startingPrice: toWei(enteredNftData.startingPrice.toFixed(10).toString()),
         startAuctionTime: new Date(Date.now()),
         endAuctionTime: new Date(Date.now() + enteredNftData.expiry * 1000),

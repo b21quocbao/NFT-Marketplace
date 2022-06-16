@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { StyleSheet, View, Text, Button } from "react-native";
 import RNPickerSelect from "react-native-picker-select";
-import { CHAINS } from "../../constants/chain";
+import { CHAIN_DATA } from "../../constants/chain";
 import Input from "./Input";
 import { launchImageLibrary } from "react-native-image-picker";
 
@@ -67,8 +67,8 @@ const NewCollectionForm = (props: any) => {
         placeholder={{ label: "Select a chain..." }}
         style={pickerSelectStyles}
         useNativeAndroidPickerStyle={false}
-        items={Object.keys(CHAINS).map((key) => ({
-          label: CHAINS[key],
+        items={Object.keys(CHAIN_DATA).map((key) => ({
+          label: CHAIN_DATA[key].name,
           value: key,
         }))}
       />

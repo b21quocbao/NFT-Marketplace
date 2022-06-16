@@ -12,9 +12,9 @@ import {
 import path from "path";
 import { MongoClient } from "mongodb";
 import web3 from "web3";
-import { erc721ContractAddresses } from "../../../contracts/erc721Contracts";
 import useConnectionInfo from "../../../hooks/connectionInfo";
 import { actions } from "@metaplex/js";
+import { CHAIN_DATA } from "../../../constants/chain";
 
 const { toWei } = web3.utils;
 
@@ -119,7 +119,7 @@ function NewNftPage(props: any) {
     if (!user.solana) {
       const signer = library.getSigner();
       const contract = new Contract(
-        erc721ContractAddresses[Number(chainId)] as string,
+        CHAIN_DATA[Number(chainId)].erc721 as string,
         erc721ABI,
         signer
       );
@@ -149,6 +149,7 @@ function NewNftPage(props: any) {
         assetURIs: processedDatas.assetURI,
         metadataURIs: processedDatas.metadataURI,
         assets: enteredNftData.assets,
+        creator: user.address,
         collectionId: enteredNftData.collectionId,
         metadatas: metadatas,
         chainId: chainId?.toString(),

@@ -5,9 +5,9 @@ import { NftSwapV4 as NftSwap } from "@traderxyz/nft-swap-sdk";
 import StorageUtils from "../../../../utils/storage";
 import web3 from "web3";
 import { useRouter } from "next/router";
-import { erc721ContractAddresses } from "../../../../contracts/erc721Contracts";
-import { zeroContractAddresses } from "../../../../contracts/zeroExContracts";
 import useConnectionInfo from "../../../../hooks/connectionInfo";
+import { zeroContractAddresses } from "../../../../contracts/zeroExContracts";
+import { CHAIN_DATA } from "../../../../constants/chain";
 
 const { toWei, fromWei } = web3.utils;
 
@@ -41,7 +41,7 @@ function BidNftPage(props: any) {
     const signer = library.getSigner();
 
     const takerAsset: any = {
-      tokenAddress: erc721ContractAddresses[Number(chainId)],
+      tokenAddress: CHAIN_DATA[Number(chainId)].erc721,
       tokenId: props.nft.tokenId,
       type: "ERC721",
     };
@@ -87,8 +87,8 @@ function BidNftPage(props: any) {
       (Number(process.env.NEXT_PUBLIC_MARKETPLACE_FEE) *
         enteredNftData.amount) /
       100;
-    const bidRoyaltyFee =
-      (props.nft.bidRoyaltyFee * enteredNftData.amount) / 100;
+    const royaltyFee =
+      (props.nft.royaltyFee * enteredNftData.amount) / 100;
 
     // Create the order (Remember, User A initiates the trade, so User A creates the order)
     const order = nftSwapSdk.buildOrder(makerAsset, takerAsset, user.address, {
@@ -99,8 +99,8 @@ function BidNftPage(props: any) {
           amount: toWei(marketplaceFee.toFixed(10).toString()),
         },
         {
-          recipient: props.user.address,
-          amount: toWei(bidRoyaltyFee.toFixed(10).toString()),
+          recipient: props.nft.creator,
+          amount: toWei(royaltyFee.toFixed(10).toString()),
         },
       ],
     });
