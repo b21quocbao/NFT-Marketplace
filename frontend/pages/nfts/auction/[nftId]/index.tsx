@@ -60,7 +60,6 @@ function AuctionNftPage(props: any) {
         status: "AUCTION",
         symbol: symbol,
         erc20TokenAddress: enteredNftData.erc20TokenAddress,
-        bidRoyaltyFee: enteredNftData.bidRoyaltyFee,
         startingPrice: toWei(enteredNftData.startingPrice.toFixed(10).toString()),
         startAuctionTime: new Date(Date.now()),
         endAuctionTime: new Date(Date.now() + enteredNftData.expiry * 1000),

@@ -111,8 +111,8 @@ function BidNftPage(props: any) {
       (Number(process.env.NEXT_PUBLIC_MARKETPLACE_FEE) *
         enteredNftData.amount) /
       100;
-    const bidRoyaltyFee =
-      (props.nft.bidRoyaltyFee * enteredNftData.amount) / 100;
+    const royaltyFee =
+      (props.nft.royaltyFee * enteredNftData.amount) / 100;
 
     // Create the order (Remember, User A initiates the trade, so User A creates the order)
     const order = nftSwapSdk.buildOrder(makerAsset, takerAsset, user.address, {
@@ -124,7 +124,7 @@ function BidNftPage(props: any) {
         },
         {
           recipient: props.nft.creator,
-          amount: toWei(bidRoyaltyFee.toFixed(10).toString()),
+          amount: toWei(royaltyFee.toFixed(10).toString()),
         },
       ],
     });

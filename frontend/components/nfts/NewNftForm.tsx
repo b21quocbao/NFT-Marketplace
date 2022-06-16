@@ -138,6 +138,24 @@ const NewNftForm = (props: any) => {
                       <Input placeholder="Name" />
                     </Form.Item>
                     <Form.Item
+                      key={"royaltyFee_" + key}
+                      label={"Royalty fee #" + (key + 1)}
+                      name={[name, "royaltyFee"]}
+                      initialValue={5}
+                      rules={[
+                        {
+                          required: true,
+                        },
+                      ]}
+                    >
+                      <InputNumber
+                        min={0}
+                        max={10}
+                        formatter={(value) => `${value}%`}
+                        parser={(value: any) => value.replace("%", "")}
+                      />
+                    </Form.Item>
+                    <Form.Item
                       key={"description_" + key}
                       label={"Description #" + (key + 1)}
                       name={[name, "description"]}
