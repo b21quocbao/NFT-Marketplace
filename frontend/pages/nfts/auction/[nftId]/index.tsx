@@ -65,7 +65,7 @@ function AuctionNftPage(props: any) {
     router.push(`/nfts`)
   }
 
-  return <AuctionNftForm onAuctionNft={auctionNftHandler} loading={loading}  />;
+  return <AuctionNftForm chainId={props.nft.chainId} onAuctionNft={auctionNftHandler} loading={loading}  />;
 }
 
 export async function getServerSideProps(ctx: any) {

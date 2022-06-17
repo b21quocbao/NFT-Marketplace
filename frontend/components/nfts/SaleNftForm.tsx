@@ -27,7 +27,7 @@ const { Option } = Select;
 /* eslint-enable no-template-curly-in-string */
 
 const SaleNftForm = (props: any) => {
-  const { chainId } = useWeb3React();
+  const { chainId } = props;
 
   const onFinish = (values: any) => {
     props.onSaleNft(values);

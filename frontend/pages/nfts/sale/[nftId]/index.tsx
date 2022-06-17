@@ -160,8 +160,7 @@ function SaleNftPage(props: any) {
       (Number(process.env.NEXT_PUBLIC_MARKETPLACE_FEE) *
         enteredNftData.amount) /
       100;
-    const royaltyFee =
-      (props.nft.royaltyFee * enteredNftData.amount) / 100;
+    const royaltyFee = (props.nft.royaltyFee * enteredNftData.amount) / 100;
 
     // Create the order (Remember, User A initiates the trade, so User A creates the order)
     const order = nftSwapSdk.buildOrder(makerAsset, takerAsset, makerAddress, {
@@ -209,7 +208,7 @@ function SaleNftPage(props: any) {
     itemData.metadata.info = MetadataData.deserialize(
       Buffer.from(itemData.metadata.account.data, "base64")
     );
-    
+
     itemData.masterEdition.info = deserializeUnchecked(
       METADATA_SCHEMA,
       MasterEditionV2,
@@ -220,10 +219,9 @@ function SaleNftPage(props: any) {
       itemData.masterEdition,
       itemData.tokenAccount
     );
-    item.metadata.info.masterEdition = item.masterEdition.pubkey
-    item.metadata.info.edition = item.masterEdition.pubkey  
+    item.metadata.info.masterEdition = item.masterEdition.pubkey;
+    item.metadata.info.edition = item.masterEdition.pubkey;
     console.log(item, "item");
-    
 
     item.winningConfigType = WinningConfigType.TokenOnlyTransfer;
     item.amountRanges = [
@@ -287,6 +285,7 @@ function SaleNftPage(props: any) {
     <>
       {user.id && (
         <SaleNftForm
+          chainId={props.nft.chainId}
           initialValue={
             user.solana
               ? "So11111111111111111111111111111111111111112"

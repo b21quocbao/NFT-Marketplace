@@ -26,7 +26,7 @@ const { Option } = Select;
 /* eslint-enable no-template-curly-in-string */
 
 const AuctionNftForm = (props: any) => {
-  const { chainId } = useWeb3React();
+  const { chainId } = props;
   const onFinish = (values: any) => {
     console.log(values, "values");
 
