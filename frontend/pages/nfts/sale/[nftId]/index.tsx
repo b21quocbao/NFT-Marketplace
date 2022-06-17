@@ -127,8 +127,7 @@ function SaleNftPage(props: any) {
       (Number(process.env.NEXT_PUBLIC_MARKETPLACE_FEE) *
         enteredNftData.amount) /
       100;
-    const royaltyFee =
-      (props.nft.royaltyFee * enteredNftData.amount) / 100;
+    const royaltyFee = (props.nft.royaltyFee * enteredNftData.amount) / 100;
 
     // Create the order (Remember, User A initiates the trade, so User A creates the order)
     const order = nftSwapSdk.buildOrder(makerAsset, takerAsset, makerAddress, {
@@ -174,7 +173,13 @@ function SaleNftPage(props: any) {
     router.push(`/nfts`);
   }
 
-  return <SaleNftForm onSaleNft={saleNftHandler} loading={loading} />;
+  return (
+    <SaleNftForm
+      chainId={props.nft.chainId}
+      onSaleNft={saleNftHandler}
+      loading={loading}
+    />
+  );
 }
 
 export async function getServerSideProps(ctx: any) {
