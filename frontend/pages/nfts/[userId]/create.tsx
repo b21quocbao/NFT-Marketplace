@@ -118,7 +118,7 @@ function NewNftPage(props: any) {
 
       processedDatas.assetURI.push(assetURI);
       processedDatas.imageUrl.push(
-        `https://infura.ipfs.io/ipfs/${stripIpfsUriPrefix(assetURI)}`
+        `https://ipfs.infura.io/ipfs/${stripIpfsUriPrefix(assetURI)}`
       );
 
       // add the metadata to IPFS

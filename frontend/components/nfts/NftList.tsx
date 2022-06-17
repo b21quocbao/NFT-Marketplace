@@ -18,6 +18,7 @@ function NftList(props: any) {
             key={nft.id}
             id={nft.id}
             imageUrl={nft.imageUrl}
+            tokenId={nft.tokenId}
             name={nft.name}
             address={nft.address}
             userId={nft.userId}
