@@ -240,116 +240,117 @@ function NftItem(props: any) {
               </>
             )}
             {user && user.id !== props?.userId && (
-              <Button
-                type="primary"
-                style={{ margin: "auto" }}
-                onClick={async (e) => {
-                  e.preventDefault();
-                  setLoading(true);
+              <>
+                <Button
+                  type="primary"
+                  style={{ margin: "auto" }}
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    setLoading(true);
 
-                  if (user.solana && wallet) {
-                    const obj = {} as any;
-                    const {
-                      auction,
-                      auctionManager: auctionManagerInstance,
-                      vault,
-                      auctionDataExtended,
-                      safetyDeposit,
-                      safetyDepositConfig,
-                    } = props.orderData;
-                    const bidRedemptions = await getProgramAccount();
-
-                    auction.info = deserializeUnchecked(
-                      AUCTION_SCHEMA,
-                      AuctionData,
-                      Buffer.from(auction.account.data, "base64")
-                    );
-                    auctionManagerInstance.info = deserializeUnchecked(
-                      SCHEMA,
-                      AuctionManagerV2,
-                      Buffer.from(auctionManagerInstance.account.data, "base64")
-                    );
-                    vault.info = deserializeUnchecked(
-                      VAULT_SCHEMA,
-                      Vault,
-                      Buffer.from(vault.account.data, "base64")
-                    );
-                    auctionDataExtended.info = deserializeUnchecked(
-                      AUCTION_SCHEMA,
-                      AuctionDataExtended,
-                      Buffer.from(auctionDataExtended.account.data, "base64")
-                    );
-                    safetyDeposit.info = deserializeUnchecked(
-                      VAULT_SCHEMA,
-                      SafetyDepositBox,
-                      Buffer.from(safetyDeposit.account.data, "base64")
-                    ) as SafetyDepositBox;
-                    safetyDepositConfig.info = new SafetyDepositConfig({
-                      data: Buffer.from(
-                        safetyDepositConfig.account.data,
-                        "base64"
-                      ),
-                    });
-
-                    const { metadata, masterEdition } = props.itemData;
-
-                    metadata.info = MetadataData.deserialize(
-                      Buffer.from(metadata.account.data, "base64")
-                    );
-
-                    masterEdition.info = deserializeUnchecked(
-                      METADATA_SCHEMA,
-                      MasterEditionV2,
-                      Buffer.from(masterEdition.account.data, "base64")
-                    );
-
-                    const items = [
-                      [
-                        {
-                          metadata,
-                          winningConfigType: 0,
-                          safetyDeposit,
-                          amount: new BN(1),
-                          masterEdition,
-                        },
-                      ],
-                    ];
-
-                    const auctionView = {
-                      auction,
-                      auctionManager: new AuctionManager({
-                        instance: auctionManagerInstance,
+                    if (user.solana && wallet) {
+                      const obj = {} as any;
+                      const {
                         auction,
+                        auctionManager: auctionManagerInstance,
                         vault,
-                        safetyDepositConfigs: [safetyDepositConfig],
-                        bidRedemptions: [],
-                      }),
-                      state: AuctionViewState.Live,
-                      vault,
-                      auctionDataExtended,
-                      safetyDepositBoxes: [safetyDeposit],
-                      items: items,
-                      thumbnail: items[0][0],
-                      isInstantSale: true,
-                      totallyComplete: true,
-                      myBidderPot: undefined,
-                      myBidderMetadata: undefined,
-                    };
+                        auctionDataExtended,
+                        safetyDeposit,
+                        safetyDepositConfig,
+                      } = props.orderData;
+                      const bidRedemptions = await getProgramAccount();
 
-                    await sendPlaceBid(
-                      connection,
-                      wallet,
-                      user.address,
-                      auctionView as AuctionView,
-                      new Map<string, TokenAccount>(),
-                      auctionView.auctionDataExtended?.info.instantSalePrice,
-                      "finalized"
-                    );
+                      auction.info = deserializeUnchecked(
+                        AUCTION_SCHEMA,
+                        AuctionData,
+                        Buffer.from(auction.account.data, "base64")
+                      );
+                      auctionManagerInstance.info = deserializeUnchecked(
+                        SCHEMA,
+                        AuctionManagerV2,
+                        Buffer.from(
+                          auctionManagerInstance.account.data,
+                          "base64"
+                        )
+                      );
+                      vault.info = deserializeUnchecked(
+                        VAULT_SCHEMA,
+                        Vault,
+                        Buffer.from(vault.account.data, "base64")
+                      );
+                      auctionDataExtended.info = deserializeUnchecked(
+                        AUCTION_SCHEMA,
+                        AuctionDataExtended,
+                        Buffer.from(auctionDataExtended.account.data, "base64")
+                      );
+                      safetyDeposit.info = deserializeUnchecked(
+                        VAULT_SCHEMA,
+                        SafetyDepositBox,
+                        Buffer.from(safetyDeposit.account.data, "base64")
+                      ) as SafetyDepositBox;
+                      safetyDepositConfig.info = new SafetyDepositConfig({
+                        data: Buffer.from(
+                          safetyDepositConfig.account.data,
+                          "base64"
+                        ),
+                      });
 
-                    await getProgramAccounts(
-                      connection,
-                      AUCTION_ID,
-                      {
+                      const { metadata, masterEdition } = props.itemData;
+
+                      metadata.info = MetadataData.deserialize(
+                        Buffer.from(metadata.account.data, "base64")
+                      );
+
+                      masterEdition.info = deserializeUnchecked(
+                        METADATA_SCHEMA,
+                        MasterEditionV2,
+                        Buffer.from(masterEdition.account.data, "base64")
+                      );
+
+                      const items = [
+                        [
+                          {
+                            metadata,
+                            winningConfigType: 0,
+                            safetyDeposit,
+                            amount: new BN(1),
+                            masterEdition,
+                          },
+                        ],
+                      ];
+
+                      const auctionView = {
+                        auction,
+                        auctionManager: new AuctionManager({
+                          instance: auctionManagerInstance,
+                          auction,
+                          vault,
+                          safetyDepositConfigs: [safetyDepositConfig],
+                          bidRedemptions: [],
+                        }),
+                        state: AuctionViewState.Live,
+                        vault,
+                        auctionDataExtended,
+                        safetyDepositBoxes: [safetyDeposit],
+                        items: items,
+                        thumbnail: items[0][0],
+                        isInstantSale: true,
+                        totallyComplete: true,
+                        myBidderPot: undefined,
+                        myBidderMetadata: undefined,
+                      };
+
+                      await sendPlaceBid(
+                        connection,
+                        wallet,
+                        user.address,
+                        auctionView as AuctionView,
+                        new Map<string, TokenAccount>(),
+                        auctionView.auctionDataExtended?.info.instantSalePrice,
+                        "finalized"
+                      );
+
+                      await getProgramAccounts(connection, AUCTION_ID, {
                         filters: [
                           {
                             memcmp: {
@@ -358,21 +359,17 @@ function NftItem(props: any) {
                             },
                           },
                         ],
-                      }
-                    ).then(
-                      forEach(
-                        processAuctions,
-                        (s: any, pubkey: any, parsedAccount: any) => {
-                          obj[s] = parsedAccount;
-                        }
-                      )
-                    );
+                      }).then(
+                        forEach(
+                          processAuctions,
+                          (s: any, pubkey: any, parsedAccount: any) => {
+                            obj[s] = parsedAccount;
+                          }
+                        )
+                      );
 
-                    // bidder pot pull
-                    await getProgramAccounts(
-                      connection,
-                      AUCTION_ID,
-                      {
+                      // bidder pot pull
+                      await getProgramAccounts(connection, AUCTION_ID, {
                         filters: [
                           {
                             memcmp: {
@@ -381,31 +378,124 @@ function NftItem(props: any) {
                             },
                           },
                         ],
+                      }).then(
+                        forEach(
+                          processAuctions,
+                          (s: any, pubkey: any, parsedAccount: any) => {
+                            obj[s] = parsedAccount;
+                          }
+                        )
+                      );
+
+                      auctionView.auction = await getAuction(auction.pubkey);
+                      auctionView.myBidderPot =
+                        obj.bidderPotsByAuctionAndBidder;
+                      auctionView.myBidderMetadata =
+                        obj.bidderMetadataByAuctionAndBidder;
+
+                      console.log(auctionView, "auctionView");
+                      console.log(wallet, "wallet");
+
+                      await sendRedeemBid(
+                        connection,
+                        wallet,
+                        user.address,
+                        auctionView,
+                        new Map<string, TokenAccount>(),
+                        {},
+                        bidRedemptions,
+                        []
+                      );
+
+                      await fetch("/api/update-nft", {
+                        method: "PUT",
+                        body: JSON.stringify({
+                          id: props.id,
+                          status: "AVAILABLE",
+                          userId: user.id,
+                          auctionData: null,
+                          orderData: null,
+                        }),
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                      });
+                      router.push(`/nfts/${user.id}`);
+
+                      return;
+                    }
+
+                    const { ethereum } = window;
+
+                    if (user.id && !user.solana && props.chainId != chainId) {
+                      try {
+                        await ethereum.request({
+                          method: "wallet_switchEthereumChain",
+                          params: [
+                            {
+                              chainId: `0x${Number(props.chainId).toString(
+                                16
+                              )}`,
+                            },
+                          ], // chainId must be in hexadecimal numbers
+                        });
+                        router.reload();
+                        await new Promise((resolve) =>
+                          setTimeout(resolve, 5000)
+                        );
+                      } catch (e: any) {
+                        if (e.code === 4902) {
+                          window.alert(
+                            `Please add chain with id ${props.nft.chainId} to your wallet then try again`
+                          );
+                        }
                       }
-                    ).then(
-                      forEach(processAuctions, (s: any, pubkey: any, parsedAccount: any) => {
-                        obj[s] = parsedAccount;
-                      })
+                    }
+
+                    const signer = library.getSigner();
+
+                    const nftSwapSdk = new NftSwap(
+                      library,
+                      signer,
+                      props.chainId,
+                      {
+                        zeroExExchangeProxyContractAddress:
+                          zeroContractAddresses[Number(chainId)]
+                            ? zeroContractAddresses[Number(chainId)]
+                            : undefined,
+                      }
                     );
 
-                    auctionView.auction = await getAuction(auction.pubkey);
-                    auctionView.myBidderPot = obj.bidderPotsByAuctionAndBidder;
-                    auctionView.myBidderMetadata = obj.bidderMetadataByAuctionAndBidder;
+                    const takerAsset: any = {
+                      tokenAddress: props.signedOrder.erc20Token,
+                      amount: props.signedOrder.erc20TokenAmount,
+                      type: "ERC20",
+                    };
 
-                    console.log(auctionView, "auctionView");
-                    console.log(wallet, "wallet");
-                    
-                    
+                    // Check if we need to approve the NFT for swapping
+                    const approvalStatusForUserB =
+                      await nftSwapSdk.loadApprovalStatus(
+                        takerAsset,
+                        user.address
+                      );
+                    // If we do need to approve NFT for swapping, let's do that now
+                    if (!approvalStatusForUserB.contractApproved) {
+                      const approvalTx =
+                        await nftSwapSdk.approveTokenOrNftByAsset(
+                          takerAsset,
+                          user.address
+                        );
+                      const approvalTxReceipt = await approvalTx.wait();
+                      console.log(
+                        `Approved ${takerAsset.tokenAddress} contract to swap with 0x. TxHash: ${approvalTxReceipt.transactionHash})`
+                      );
+                    }
 
-                    await sendRedeemBid(
-                      connection,
-                      wallet,
-                      user.address,
-                      auctionView,
-                      new Map<string, TokenAccount>(),
-                      {},
-                      bidRedemptions,
-                      []
+                    const fillTx = await nftSwapSdk.fillSignedOrder(
+                      props.signedOrder
+                    );
+                    const fillTxReceipt = await nftSwapSdk.awaitTransactionHash(
+                      fillTx.hash
                     );
 
                     await fetch("/api/update-nft", {
@@ -413,120 +503,35 @@ function NftItem(props: any) {
                       body: JSON.stringify({
                         id: props.id,
                         status: "AVAILABLE",
+                        fillTxReceipt,
                         userId: user.id,
-                        auctionData: null,
-                        orderData: null,
                       }),
                       headers: {
                         "Content-Type": "application/json",
                       },
                     });
+
+                    await fetch("/api/new-action", {
+                      method: "POST",
+                      body: JSON.stringify({
+                        userId: user.id,
+                        nftId: props.id,
+                        name: "Buy",
+                      }),
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                    });
+
                     router.push(`/nfts/${user.id}`);
-
-                    return;
-                  }
-
-                  const { ethereum } = window;
-
-                  if (user.id && !user.solana && props.chainId != chainId) {
-                    try {
-                      await ethereum.request({
-                        method: "wallet_switchEthereumChain",
-                        params: [
-                          {
-                            chainId: `0x${Number(props.chainId).toString(16)}`,
-                          },
-                        ], // chainId must be in hexadecimal numbers
-                      });
-                      router.reload();
-                      await new Promise((resolve) => setTimeout(resolve, 5000));
-                    } catch (e: any) {
-                      if (e.code === 4902) {
-                        window.alert(
-                          `Please add chain with id ${props.nft.chainId} to your wallet then try again`
-                        );
-                      }
-                    }
-                  }
-
-                  const signer = library.getSigner();
-
-                  const nftSwapSdk = new NftSwap(
-                    library,
-                    signer,
-                    props.chainId,
-                    {
-                      zeroExExchangeProxyContractAddress: zeroContractAddresses[
-                        Number(chainId)
-                      ]
-                        ? zeroContractAddresses[Number(chainId)]
-                        : undefined,
-                    }
-                  );
-
-                  const takerAsset: any = {
-                    tokenAddress: props.signedOrder.erc20Token,
-                    amount: props.signedOrder.erc20TokenAmount,
-                    type: "ERC20",
-                  };
-
-                  // Check if we need to approve the NFT for swapping
-                  const approvalStatusForUserB =
-                    await nftSwapSdk.loadApprovalStatus(
-                      takerAsset,
-                      user.address
-                    );
-                  // If we do need to approve NFT for swapping, let's do that now
-                  if (!approvalStatusForUserB.contractApproved) {
-                    const approvalTx =
-                      await nftSwapSdk.approveTokenOrNftByAsset(
-                        takerAsset,
-                        user.address
-                      );
-                    const approvalTxReceipt = await approvalTx.wait();
-                    console.log(
-                      `Approved ${takerAsset.tokenAddress} contract to swap with 0x. TxHash: ${approvalTxReceipt.transactionHash})`
-                    );
-                  }
-
-                  const fillTx = await nftSwapSdk.fillSignedOrder(
-                    props.signedOrder
-                  );
-                  const fillTxReceipt = await nftSwapSdk.awaitTransactionHash(
-                    fillTx.hash
-                  );
-
-                  await fetch("/api/update-nft", {
-                    method: "PUT",
-                    body: JSON.stringify({
-                      id: props.id,
-                      status: "AVAILABLE",
-                      fillTxReceipt,
-                      userId: user.id,
-                    }),
-                    headers: {
-                      "Content-Type": "application/json",
-                    },
-                  });
-
-                  await fetch("/api/new-action", {
-                    method: "POST",
-                    body: JSON.stringify({
-                      userId: user.id,
-                      nftId: props.id,
-                      name: "Buy",
-                    }),
-                    headers: {
-                      "Content-Type": "application/json",
-                    },
-                  });
-
-                  router.push(`/nfts/${user.id}`);
-                }}
-                loading={loading}
-              >
-                Buy
-              </Button>
+                  }}
+                  loading={loading}
+                >
+                  Buy
+                </Button>
+                <br />
+                <br />
+              </>
             )}
           </>
         )}
@@ -571,8 +576,24 @@ function NftItem(props: any) {
             >
               View Offers
             </Button>
+            <br />
+            <br />
           </>
         )}
+        <Button
+          type="primary"
+          style={{ margin: "auto" }}
+          onClick={() => {
+            window.open(
+              `${CHAIN_DATA[props.chainId]?.blockExplorerUrl}/token/${
+                CHAIN_DATA[props.chainId]?.erc721
+              }?a=${props.tokenId}`,
+              "_blank"
+            );
+          }}
+        >
+          View NFT
+        </Button>
       </Card>
       <br />
     </>

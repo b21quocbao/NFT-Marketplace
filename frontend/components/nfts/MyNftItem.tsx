@@ -24,58 +24,85 @@ function MyNftItem(props: any) {
         <p>{CHAIN_DATA[props.chainId]?.name}</p>
         <br />
         {props.status == "AVAILABLE" && (
-          <Button
-            type="primary"
-            style={{ margin: "auto" }}
-            href={`/nfts/sale/${props.id}`}
-          >
-            Sale
-          </Button>
-        )}
-        <br />
-        <br />
-        {props.status == "AVAILABLE" && (
-          <Button
-            type="primary"
-            style={{ margin: "auto" }}
-            href={`/nfts/auction/${props.id}`}
-          >
-            Auction
-          </Button>
-        )}
-        {props.status == "LIST" && (
-          <Button
-            type="primary"
-            style={{ margin: "auto" }}
-            loading={loading}
-            onClick={async() => {
-              setLoading(true)
-              await fetch("/api/update-nft", {
-                method: "PUT",
-                body: JSON.stringify({
-                  id: props.id,
-                  status: "AVAILABLE",
-                  signedOrder: null,
-                }),
-                headers: {
-                  "Content-Type": "application/json",
-                },
-              });
-              router.reload()
-            }}
-          >
-            Cancel
-          </Button>
+          <>
+            <Button
+              type="primary"
+              style={{ margin: "auto" }}
+              href={`/nfts/sale/${props.id}`}
+            >
+              Sale
+            </Button>
+            <br />
+            <br />
+            <Button
+              type="primary"
+              style={{ margin: "auto" }}
+              href={`/nfts/auction/${props.id}`}
+            >
+              Auction
+            </Button>
+            <br />
+            <br />
+          </>
         )}
         {props.status == "AUCTION" && (
-          <Button
-            type="primary"
-            style={{ margin: "auto" }}
-            href={`/nfts/offers/${props.id}`}
-          >
-            View Offers
-          </Button>
+          <>
+            <Button
+              type="primary"
+              style={{ margin: "auto" }}
+              href={`/nfts/offers/${props.id}`}
+            >
+              View Offers
+            </Button>
+            <br />
+            <br />
+          </>
         )}
+        {(props.status == "LIST" || props.status == "AUCTION") && (
+          <>
+            <Button
+              type="primary"
+              style={{ margin: "auto" }}
+              loading={loading}
+              onClick={async () => {
+                setLoading(true);
+                await fetch("/api/update-nft", {
+                  method: "PUT",
+                  body: JSON.stringify({
+                    id: props.id,
+                    status: "AVAILABLE",
+                    signedOrder: null,
+                    startingPrice: null,
+                    startAuctionTime: null,
+                    endAuctionTime: null,
+                  }),
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                });
+                router.reload();
+              }}
+            >
+              Cancel
+            </Button>
+            <br />
+            <br />
+          </>
+        )}
+        <Button
+          type="primary"
+          style={{ margin: "auto" }}
+          onClick={() => {
+            window.open(
+              `${CHAIN_DATA[props.chainId]?.blockExplorerUrl}/token/${
+                CHAIN_DATA[props.chainId]?.erc721
+              }?a=${props.tokenId}`,
+              "_blank"
+            );
+          }}
+        >
+          View NFT
+        </Button>
       </Card>
       <br />
     </>
