@@ -257,7 +257,7 @@ function NftItem(props: any) {
                         auctionDataExtended,
                         safetyDeposit,
                         safetyDepositConfig,
-                      } = props.orderData;
+                      } = props.saleOrderData;
                       const bidRedemptions = await getProgramAccount();
 
                       auction.info = deserializeUnchecked(
@@ -393,9 +393,6 @@ function NftItem(props: any) {
                       auctionView.myBidderMetadata =
                         obj.bidderMetadataByAuctionAndBidder;
 
-                      console.log(auctionView, "auctionView");
-                      console.log(wallet, "wallet");
-
                       await sendRedeemBid(
                         connection,
                         wallet,
@@ -413,8 +410,8 @@ function NftItem(props: any) {
                           id: props.id,
                           status: "AVAILABLE",
                           userId: user.id,
-                          auctionData: null,
-                          orderData: null,
+                          saleData: null,
+                          saleOrderData: null,
                         }),
                         headers: {
                           "Content-Type": "application/json",

@@ -203,7 +203,6 @@ function SaleNftPage(props: any) {
       enteredNftData.erc20TokenAddress
     ).toBase58();
     const { itemData } = props.nft;
-    console.log(itemData, "itemData");
 
     itemData.metadata.info = MetadataData.deserialize(
       Buffer.from(itemData.metadata.account.data, "base64")
@@ -249,7 +248,7 @@ function SaleNftPage(props: any) {
       name: null,
     };
 
-    const auctionData = await createAuctionManager(
+    const saleData = await createAuctionManager(
       connection,
       wallet,
       whitelistedCreatorsByCreator,
@@ -271,7 +270,7 @@ function SaleNftPage(props: any) {
         saleRoyaltyFee: enteredNftData.saleRoyaltyFee,
         action: "List for sale",
         actionUserId: user.id,
-        auctionData,
+        saleData,
       }),
       headers: {
         "Content-Type": "application/json",
