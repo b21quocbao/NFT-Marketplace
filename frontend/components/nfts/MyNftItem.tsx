@@ -1,13 +1,17 @@
 import { Button, Card, Image } from "antd";
-import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { CHAIN_DATA } from "../../constants/chain";
+import { endSale } from "../../helpers/solana/endSale";
+import { getAuctionView } from "../../helpers/solana/getAuctionView";
+import useConnectionInfo from "../../hooks/connectionInfo";
+import { TokenAccount } from "../../solana-helper";
 const { Meta } = Card;
 
 function MyNftItem(props: any) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { user, library, chainId, connection, wallet } = useConnectionInfo();
 
   return (
     <>
@@ -28,7 +32,7 @@ function MyNftItem(props: any) {
             <Button
               type="primary"
               style={{ margin: "auto" }}
-              href={`/nfts/sale/${props.id}`}
+              onClick={() => router.push(`/nfts/sale/${props.id}`)}
             >
               Sale
             </Button>
@@ -37,7 +41,7 @@ function MyNftItem(props: any) {
             <Button
               type="primary"
               style={{ margin: "auto" }}
-              href={`/nfts/auction/${props.id}`}
+              onClick={() => router.push(`/nfts/auction/${props.id}`)}
             >
               Auction
             </Button>
@@ -50,7 +54,7 @@ function MyNftItem(props: any) {
             <Button
               type="primary"
               style={{ margin: "auto" }}
-              href={`/nfts/offers/${props.id}`}
+              onClick={() => router.push(`/nfts/offers/${props.id}`)}
             >
               View Offers
             </Button>
@@ -58,20 +62,43 @@ function MyNftItem(props: any) {
             <br />
           </>
         )}
-        {(props.status == "LIST" || props.status == "AUCTION") && (
+        {(props.status == "LIST" ||
+          (props.status == "AUCTION" && !props.solana)) && (
           <>
             <Button
               type="primary"
               style={{ margin: "auto" }}
               loading={loading}
               onClick={async () => {
+                console.log(props, "propsss");
+
                 setLoading(true);
+                if (props.solana) {
+                  const { auctionView, bidRedemptions } = await getAuctionView(
+                    props.saleOrderData,
+                    props.itemData
+                  );
+                  await endSale({
+                    auctionView,
+                    connection,
+                    accountByMint: new Map<string, TokenAccount>(),
+                    bids: [],
+                    bidRedemptions,
+                    prizeTrackingTickets: {},
+                    wallet,
+                  });
+                }
+
                 await fetch("/api/update-nft", {
                   method: "PUT",
                   body: JSON.stringify({
                     id: props.id,
                     status: "AVAILABLE",
                     signedOrder: null,
+                    saleData: null,
+                    auctionData: null,
+                    saleOrderData: null,
+                    auctionOrderData: null,
                     startingPrice: null,
                     startAuctionTime: null,
                     endAuctionTime: null,
@@ -94,9 +121,11 @@ function MyNftItem(props: any) {
           style={{ margin: "auto" }}
           onClick={() => {
             window.open(
-              `${CHAIN_DATA[props.chainId]?.blockExplorerUrl}/token/${
-                CHAIN_DATA[props.chainId]?.erc721
-              }?a=${props.tokenId}`,
+              props.solana
+                ? `https://explorer.solana.com/address/${props.metadata.mint}?cluster=devnet`
+                : `${CHAIN_DATA[props.chainId]?.blockExplorerUrl}/token/${
+                    CHAIN_DATA[props.chainId]?.erc721
+                  }?a=${props.tokenId}`,
               "_blank"
             );
           }}

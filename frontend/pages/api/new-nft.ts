@@ -25,6 +25,7 @@ async function handler(req: any, res: any) {
         metadata,
         imageUrl,
         assetURI,
+        solana: data.solana,
         creator: data.creator,
         metadataURI,
         collectionId,

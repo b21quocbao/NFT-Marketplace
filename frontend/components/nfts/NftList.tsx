@@ -16,6 +16,8 @@ function NftList(props: any) {
         <Col className="gutter-row" span={6} xs={24} sm={12} xl={6} key={nft.id}>
           <NftItem
             key={nft.id}
+            solana={nft.solana}
+            metadata={nft.metadata}
             id={nft.id}
             imageUrl={nft.imageUrl}
             tokenId={nft.tokenId}

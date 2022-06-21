@@ -10,6 +10,7 @@ function OfferList(props: any) {
         <OfferItem
           key={index}
           id={props.nft.id}
+          solana={props.nft.solana}
           chainId={props.nft.chainId}
           offer={offer.signedOrder}
           endAuctionTime={props.nft.endAuctionTime}

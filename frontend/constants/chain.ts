@@ -11,7 +11,17 @@ export const CHAIN_DATA: any = {
   56: { name: "BSC", symbol: "BNB" },
   101: { name: "Solana Mainnet", symbol: "SOL" },
   102: { name: "Solana Testnet", symbol: "SOL" },
-  103: { name: "Solana Devnet", symbol: "SOL" },
+  103: {
+    name: "Solana Devnet",
+    symbol: "SOL",
+    erc20: [
+      {
+        address: "So11111111111111111111111111111111111111112",
+        name: "Wrapped Sol",
+        symbol: "SOL",
+      },
+    ],
+  },
   250: { name: "Fantom", symbol: "FTM" },
   42220: { name: "Celo", symbol: "CELO" },
   43114: { name: "Alavanche", symbol: "AVAX" },

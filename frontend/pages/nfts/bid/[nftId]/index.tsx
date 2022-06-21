@@ -2,36 +2,45 @@ import { MongoClient, ObjectId } from "mongodb";
 import BidNftForm from "../../../../components/nfts/BidNftForm";
 import { useEffect, useState } from "react";
 import { NftSwapV4 as NftSwap } from "@traderxyz/nft-swap-sdk";
-import StorageUtils from "../../../../utils/storage";
 import web3 from "web3";
 import { useRouter } from "next/router";
 import useConnectionInfo from "../../../../hooks/connectionInfo";
 import { zeroContractAddresses } from "../../../../contracts/zeroExContracts";
 import { CHAIN_DATA } from "../../../../constants/chain";
+import { sendPlaceBid } from "../../../../solana-helper/actions/sendPlaceBid";
+import { AuctionView, TokenAccount } from "../../../../solana-helper";
+import BN from "bn.js";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { getAuctionView } from "../../../../helpers/solana/getAuctionView";
+import { getAuctionBidder } from "../../../../helpers/solana/getAuctionBidder";
 
 const { toWei, fromWei } = web3.utils;
 
 function BidNftPage(props: any) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const { user, library, chainId } = useConnectionInfo();
+  const { user, library, chainId, connection, wallet } = useConnectionInfo();
 
   useEffect(() => {
     const { ethereum } = window;
-    const changeChain = async() => {
+    const changeChain = async () => {
       if (user.id && !user.solana && props.nft.chainId != chainId) {
         try {
           await ethereum.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: `0x${Number(props.nft.chainId).toString(16)}` }], // chainId must be in hexadecimal numbers
+            method: "wallet_switchEthereumChain",
+            params: [
+              { chainId: `0x${Number(props.nft.chainId).toString(16)}` },
+            ], // chainId must be in hexadecimal numbers
           });
         } catch (e: any) {
           if (e.code === 4902) {
-            window.alert(`Please add chain with id ${props.nft.chainId} to your wallet then try again`);
+            window.alert(
+              `Please add chain with id ${props.nft.chainId} to your wallet then try again`
+            );
           }
         }
       }
-    }
+    };
 
     changeChain();
   }, [chainId, props.nft.chainId, user]);
@@ -52,18 +61,11 @@ function BidNftPage(props: any) {
       type: "ERC20",
     };
 
-    const nftSwapSdk = new NftSwap(
-      library,
-      signer,
-      chainId,
-      {
-        zeroExExchangeProxyContractAddress: zeroContractAddresses[
-          Number(chainId)
-        ]
-          ? zeroContractAddresses[Number(chainId)]
-          : undefined,
-      }
-    );
+    const nftSwapSdk = new NftSwap(library, signer, chainId, {
+      zeroExExchangeProxyContractAddress: zeroContractAddresses[Number(chainId)]
+        ? zeroContractAddresses[Number(chainId)]
+        : undefined,
+    });
 
     // Check if we need to approve the NFT for swapping
     const approvalStatusForUserB = await nftSwapSdk.loadApprovalStatus(
@@ -87,8 +89,7 @@ function BidNftPage(props: any) {
       (Number(process.env.NEXT_PUBLIC_MARKETPLACE_FEE) *
         enteredNftData.amount) /
       100;
-    const royaltyFee =
-      (props.nft.royaltyFee * enteredNftData.amount) / 100;
+    const royaltyFee = (props.nft.royaltyFee * enteredNftData.amount) / 100;
 
     // Create the order (Remember, User A initiates the trade, so User A creates the order)
     const order = nftSwapSdk.buildOrder(makerAsset, takerAsset, user.address, {
@@ -106,9 +107,8 @@ function BidNftPage(props: any) {
     });
 
     const signedOrder = await nftSwapSdk.signOrder(order);
-    let { bidOrders } = props.nft;
-    console.log(bidOrders, "bidOrdersoxcivuxoicvu");
 
+    let { bidOrders } = props.nft;
     if (!bidOrders) bidOrders = [];
     bidOrders.push({ signedOrder, userId: user.id });
     bidOrders.sort((a: any, b: any) => {
@@ -144,10 +144,57 @@ function BidNftPage(props: any) {
     router.push(`/nfts`);
   }
 
+  async function bidSolanaNftHandler(enteredNftData: any) {
+    const { auctionView } = await getAuctionView(
+      props.auctionOrderData,
+      props.itemData
+    );
+    const obj = await getAuctionBidder(connection, auctionView.auction.pubkey);
+    auctionView.auction = obj.auction;
+    auctionView.myBidderPot = obj.bidderPotsByAuctionAndBidder;
+    auctionView.myBidderMetadata = obj.bidderMetadataByAuctionAndBidder;
+
+    await sendPlaceBid(
+      connection,
+      wallet,
+      user.address,
+      auctionView as AuctionView,
+      new Map<string, TokenAccount>(),
+      new BN(Number(enteredNftData.amount) * LAMPORTS_PER_SOL)
+    );
+
+    const signedOrder = {
+      maker: user.address,
+      erc20TokenAmount: Number(enteredNftData.amount),
+    };
+
+    let { bidOrders } = props.nft;
+    if (!bidOrders) bidOrders = [];
+    bidOrders.push({ signedOrder, userId: user.id });
+    bidOrders.sort((a: any, b: any) => {
+      return b.signedOrder.erc20TokenAmount - a.signedOrder.erc20TokenAmount;
+    });
+
+    await fetch("/api/update-nft", {
+      method: "PUT",
+      body: JSON.stringify({
+        id: props.nft.id,
+        action: "Bid",
+        actionUserId: user.id,
+        bidOrders: bidOrders,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    router.push(`/nfts`);
+  }
+
   return (
     <BidNftForm
       minPrice={fromWei(props.nft.startingPrice)}
-      onBidNft={bidNftHandler}
+      onBidNft={props.nft.solana ? bidSolanaNftHandler : bidNftHandler}
       loading={loading}
     />
   );

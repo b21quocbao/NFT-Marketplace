@@ -29,20 +29,32 @@ task("deploy:ZeroEx").setAction(async function (taskArguments: TaskArguments, { 
   console.log("ZeroEx deployed to: ", zeroEx.address);
 });
 
-task("deploy:ERC721").setAction(async function (taskArguments: TaskArguments, { ethers }) {
-  const signers: SignerWithAddress[] = await ethers.getSigners();
+task("deploy:ERC721")
+  .addParam("name", "name")
+  .addParam("symbol", "symbol")
+  .setAction(async function (taskArguments: TaskArguments, { ethers }) {
+    const signers: SignerWithAddress[] = await ethers.getSigners();
 
-  const erc721Factory: ERC721Token__factory = <ERC721Token__factory>await ethers.getContractFactory("ERC721Token");
-  const erc721: ERC721Token = <ERC721Token>await erc721Factory.connect(signers[0]).deploy("APE Yacht Club", "APE");
-  await erc721.deployed();
-  console.log("ERC721 deployed to: ", erc721.address);
-});
+    const erc721Factory: ERC721Token__factory = <ERC721Token__factory>await ethers.getContractFactory("ERC721Token");
+    const erc721: ERC721Token = <ERC721Token>(
+      await erc721Factory.connect(signers[0]).deploy(taskArguments.name, taskArguments.symbol)
+    );
+    await erc721.deployed();
+    console.log("ERC721 deployed to: ", erc721.address);
+  });
 
-task("deploy:ERC20").setAction(async function (taskArguments: TaskArguments, { ethers }) {
-  const signers: SignerWithAddress[] = await ethers.getSigners();
+task("deploy:ERC20")
+  .addParam("name", "name")
+  .addParam("symbol", "symbol")
+  .setAction(async function (taskArguments: TaskArguments, { ethers }) {
+    const signers: SignerWithAddress[] = await ethers.getSigners();
 
-  const erc20Factory: ERC20Token__factory = <ERC20Token__factory>await ethers.getContractFactory("ERC20Token");
-  const erc20: ERC20Token = <ERC20Token>await erc20Factory.connect(signers[0]).deploy("Doge Coin", "DOGE", "100000000000000000000000");
-  await erc20.deployed();
-  console.log("ERC20 deployed to: ", erc20.address);
-});
+    const erc20Factory: ERC20Token__factory = <ERC20Token__factory>await ethers.getContractFactory("ERC20Token");
+    const erc20: ERC20Token = <ERC20Token>(
+      await erc20Factory
+        .connect(signers[0])
+        .deploy(taskArguments.name, taskArguments.symbol, "100000000000000000000000")
+    );
+    await erc20.deployed();
+    console.log("ERC20 deployed to: ", erc20.address);
+  });

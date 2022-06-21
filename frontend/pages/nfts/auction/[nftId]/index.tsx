@@ -4,28 +4,75 @@ import AuctionNftForm from "../../../../components/nfts/AuctionNftForm";
 import web3 from "web3";
 import { useState, useEffect } from "react";
 import erc20ABI from "../../../../contracts/abi/erc20ABI.json";
-import StorageUtils from "../../../../utils/storage";
-import { useEagerConnect, useInactiveListener } from "../../../../components/wallet/Hooks";
-import { useWeb3React } from "@web3-react/core";
 import { CHAIN_DATA } from "../../../../constants/chain";
 import { Contract } from "@ethersproject/contracts";
 import useConnectionInfo from "../../../../hooks/connectionInfo";
+import BN from "bn.js";
+import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+import { MetadataData } from "@metaplex-foundation/mpl-token-metadata";
+import { deserializeUnchecked } from "borsh";
+import {
+  AmountRange,
+  IPartialCreateAuctionArgs,
+  MasterEditionV2,
+  METADATA_SCHEMA,
+  NonWinningConstraint,
+  ParticipationConfigV2,
+  PriceFloor,
+  PriceFloorType,
+  useTokenList,
+  WinnerLimit,
+  WinnerLimitType,
+  WinningConfigType,
+  WinningConstraint,
+} from "../../../../solana-helper";
+import { createAuctionManager } from "../../../../solana-helper/actions/createAuctionManager";
+async function combine(metadata: any, masterEdition: any, tokenAccount: any) {
+  let winningConfigType: WinningConfigType;
+  if (masterEdition.info.maxSupply) {
+    winningConfigType = WinningConfigType.PrintingV2;
+  } else {
+    winningConfigType = WinningConfigType.Participation;
+  }
+
+  return {
+    holding: tokenAccount.pubkey,
+    edition: undefined,
+    masterEdition,
+    metadata: metadata,
+    printingMintHolding: undefined,
+    winningConfigType,
+    amountRanges: [],
+    participationConfig:
+      winningConfigType == WinningConfigType.Participation
+        ? new ParticipationConfigV2({
+            winnerConstraint: WinningConstraint.ParticipationPrizeGiven,
+            nonWinningConstraint: NonWinningConstraint.GivenForFixedPrice,
+            fixedPrice: new BN(0),
+          })
+        : undefined,
+  };
+}
 
 const { toWei } = web3.utils;
 
 function AuctionNftPage(props: any) {
   const router = useRouter();
-  const { user, library, chainId } = useConnectionInfo();
+  const tokenList = useTokenList();
+  const { user, library, chainId, wallet, connection } = useConnectionInfo();
   const [loading, setLoading] = useState(false);
 
   async function auctionNftHandler(enteredNftData: any) {
     setLoading(true);
     const signer = library.getSigner();
 
-    enteredNftData.erc20TokenAddress = enteredNftData.erc20TokenAddress.toLowerCase();
+    enteredNftData.erc20TokenAddress =
+      enteredNftData.erc20TokenAddress.toLowerCase();
     let symbol = CHAIN_DATA[Number(chainId)].symbol;
-  
-    if (enteredNftData.erc20TokenAddress != "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee") {
+    if (
+      enteredNftData.erc20TokenAddress !=
+      "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+    ) {
       const contract = new Contract(
         enteredNftData.erc20TokenAddress,
         erc20ABI,
@@ -41,7 +88,9 @@ function AuctionNftPage(props: any) {
         status: "AUCTION",
         symbol: symbol,
         erc20TokenAddress: enteredNftData.erc20TokenAddress,
-        startingPrice: toWei(enteredNftData.startingPrice.toFixed(10).toString()),
+        startingPrice: toWei(
+          enteredNftData.startingPrice.toFixed(10).toString()
+        ),
         startAuctionTime: new Date(Date.now()),
         endAuctionTime: new Date(Date.now() + enteredNftData.expiry * 1000),
       }),
@@ -55,17 +104,109 @@ function AuctionNftPage(props: any) {
       body: JSON.stringify({
         userId: user.id,
         nftId: props.nft.id,
-        name: "List for auction"
+        name: "List for auction",
       }),
       headers: {
         "Content-Type": "application/json",
       },
     });
 
-    router.push(`/nfts`)
+    router.push(`/nfts`);
   }
 
-  return <AuctionNftForm chainId={props.nft.chainId} onAuctionNft={auctionNftHandler} loading={loading}  />;
+  const auctionSolanaNftHandler = async (enteredNftData: any) => {
+    setLoading(true);
+    enteredNftData.erc20TokenAddress = new PublicKey(
+      enteredNftData.erc20TokenAddress
+    ).toBase58();
+    const { itemData } = props.nft;
+
+    itemData.metadata.info = MetadataData.deserialize(
+      Buffer.from(itemData.metadata.account.data, "base64")
+    );
+
+    itemData.masterEdition.info = deserializeUnchecked(
+      METADATA_SCHEMA,
+      MasterEditionV2,
+      Buffer.from(itemData.masterEdition.account.data, "base64")
+    );
+
+    const item: any = await combine(
+      itemData.metadata,
+      itemData.masterEdition,
+      itemData.tokenAccount
+    );
+    item.metadata.info.masterEdition = item.masterEdition.pubkey;
+    item.metadata.info.edition = item.masterEdition.pubkey;
+    item.winningConfigType = WinningConfigType.TokenOnlyTransfer;
+    item.amountRanges = [
+      new AmountRange({
+        amount: new BN(1),
+        length: new BN(1),
+      }),
+    ];
+
+    const auctionSettings: IPartialCreateAuctionArgs = {
+      winners: new WinnerLimit({
+        type: WinnerLimitType.Capped,
+        usize: new BN(1),
+      }),
+      priceFloor: new PriceFloor({
+        type: PriceFloorType.Minimum,
+        minPrice: new BN(enteredNftData.startingPrice * LAMPORTS_PER_SOL),
+      }),
+      tokenMint: enteredNftData.erc20TokenAddress,
+      instantSalePrice: null,
+      endAuctionAt: new BN(enteredNftData.expiry),
+      auctionGap: new BN(0),
+      gapTickSizePercentage: null,
+      tickSize: null,
+      name: null,
+    };
+
+    const auctionData = await createAuctionManager(
+      connection,
+      wallet,
+      {},
+      auctionSettings,
+      [item],
+      undefined,
+      enteredNftData.erc20TokenAddress,
+      []
+    );
+
+    await fetch("/api/update-nft", {
+      method: "PUT",
+      body: JSON.stringify({
+        id: props.nft.id,
+        status: "AUCTION",
+        symbol: tokenList.tokenMap.get(enteredNftData.erc20TokenAddress)
+          ?.symbol,
+        erc20TokenAddress: enteredNftData.erc20TokenAddress,
+        startingPrice: toWei(
+          enteredNftData.startingPrice.toFixed(10).toString()
+        ),
+        startAuctionTime: new Date(Date.now()),
+        endAuctionTime: new Date(Date.now() + enteredNftData.expiry * 1000),
+        action: "List for auction",
+        actionUserId: user.id,
+        auctionData,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    router.push(`/nfts`);
+  };
+
+  return (
+    <AuctionNftForm
+      chainId={props.nft.chainId}
+      onAuctionNft={user.solana ? auctionSolanaNftHandler : auctionNftHandler}
+      loading={loading}
+    />
+  );
 }
 
 export async function getServerSideProps(ctx: any) {

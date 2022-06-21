@@ -8,156 +8,10 @@ import { CHAIN_DATA } from "../../constants/chain";
 import { zeroContractAddresses } from "../../contracts/zeroExContracts";
 import useConnectionInfo from "../../hooks/connectionInfo";
 import { sendPlaceBid } from "../../solana-helper/actions/sendPlaceBid";
-import { getProgramAccounts } from "../../solana-helper/common/contexts/meta/web3";
-import {
-  AuctionData,
-  AuctionManager,
-  SafetyDepositConfig,
-  AuctionDataExtended,
-  AuctionManagerV2,
-  AuctionView,
-  AuctionViewState,
-  AUCTION_ID,
-  AUCTION_SCHEMA,
-  MasterEditionV2,
-  METADATA_SCHEMA,
-  SafetyDepositBox,
-  SCHEMA,
-  TokenAccount,
-  Vault,
-  VAULT_SCHEMA,
-  ProcessAccountsFunc,
-  AccountAndPubkey,
-  MetaState,
-  UpdateStateValueFunc,
-  processAuctions,
-} from "../../solana-helper";
-import BN from "bn.js";
-import { deserializeUnchecked } from "borsh";
-import { MetadataData } from "@metaplex-foundation/mpl-token-metadata";
+import { AuctionView, TokenAccount } from "../../solana-helper";
 import { sendRedeemBid } from "../../solana-helper/actions/sendRedeemBid";
-import { AccountInfo } from "@solana/web3.js";
-import axios from "axios";
-import {
-  BidRedemptionTicket,
-  decodeBidRedemptionTicket,
-  ParsedAccount,
-} from "../../solana-helper";
-const forEach =
-  (fn: ProcessAccountsFunc, updateTemp: any) =>
-  async (accounts: AccountAndPubkey[]) => {
-    for (const account of accounts) {
-      await fn(account, updateTemp);
-    }
-  };
-
-enum MetaplexKey {
-  Uninitialized = 0,
-  OriginalAuthorityLookupV1 = 1,
-  BidRedemptionTicketV1 = 2,
-  StoreV1 = 3,
-  WhitelistedCreatorV1 = 4,
-  PayoutTicketV1 = 5,
-  SafetyDepositValidationTicketV1 = 6,
-  AuctionManagerV1 = 7,
-  PrizeTrackingTicketV1 = 8,
-  SafetyDepositConfigV1 = 9,
-  AuctionManagerV2 = 10,
-  BidRedemptionTicketV2 = 11,
-  AuctionWinnerTokenTypeTrackerV1 = 12,
-  StoreIndexerV1 = 13,
-  AuctionCacheV1 = 14,
-  PackSet = 15,
-}
-const isBidRedemptionTicketV1Account = (account: AccountInfo<Buffer>) =>
-  account.data[0] === MetaplexKey.BidRedemptionTicketV1;
-
-const isBidRedemptionTicketV2Account = (account: AccountInfo<Buffer>) =>
-  account.data[0] === MetaplexKey.BidRedemptionTicketV2;
-
-async function processData(
-  pubkey: string,
-  account: AccountInfo<Buffer>,
-  bidRedemptions: any
-) {
-  if (
-    isBidRedemptionTicketV1Account(account) ||
-    isBidRedemptionTicketV2Account(account)
-  ) {
-    const ticket = decodeBidRedemptionTicket(account.data);
-    const parsedAccount: ParsedAccount<BidRedemptionTicket> = {
-      pubkey,
-      account,
-      info: ticket,
-    };
-    bidRedemptions[pubkey] = parsedAccount;
-  }
-}
-
-async function getProgramAccount() {
-  const bidRedemptions = {} as any;
-  const masterReq = {
-    jsonrpc: "2.0",
-    id: 1,
-    method: "getProgramAccounts",
-    params: [
-      "p1exdMJcjVao65QdewkaZRUnU6VPSXhus9n2GzWfh98",
-      {
-        encoding: "jsonParsed",
-        filters: [
-          {
-            dataSize: 44,
-          },
-        ],
-      },
-    ],
-  };
-  const { data: masterRes } = await axios.post(
-    "https://api.devnet.solana.com",
-    masterReq
-  );
-
-  for (const res of masterRes.result) {
-    res.account.data = Buffer.from(res.account.data[0], "base64");
-    await processData(res.pubkey, res.account, bidRedemptions);
-  }
-
-  return bidRedemptions;
-}
-
-async function getAuction(address: string) {
-  const masterReq = {
-    jsonrpc: "2.0",
-    id: 1,
-    method: "getMultipleAccounts",
-    params: [
-      [address],
-      {
-        commitment: "recent",
-        encoding: "base64",
-      },
-    ],
-  };
-  const { data: masterRes } = await axios.post(
-    "https://api.devnet.solana.com",
-    masterReq
-  );
-  masterRes.result.value[0].data = masterRes.result.value[0].data[0];
-  const accountData = masterRes.result.value[0].data;
-  let info;
-
-  info = deserializeUnchecked(
-    AUCTION_SCHEMA,
-    AuctionData,
-    Buffer.from(accountData, "base64")
-  );
-
-  return {
-    pubkey: address,
-    account: masterRes.result.value[0],
-    info: info,
-  };
-}
+import { getAuctionView } from "../../helpers/solana/getAuctionView";
+import { getAuctionBidder } from "../../helpers/solana/getAuctionBidder";
 
 const { fromWei } = web3.utils;
 
@@ -249,96 +103,11 @@ function NftItem(props: any) {
                     setLoading(true);
 
                     if (user.solana && wallet) {
-                      const obj = {} as any;
-                      const {
-                        auction,
-                        auctionManager: auctionManagerInstance,
-                        vault,
-                        auctionDataExtended,
-                        safetyDeposit,
-                        safetyDepositConfig,
-                      } = props.saleOrderData;
-                      const bidRedemptions = await getProgramAccount();
-
-                      auction.info = deserializeUnchecked(
-                        AUCTION_SCHEMA,
-                        AuctionData,
-                        Buffer.from(auction.account.data, "base64")
-                      );
-                      auctionManagerInstance.info = deserializeUnchecked(
-                        SCHEMA,
-                        AuctionManagerV2,
-                        Buffer.from(
-                          auctionManagerInstance.account.data,
-                          "base64"
-                        )
-                      );
-                      vault.info = deserializeUnchecked(
-                        VAULT_SCHEMA,
-                        Vault,
-                        Buffer.from(vault.account.data, "base64")
-                      );
-                      auctionDataExtended.info = deserializeUnchecked(
-                        AUCTION_SCHEMA,
-                        AuctionDataExtended,
-                        Buffer.from(auctionDataExtended.account.data, "base64")
-                      );
-                      safetyDeposit.info = deserializeUnchecked(
-                        VAULT_SCHEMA,
-                        SafetyDepositBox,
-                        Buffer.from(safetyDeposit.account.data, "base64")
-                      ) as SafetyDepositBox;
-                      safetyDepositConfig.info = new SafetyDepositConfig({
-                        data: Buffer.from(
-                          safetyDepositConfig.account.data,
-                          "base64"
-                        ),
-                      });
-
-                      const { metadata, masterEdition } = props.itemData;
-
-                      metadata.info = MetadataData.deserialize(
-                        Buffer.from(metadata.account.data, "base64")
-                      );
-
-                      masterEdition.info = deserializeUnchecked(
-                        METADATA_SCHEMA,
-                        MasterEditionV2,
-                        Buffer.from(masterEdition.account.data, "base64")
-                      );
-
-                      const items = [
-                        [
-                          {
-                            metadata,
-                            winningConfigType: 0,
-                            safetyDeposit,
-                            amount: new BN(1),
-                            masterEdition,
-                          },
-                        ],
-                      ];
-
-                      const auctionView = {
-                        auction,
-                        auctionManager: new AuctionManager({
-                          instance: auctionManagerInstance,
-                          auction,
-                          vault,
-                          safetyDepositConfigs: [safetyDepositConfig],
-                          bidRedemptions: [],
-                        }),
-                        state: AuctionViewState.Live,
-                        vault,
-                        auctionDataExtended,
-                        safetyDepositBoxes: [safetyDeposit],
-                        items: items,
-                        thumbnail: items[0][0],
-                        isInstantSale: true,
-                        totallyComplete: true,
-                        myBidderPot: undefined,
-                        myBidderMetadata: undefined,
-                      };
+                      const { auctionView, bidRedemptions } =
+                        await getAuctionView(
+                          props.saleOrderData,
+                          props.itemData
+                        );
 
                       await sendPlaceBid(
                         connection,
@@ -346,48 +115,16 @@ function NftItem(props: any) {
                         user.address,
                         auctionView as AuctionView,
                         new Map<string, TokenAccount>(),
-                        auctionView.auctionDataExtended?.info.instantSalePrice,
+                        auctionView.auctionDataExtended?.info
+                          .instantSalePrice as any,
                         "finalized"
                       );
 
-                      await getProgramAccounts(connection, AUCTION_ID, {
-                        filters: [
-                          {
-                            memcmp: {
-                              offset: 32,
-                              bytes: auction.pubkey,
-                            },
-                          },
-                        ],
-                      }).then(
-                        forEach(
-                          processAuctions,
-                          (s: any, pubkey: any, parsedAccount: any) => {
-                            obj[s] = parsedAccount;
-                          }
-                        )
+                      const obj = await getAuctionBidder(
+                        connection,
+                        auctionView.auction.pubkey
                       );
-
-                      // bidder pot pull
-                      await getProgramAccounts(connection, AUCTION_ID, {
-                        filters: [
-                          {
-                            memcmp: {
-                              offset: 64,
-                              bytes: auction.pubkey,
-                            },
-                          },
-                        ],
-                      }).then(
-                        forEach(
-                          processAuctions,
-                          (s: any, pubkey: any, parsedAccount: any) => {
-                            obj[s] = parsedAccount;
-                          }
-                        )
-                      );
-
-                      auctionView.auction = await getAuction(auction.pubkey);
+                      auctionView.auction = obj.auction;
                       auctionView.myBidderPot =
                         obj.bidderPotsByAuctionAndBidder;
                       auctionView.myBidderMetadata =
@@ -538,8 +275,10 @@ function NftItem(props: any) {
               <>
                 <b>Highest Offer</b>
                 <p>
-                  {fromWei(props.bidOrders[0].signedOrder.erc20TokenAmount) +
-                    ` ${props.symbol}`}
+                  {props.solana
+                    ? props.bidOrders[0].signedOrder.erc20TokenAmount
+                    : fromWei(props.bidOrders[0].signedOrder.erc20TokenAmount) +
+                      ` ${props.symbol}`}
                 </p>
               </>
             )}
@@ -558,7 +297,7 @@ function NftItem(props: any) {
                 <Button
                   type="primary"
                   style={{ margin: "auto" }}
-                  href={`/nfts/bid/${props.id}`}
+                  onClick={() => router.push(`/nfts/bid/${props.id}`)}
                 >
                   Bid
                 </Button>
@@ -569,7 +308,7 @@ function NftItem(props: any) {
             <Button
               type="primary"
               style={{ margin: "auto" }}
-              href={`/nfts/offers/${props.id}`}
+              onClick={() => router.push(`/nfts/offers/${props.id}`)}
             >
               View Offers
             </Button>
@@ -582,9 +321,11 @@ function NftItem(props: any) {
           style={{ margin: "auto" }}
           onClick={() => {
             window.open(
-              `${CHAIN_DATA[props.chainId]?.blockExplorerUrl}/token/${
-                CHAIN_DATA[props.chainId]?.erc721
-              }?a=${props.tokenId}`,
+              props.solana
+                ? `https://explorer.solana.com/address/${props.metadata.mint}?cluster=devnet`
+                : `${CHAIN_DATA[props.chainId]?.blockExplorerUrl}/token/${
+                    CHAIN_DATA[props.chainId]?.erc721
+                  }?a=${props.tokenId}`,
               "_blank"
             );
           }}

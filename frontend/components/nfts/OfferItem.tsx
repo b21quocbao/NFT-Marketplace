@@ -17,7 +17,11 @@ function OfferItem(props: any) {
   return (
     <>
       <p>{`Bidder: ${props.offer.maker}`}</p>
-      <p>{`Amount: ${fromWei(props.offer.erc20TokenAmount)}`}</p>
+      <p>{`Amount: ${
+        props.solana
+          ? props.offer.erc20TokenAmount
+          : fromWei(props.offer.erc20TokenAmount)
+      }`}</p>
       {user &&
         props.makerUserId == user.id &&
         props.highestBid &&

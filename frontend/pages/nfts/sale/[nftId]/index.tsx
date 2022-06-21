@@ -72,8 +72,6 @@ function SaleNftPage(props: any) {
   const [loading, setLoading] = useState(false);
   const tokenList = useTokenList();
   const { user, library, chainId, connection, wallet } = useConnectionInfo();
-  const { whitelistedCreatorsByCreator, storeIndexer } = useMeta();
-  console.log(tokenList, "tokenList");
 
   useEffect(() => {
     const { ethereum } = window;
@@ -207,6 +205,8 @@ function SaleNftPage(props: any) {
     itemData.metadata.info = MetadataData.deserialize(
       Buffer.from(itemData.metadata.account.data, "base64")
     );
+    console.log(itemData.metadata, "itemData.metadata");
+    
 
     itemData.masterEdition.info = deserializeUnchecked(
       METADATA_SCHEMA,
@@ -251,12 +251,12 @@ function SaleNftPage(props: any) {
     const saleData = await createAuctionManager(
       connection,
       wallet,
-      whitelistedCreatorsByCreator,
+      {},
       auctionSettings,
       [item],
       undefined,
       enteredNftData.erc20TokenAddress,
-      storeIndexer
+      []
     );
 
     await fetch("/api/update-nft", {
@@ -277,7 +277,7 @@ function SaleNftPage(props: any) {
       },
     });
 
-    router.push(`/nfts`);
+    router.push(`/nfts/${user.id}`);
   };
 
   return (
@@ -291,6 +291,7 @@ function SaleNftPage(props: any) {
               : "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
           }
           onSaleNft={user.solana ? saleSolanaNftHandler : saleNftHandler}
+          solana={user.solana}
           loading={loading}
         />
       )}

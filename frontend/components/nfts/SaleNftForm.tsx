@@ -33,14 +33,16 @@ const SaleNftForm = (props: any) => {
     props.onSaleNft(values);
   };
   const tokenList = chainId
-    ? [
-        {
-          symbol: CHAIN_DATA[chainId].symbol,
-          name: "Native Coin",
-          address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-        },
-        ...CHAIN_DATA[chainId].erc20,
-      ]
+    ? !props.solana
+      ? [
+          {
+            symbol: CHAIN_DATA[chainId].symbol,
+            name: "Native Coin",
+            address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          },
+          ...CHAIN_DATA[chainId].erc20,
+        ]
+      : CHAIN_DATA[chainId].erc20
     : [];
   return (
     <>
