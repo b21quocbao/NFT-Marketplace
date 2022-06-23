@@ -4,6 +4,8 @@ import { useState } from "react";
 import { CHAIN_DATA } from "../../constants/chain";
 import { endSale } from "../../helpers/solana/endSale";
 import { getAuctionView } from "../../helpers/solana/getAuctionView";
+import { crawlItemData } from "../../helpers/solana/getMetadata";
+import { getOrderData } from "../../helpers/solana/getOrderData";
 import useConnectionInfo from "../../hooks/connectionInfo";
 import { TokenAccount } from "../../solana-helper";
 const { Meta } = Card;
@@ -74,9 +76,14 @@ function MyNftItem(props: any) {
 
                 setLoading(true);
                 if (props.solana) {
+                  const saleOrderData = await getOrderData(props.saleData);
+                  const itemData = await crawlItemData(
+                    props.metadata,
+                    props.user.address
+                  );
                   const { auctionView, bidRedemptions } = await getAuctionView(
-                    props.saleOrderData,
-                    props.itemData
+                    saleOrderData,
+                    itemData
                   );
                   await endSale({
                     auctionView,

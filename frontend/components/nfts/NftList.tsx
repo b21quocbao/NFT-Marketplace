@@ -2,6 +2,8 @@ import { Col, Row } from "antd";
 import NftItem from "./NftItem";
 
 function NftList(props: any) {
+  console.log(props, 'spoicv');
+  
   
   return (
     <Row
@@ -22,11 +24,12 @@ function NftList(props: any) {
             imageUrl={nft.imageUrl}
             tokenId={nft.tokenId}
             name={nft.name}
+            user={nft.user}
             address={nft.address}
             userId={nft.userId}
             price={nft.price}
             saleOrderData={nft.saleOrderData}
-            itemData={nft.itemData}
+            saleData={nft.saleData}
             endAuctionTime={nft.endAuctionTime}
             status={nft.status}
             symbol={nft.symbol}

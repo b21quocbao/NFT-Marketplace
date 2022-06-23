@@ -13,6 +13,8 @@ import BN from "bn.js";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { getAuctionView } from "../../../../helpers/solana/getAuctionView";
 import { getAuctionBidder } from "../../../../helpers/solana/getAuctionBidder";
+import { crawlItemData } from "../../../../helpers/solana/getMetadata";
+import { getOrderData } from "../../../../helpers/solana/getOrderData";
 
 const { toWei, fromWei } = web3.utils;
 
@@ -145,9 +147,11 @@ function BidNftPage(props: any) {
   }
 
   async function bidSolanaNftHandler(enteredNftData: any) {
+    const itemData = await crawlItemData(props.nft.metadata, props.user.address);
+    const auctionOrderData = await getOrderData(props.nft.bidData);
     const { auctionView } = await getAuctionView(
-      props.auctionOrderData,
-      props.itemData
+      auctionOrderData,
+      itemData
     );
     const obj = await getAuctionBidder(connection, auctionView.auction.pubkey);
     auctionView.auction = obj.auction;

@@ -23,16 +23,15 @@ function MyNftList(props: any) {
           <MyNftItem
             key={nft.id}
             id={nft.id}
-            itemData={nft.itemData}
-            auctionOrderData={nft.auctionOrderData}
-            saleOrderData={nft.saleOrderData}
             solana={nft.solana}
             metadata={nft.metadata}
             imageUrl={nft.imageUrl}
             tokenId={nft.tokenId}
             name={nft.name}
             address={nft.address}
+            user={nft.user}
             endAuctionTime={nft.endAuctionTime}
+            saleData={nft.saleData}
             status={nft.status}
             chainId={nft.chainId}
             signedOrder={nft.signedOrder}

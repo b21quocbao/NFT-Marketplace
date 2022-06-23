@@ -27,6 +27,7 @@ import {
   WinningConstraint,
 } from "../../../../solana-helper";
 import { createAuctionManager } from "../../../../solana-helper/actions/createAuctionManager";
+import { crawlItemData } from "../../../../helpers/solana/getMetadata";
 async function combine(metadata: any, masterEdition: any, tokenAccount: any) {
   let winningConfigType: WinningConfigType;
   if (masterEdition.info.maxSupply) {
@@ -119,7 +120,8 @@ function AuctionNftPage(props: any) {
     enteredNftData.erc20TokenAddress = new PublicKey(
       enteredNftData.erc20TokenAddress
     ).toBase58();
-    const { itemData } = props.nft;
+    const { creator } = props.nft;
+    const itemData = await crawlItemData(props.nft.metadata, props.user.address);
 
     itemData.metadata.info = MetadataData.deserialize(
       Buffer.from(itemData.metadata.account.data, "base64")
@@ -172,7 +174,8 @@ function AuctionNftPage(props: any) {
       [item],
       undefined,
       enteredNftData.erc20TokenAddress,
-      []
+      [],
+      creator
     );
 
     await fetch("/api/update-nft", {

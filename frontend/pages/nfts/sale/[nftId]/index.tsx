@@ -30,6 +30,7 @@ import { createAuctionManager } from "../../../../solana-helper/actions/createAu
 import BN from "bn.js";
 import { MetadataData } from "@metaplex-foundation/mpl-token-metadata";
 import { deserializeUnchecked } from "borsh";
+import { crawlItemData } from "../../../../helpers/solana/getMetadata";
 export enum AuctionCategory {
   InstantSale,
   Limited,
@@ -200,13 +201,15 @@ function SaleNftPage(props: any) {
     enteredNftData.erc20TokenAddress = new PublicKey(
       enteredNftData.erc20TokenAddress
     ).toBase58();
-    const { itemData } = props.nft;
+    const { creator } = props.nft;
+    const itemData = await crawlItemData(
+      props.nft.metadata,
+      props.user.address
+    );
 
     itemData.metadata.info = MetadataData.deserialize(
       Buffer.from(itemData.metadata.account.data, "base64")
     );
-    console.log(itemData.metadata, "itemData.metadata");
-    
 
     itemData.masterEdition.info = deserializeUnchecked(
       METADATA_SCHEMA,
@@ -256,7 +259,8 @@ function SaleNftPage(props: any) {
       [item],
       undefined,
       enteredNftData.erc20TokenAddress,
-      []
+      [],
+      creator
     );
 
     await fetch("/api/update-nft", {

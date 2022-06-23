@@ -14,7 +14,21 @@ export async function getServerSideProps(ctx: any) {
 
   const nftsCollection = db.collection("nfts");
 
-  const nfts = await nftsCollection.find({ userId: ctx.params.userId }).toArray();
+  const nfts = await nftsCollection
+    .aggregate([
+      { $match: { userId: ctx.params.userId } },
+      { $addFields: { userIdd: { $toObjectId: "$userId" } } },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userIdd",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      { $unset: "userIdd" },
+    ])
+    .toArray();
 
   client.close();
 
@@ -22,6 +36,11 @@ export async function getServerSideProps(ctx: any) {
     props: {
       nfts: nfts.map((nft) => ({
         ...nft,
+        user: {
+          ...nft.user[0],
+          id: nft.user[0]?._id.toString(),
+          _id: null,
+        },
         id: nft._id.toString(),
         _id: null,
       })),

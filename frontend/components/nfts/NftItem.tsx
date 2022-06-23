@@ -12,6 +12,8 @@ import { AuctionView, TokenAccount } from "../../solana-helper";
 import { sendRedeemBid } from "../../solana-helper/actions/sendRedeemBid";
 import { getAuctionView } from "../../helpers/solana/getAuctionView";
 import { getAuctionBidder } from "../../helpers/solana/getAuctionBidder";
+import { crawlItemData } from "../../helpers/solana/getMetadata";
+import { getOrderData } from "../../helpers/solana/getOrderData";
 
 const { fromWei } = web3.utils;
 
@@ -103,11 +105,18 @@ function NftItem(props: any) {
                     setLoading(true);
 
                     if (user.solana && wallet) {
+                      const itemData = await crawlItemData(
+                        props.metadata,
+                        props.user.address
+                      );
+                      console.log(itemData, "itemData");
+                      
+                      const saleOrderData = await getOrderData(props.saleData);
+                      console.log(saleOrderData, "saleOrderData");
+                      
+
                       const { auctionView, bidRedemptions } =
-                        await getAuctionView(
-                          props.saleOrderData,
-                          props.itemData
-                        );
+                        await getAuctionView(saleOrderData, itemData);
 
                       await sendPlaceBid(
                         connection,
