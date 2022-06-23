@@ -30,8 +30,8 @@ task("deploy:ZeroEx").setAction(async function (taskArguments: TaskArguments, { 
 });
 
 task("deploy:ERC721")
-  .addParam("name", "name")
-  .addParam("symbol", "symbol")
+  .addParam("symbol", "Contract symbol")
+  .addParam("name", "Contract name")
   .setAction(async function (taskArguments: TaskArguments, { ethers }) {
     const signers: SignerWithAddress[] = await ethers.getSigners();
 
