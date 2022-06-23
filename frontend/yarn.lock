@@ -10682,10 +10682,10 @@ socks@^2.6.2:
     ip "^1.1.5"
     smart-buffer "^4.2.0"
 
-solana-helper@1.0.9:
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/solana-helper/-/solana-helper-1.0.9.tgz#eda3363c8785be76dfea4aea2a972d5c378d7104"
-  integrity sha512-jiMMKjWa8xX2kDkP/kJS7Jk6vS3x137MykuuWsxk69T/khFEfYPt4juWQJnch9lvSz/q7V1I9mA016hrMDsv4A==
+solana-helper@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/solana-helper/-/solana-helper-1.1.0.tgz#969d3ffa2bfa92b81049811984ef720365c47bac"
+  integrity sha512-kbX1kMsd109hIIAgvJFYIe+eMWSYqmkbE804xe993gWPNd8LRz6aWUUVlqWKVIV5A+P1WpmoBhg7QfAvCkS/Kw==
   dependencies:
     "@metamask/jazzicon" "^2.0.0"
     "@metaplex-foundation/mpl-token-metadata" "1.1.0"

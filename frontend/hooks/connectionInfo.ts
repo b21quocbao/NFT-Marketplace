@@ -1,6 +1,6 @@
 import { useWeb3React } from "@web3-react/core";
 import { useEffect, useState } from "react";
-import { useConnection, useSolanaWallet } from "../solana-helper";
+import { useConnection, useSolanaWallet } from "solana-helper";
 import StorageUtils from "../utils/storage";
 
 const useConnectionInfo = () => {

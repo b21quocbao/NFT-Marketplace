@@ -16,7 +16,7 @@ import {
   AUCTION_SCHEMA,
   AuctionData,
   AuctionView,
-} from "../../solana-helper";
+} from "solana-helper";
 import { MetadataData } from "@metaplex-foundation/mpl-token-metadata";
 import { AccountInfo } from "@solana/web3.js";
 import BN from "bn.js";

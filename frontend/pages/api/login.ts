@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 import { sign } from "tweetnacl";
 import bs58 from "bs58";
 import axios from "axios";
-import { getStoreID } from "../../solana-helper";
+import { getStoreID } from "solana-helper";
 // eslint-disable-next-line
 const Web3 = require("web3");
 

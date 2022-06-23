@@ -7,8 +7,8 @@ import { useRouter } from "next/router";
 import useConnectionInfo from "../../../../hooks/connectionInfo";
 import { zeroContractAddresses } from "../../../../contracts/zeroExContracts";
 import { CHAIN_DATA } from "../../../../constants/chain";
-import { sendPlaceBid } from "../../../../solana-helper/actions/sendPlaceBid";
-import { AuctionView, TokenAccount } from "../../../../solana-helper";
+import { sendPlaceBid } from "solana-helper/dist/actions/sendPlaceBid";
+import { AuctionView, TokenAccount } from "solana-helper";
 import BN from "bn.js";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { getAuctionView } from "../../../../helpers/solana/getAuctionView";
@@ -148,7 +148,7 @@ function BidNftPage(props: any) {
 
   async function bidSolanaNftHandler(enteredNftData: any) {
     const itemData = await crawlItemData(props.nft.metadata, props.user.address);
-    const auctionOrderData = await getOrderData(props.nft.bidData);
+    const auctionOrderData = await getOrderData(props.nft.auctionData);
     const { auctionView } = await getAuctionView(
       auctionOrderData,
       itemData

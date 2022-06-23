@@ -10,7 +10,7 @@ import {
   ConnectionProvider,
   StoreProvider,
   SPLTokenListProvider,
-} from "../solana-helper";
+} from "solana-helper";
 import useConnectionInfo from "../hooks/connectionInfo";
 
 function getLibrary(provider: any) {

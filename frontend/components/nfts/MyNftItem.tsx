@@ -7,7 +7,7 @@ import { getAuctionView } from "../../helpers/solana/getAuctionView";
 import { crawlItemData } from "../../helpers/solana/getMetadata";
 import { getOrderData } from "../../helpers/solana/getOrderData";
 import useConnectionInfo from "../../hooks/connectionInfo";
-import { TokenAccount } from "../../solana-helper";
+import { TokenAccount } from "solana-helper";
 const { Meta } = Card;
 
 function MyNftItem(props: any) {

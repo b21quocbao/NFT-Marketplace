@@ -7,8 +7,8 @@ import {
   AUCTION_SCHEMA,
   ProcessAccountsFunc,
   processAuctions,
-} from "../../solana-helper";
-import { getProgramAccounts } from "../../solana-helper/common/contexts/meta/web3";
+} from "solana-helper";
+import { getProgramAccounts } from "solana-helper/dist/common/contexts/meta/web3";
 
 async function getAuction(address: string) {
   const masterReq = {

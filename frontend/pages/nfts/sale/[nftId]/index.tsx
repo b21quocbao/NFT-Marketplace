@@ -24,9 +24,9 @@ import {
   WinnerLimitType,
   WinningConfigType,
   WinningConstraint,
-} from "../../../../solana-helper";
+} from "solana-helper";
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
-import { createAuctionManager } from "../../../../solana-helper/actions/createAuctionManager";
+import { createAuctionManager } from "solana-helper/dist/actions/createAuctionManager";
 import BN from "bn.js";
 import { MetadataData } from "@metaplex-foundation/mpl-token-metadata";
 import { deserializeUnchecked } from "borsh";

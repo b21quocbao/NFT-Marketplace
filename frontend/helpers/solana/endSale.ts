@@ -1,8 +1,8 @@
 import { WalletContextState } from "@solana/wallet-adapter-react";
 import { Connection, PublicKey } from "@solana/web3.js";
-import { AuctionView, BidderMetadata, BidRedemptionTicket, ParsedAccount, PrizeTrackingTicket, sendTransactions, TokenAccount } from "../../solana-helper";
-import { claimUnusedPrizes } from "../../solana-helper/actions/claimUnusedPrizes";
-import { endAuction } from "../../solana-helper/models/metaplex/endAuction";
+import { AuctionView, BidderMetadata, BidRedemptionTicket, ParsedAccount, PrizeTrackingTicket, sendTransactions, TokenAccount } from "solana-helper";
+import { claimUnusedPrizes } from "solana-helper/dist/actions/claimUnusedPrizes";
+import { endAuction } from "solana-helper/dist/models/metaplex/endAuction";
 
 export interface EndSaleParams {
   auctionView: AuctionView;

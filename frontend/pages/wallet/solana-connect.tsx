@@ -12,9 +12,9 @@ import {
   useSolanaWallet,
   WalletSigner,
   WhitelistedCreator,
-} from "../../solana-helper";
-import { setStore } from "../../solana-helper/common/models/metaplex/setStore";
-import { setWhitelistedCreator } from "../../solana-helper/common/models/metaplex/setWhitelistedCreator";
+} from "solana-helper";
+import { setStore } from "solana-helper/dist/common/models/metaplex/setStore";
+import { setWhitelistedCreator } from "solana-helper/dist/common/models/metaplex/setWhitelistedCreator";
 import { Connection, Keypair, TransactionInstruction } from "@solana/web3.js";
 import { WalletNotConnectedError } from "@solana/wallet-adapter-base";
 

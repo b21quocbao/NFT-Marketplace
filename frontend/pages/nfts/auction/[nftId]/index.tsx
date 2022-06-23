@@ -25,8 +25,8 @@ import {
   WinnerLimitType,
   WinningConfigType,
   WinningConstraint,
-} from "../../../../solana-helper";
-import { createAuctionManager } from "../../../../solana-helper/actions/createAuctionManager";
+} from "solana-helper";
+import { createAuctionManager } from "solana-helper/dist/actions/createAuctionManager";
 import { crawlItemData } from "../../../../helpers/solana/getMetadata";
 async function combine(metadata: any, masterEdition: any, tokenAccount: any) {
   let winningConfigType: WinningConfigType;
@@ -121,7 +121,10 @@ function AuctionNftPage(props: any) {
       enteredNftData.erc20TokenAddress
     ).toBase58();
     const { creator } = props.nft;
-    const itemData = await crawlItemData(props.nft.metadata, props.user.address);
+    const itemData = await crawlItemData(
+      props.nft.metadata,
+      props.user.address
+    );
 
     itemData.metadata.info = MetadataData.deserialize(
       Buffer.from(itemData.metadata.account.data, "base64")

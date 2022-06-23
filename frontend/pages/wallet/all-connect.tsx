@@ -11,7 +11,7 @@ function AllConnect() {
         <Button
           type="primary"
           size="large"
-          onClick={() => router.push("/wallet/solana-connect")}
+          href="/wallet/solana-connect"
         >
           Connect to Solana chain
         </Button>
