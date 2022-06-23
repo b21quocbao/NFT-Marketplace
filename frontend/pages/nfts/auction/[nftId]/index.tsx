@@ -162,7 +162,7 @@ function AuctionNftPage(props: any) {
       }),
       tokenMint: enteredNftData.erc20TokenAddress,
       instantSalePrice: null,
-      endAuctionAt: new BN(enteredNftData.expiry),
+      endAuctionAt: new BN(parseInt(enteredNftData.expiry)),
       auctionGap: new BN(0),
       gapTickSizePercentage: null,
       tickSize: null,

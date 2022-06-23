@@ -1,12 +1,13 @@
 import { Button, Card, Image } from "antd";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CHAIN_DATA } from "../../constants/chain";
 import { endSale } from "../../helpers/solana/endSale";
 import { getAuctionView } from "../../helpers/solana/getAuctionView";
 import { crawlItemData } from "../../helpers/solana/getMetadata";
 import { getOrderData } from "../../helpers/solana/getOrderData";
 import useConnectionInfo from "../../hooks/connectionInfo";
+import { sendCancelBid } from "solana-helper/dist/actions/cancelBid";
 import { TokenAccount } from "solana-helper";
 const { Meta } = Card;
 
@@ -14,6 +15,22 @@ function MyNftItem(props: any) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { user, library, chainId, connection, wallet } = useConnectionInfo();
+  const [status, setStatus] = useState(props.status);
+  useEffect(() => {
+    let { status } = props;
+
+    const checkStatus = () => {
+      if (
+        status === "AUCTION" &&
+        new Date(props.endAuctionTime).getTime() < Date.now()
+      ) {
+        setStatus("END AUCTION");
+      }
+    };
+    checkStatus();
+    const interval = setInterval(checkStatus, 1000);
+    return () => clearInterval(interval);
+  }, [props]);
 
   return (
     <>
@@ -24,7 +41,7 @@ function MyNftItem(props: any) {
         }}
         cover={<Image alt="example" src={props.imageUrl} />}
       >
-        <Meta title={props.name} description={props.status} />
+        <Meta title={props.name} description={status} />
         <br />
         <b>Chain: </b>
         <p>{CHAIN_DATA[props.chainId]?.name}</p>
@@ -123,6 +140,66 @@ function MyNftItem(props: any) {
             <br />
           </>
         )}
+        {status == "END AUCTION" &&
+          props.solana &&
+          (!props.bidOrders || !props.bidOrders.length) && (
+            <>
+              <Button
+                type="primary"
+                style={{ margin: "auto" }}
+                loading={loading}
+                onClick={async () => {
+                  setLoading(true);
+                  if (props.solana) {
+                    const auctionOrderData = await getOrderData(
+                      props.auctionData
+                    );
+                    const itemData = await crawlItemData(
+                      props.metadata,
+                      props.user.address
+                    );
+                    const { auctionView, bidRedemptions } =
+                      await getAuctionView(auctionOrderData, itemData);
+
+                    await sendCancelBid(
+                      connection,
+                      wallet,
+                      user.address,
+                      auctionView,
+                      new Map<string, TokenAccount>(),
+                      [],
+                      bidRedemptions,
+                      {}
+                    );
+                  }
+
+                  await fetch("/api/update-nft", {
+                    method: "PUT",
+                    body: JSON.stringify({
+                      id: props.id,
+                      status: "AVAILABLE",
+                      signedOrder: null,
+                      saleData: null,
+                      auctionData: null,
+                      saleOrderData: null,
+                      auctionOrderData: null,
+                      startingPrice: null,
+                      startAuctionTime: null,
+                      endAuctionTime: null,
+                    }),
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                  });
+                  router.reload();
+                }}
+              >
+                Claim Back
+              </Button>
+              <br />
+              <br />
+            </>
+          )}
         <Button
           type="primary"
           style={{ margin: "auto" }}

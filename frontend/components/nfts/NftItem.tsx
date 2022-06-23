@@ -38,6 +38,7 @@ function NftItem(props: any) {
   const [status, setStatus] = useState(props.status);
   const [loading, setLoading] = useState(false);
   const [endAuctionTime, setEndAuctionTime] = useState(undefined as any);
+  const [highestBid, setHighestBid] = useState(false);
 
   useEffect(() => {
     let { status } = props;
@@ -47,6 +48,13 @@ function NftItem(props: any) {
         status === "AUCTION" &&
         new Date(props.endAuctionTime).getTime() < Date.now()
       ) {
+        if (
+          props.bidOrders &&
+          props.bidOrders.length &&
+          props.bidOrders[0].signedOrder.maker === user.address
+        ) {
+          setHighestBid(true);
+        }
         setStatus("END AUCTION");
       }
     };
@@ -110,10 +118,9 @@ function NftItem(props: any) {
                         props.user.address
                       );
                       console.log(itemData, "itemData");
-                      
+
                       const saleOrderData = await getOrderData(props.saleData);
                       console.log(saleOrderData, "saleOrderData");
-                      
 
                       const { auctionView, bidRedemptions } =
                         await getAuctionView(saleOrderData, itemData);
@@ -320,6 +327,64 @@ function NftItem(props: any) {
               onClick={() => router.push(`/nfts/offers/${props.id}`)}
             >
               View Offers
+            </Button>
+            <br />
+            <br />
+          </>
+        )}
+        {status === "END AUCTION" && user.solana && highestBid && (
+          <>
+            <Button
+              type="primary"
+              style={{ margin: "auto" }}
+              onClick={async () => {
+                const itemData = await crawlItemData(
+                  props.metadata,
+                  props.user.address
+                );
+                const auctionOrderData = await getOrderData(
+                  props.auctionData
+                );
+                const { auctionView, bidRedemptions } = await getAuctionView(
+                  auctionOrderData,
+                  itemData
+                );
+                await getAuctionView(auctionOrderData, itemData);
+                const obj = await getAuctionBidder(
+                  connection,
+                  auctionView.auction.pubkey
+                );
+                auctionView.auction = obj.auction;
+                auctionView.myBidderPot = obj.bidderPotsByAuctionAndBidder;
+                auctionView.myBidderMetadata =
+                  obj.bidderMetadataByAuctionAndBidder;
+
+                await sendRedeemBid(
+                  connection,
+                  wallet,
+                  user.address,
+                  auctionView,
+                  new Map<string, TokenAccount>(),
+                  {},
+                  bidRedemptions,
+                  []
+                );
+
+                await fetch("/api/update-nft", {
+                  method: "PUT",
+                  body: JSON.stringify({
+                    id: props.id,
+                    status: "AVAILABLE",
+                    userId: user.id,
+                  }),
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                });
+                router.push(`/nfts/${user.id}`);
+              }}
+            >
+              Claim
             </Button>
             <br />
             <br />

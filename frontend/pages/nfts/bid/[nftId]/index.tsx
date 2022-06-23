@@ -112,6 +112,7 @@ function BidNftPage(props: any) {
 
     let { bidOrders } = props.nft;
     if (!bidOrders) bidOrders = [];
+    bidOrders = bidOrders.filter((x: any) => x.userId != user.id);
     bidOrders.push({ signedOrder, userId: user.id });
     bidOrders.sort((a: any, b: any) => {
       return (
@@ -174,6 +175,7 @@ function BidNftPage(props: any) {
 
     let { bidOrders } = props.nft;
     if (!bidOrders) bidOrders = [];
+    bidOrders = bidOrders.filter((x: any) => x.userId != user.id);
     bidOrders.push({ signedOrder, userId: user.id });
     bidOrders.sort((a: any, b: any) => {
       return b.signedOrder.erc20TokenAmount - a.signedOrder.erc20TokenAmount;

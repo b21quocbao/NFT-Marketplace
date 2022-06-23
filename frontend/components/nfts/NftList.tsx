@@ -28,6 +28,7 @@ function NftList(props: any) {
             address={nft.address}
             userId={nft.userId}
             price={nft.price}
+            auctionData={nft.auctionData}
             saleOrderData={nft.saleOrderData}
             saleData={nft.saleData}
             endAuctionTime={nft.endAuctionTime}
