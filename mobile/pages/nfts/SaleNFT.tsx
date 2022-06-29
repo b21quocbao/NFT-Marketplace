@@ -7,7 +7,6 @@ import { getChainConfig } from "../../helpers/ipfs";
 import { clearErrors, saleNft } from "../../store/nfts/actions";
 import erc721ABI from "../../contracts/abi/erc721ABI.json";
 import erc20ABI from "../../contracts/abi/erc20ABI.json";
-import { erc721ContractAddresses } from "../../contracts/erc721Contracts";
 import {
   approveTokenOrNftByAsset,
   loadApprovalStatus,
@@ -24,7 +23,13 @@ import { ethers } from "ethers";
 import { CHAIN_DATA } from "../../constants/chain";
 import { NATIVE_TOKEN, TradeDirection } from "../../constants/zeroEx";
 import { getSymbol } from "../../store/nfts/helper/smartcontract/erc20";
-import { ActivityIndicator, Button, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Button,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
 const { toWei } = Web3.utils;
@@ -49,7 +54,7 @@ function SaleNft({ route }) {
     setContract(
       new web3.eth.Contract(
         erc721ABI as any,
-        erc721ContractAddresses[connector.chainId]
+        CHAIN_DATA[connector.chainId].erc721
       )
     );
 
@@ -74,8 +79,7 @@ function SaleNft({ route }) {
     const { amount, erc20TokenAddress } = enteredNftData;
     let { saleRoyaltyFee } = enteredNftData;
     const marketplaceFee = (Number(NEXT_PUBLIC_MARKETPLACE_FEE) * amount) / 100;
-    const erc721TokenAddress =
-      erc721ContractAddresses[Number(connector.chainId)];
+    const erc721TokenAddress = CHAIN_DATA[Number(connector.chainId)].erc721;
     let symbol = CHAIN_DATA[Number(connector.chainId)].symbol;
 
     if (erc20TokenAddress != NATIVE_TOKEN) {
@@ -141,27 +145,29 @@ function SaleNft({ route }) {
     navigation.navigate("My NFTs" as never);
   };
 
-  return <View style={[styles.container]}>
-    {loading ? (
-      <View style={[styles.container]}>
-        <ActivityIndicator />
-      </View>
-    ) : null}
-    {!loading && !error.message.length && (
-      <SaleNftForm onSaleNft={saleNftHandler} />
-    )}
-    {!loading && error.message.length ? (
-      <View style={[styles.error]}>
-        <Text>Error message: {error.message}</Text>
-        <Button
-          title="Retry"
-          onPress={() => {
-            dispatch(clearErrors());
-          }}
-        />
-      </View>
-    ) : null}
-  </View>;
+  return (
+    <View style={[styles.container]}>
+      {loading ? (
+        <View style={[styles.container]}>
+          <ActivityIndicator />
+        </View>
+      ) : null}
+      {!loading && !error.message.length && (
+        <SaleNftForm onSaleNft={saleNftHandler} />
+      )}
+      {!loading && error.message.length ? (
+        <View style={[styles.error]}>
+          <Text>Error message: {error.message}</Text>
+          <Button
+            title="Retry"
+            onPress={() => {
+              dispatch(clearErrors());
+            }}
+          />
+        </View>
+      ) : null}
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({

@@ -46,6 +46,17 @@ import { axiosInstance } from "../../helpers/axios";
 import { addNft } from "./helper/ipfs";
 import { getTotalSupply, mint } from "./helper/smartcontract/erc721";
 import Web3 from "web3";
+import BigNumber from "bignumber.js";
+import { parse as uuidParse } from "uuid";
+import { v4 as uuidv4 } from "uuid";
+BigNumber.config({ EXPONENTIAL_AT: 100000 });
+
+function buf2hex(buffer: any) {
+  // buffer is an ArrayBuffer
+  return [...new Uint8Array(buffer)]
+    .map((x) => x.toString(16).padStart(2, "0"))
+    .join("");
+}
 
 const { toWei } = Web3.utils;
 
@@ -96,13 +107,6 @@ function* onCreateNft({ payload }: ReturnType<typeof createNft>) {
     const { assetUrl, metadataUrl } = yield call(() =>
       addNft(payload.image.value, payload.name.value, payload.description.value)
     );
-    const totalSupply = yield call(() => getTotalSupply(payload.contract));
-
-    yield call(() =>
-      mint(payload.connector, payload.contract, payload.userAddress, 1, [
-        metadataUrl,
-      ])
-    );
 
     const response = yield call(() =>
       axiosInstance.post("new-nft", {
@@ -116,7 +120,14 @@ function* onCreateNft({ payload }: ReturnType<typeof createNft>) {
         chainId: payload.chainId,
         creator: payload.userAddress,
         status: "AVAILABLE",
-        tokenId: totalSupply,
+        tokenIds: [
+          new BigNumber(
+            (
+              payload.userAddress +
+              buf2hex(uuidParse(uuidv4())).substring(0, 24)
+            ).toLowerCase()
+          ).toString(),
+        ],
         userId: payload.userId,
       })
     );

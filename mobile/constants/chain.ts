@@ -70,7 +70,7 @@ export const CHAIN_DATA: any = {
   80001: {
     name: "Polygon Testnet",
     symbol: "MATIC",
-    erc721: "0x446A8082AE9713b635F4b2c8C4b3Fe5DF7e7de28",
+    erc721: "0xd52410B5EC44F69eCC029B5d432C0cbc5B6aA4FC",
     erc20: [
       {
         address: "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889",
