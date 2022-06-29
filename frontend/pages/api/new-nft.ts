@@ -14,10 +14,10 @@ async function handler(req: any, res: any) {
       const assetURI = data.assetURIs[idx];
       const metadataURI = data.metadataURIs[idx];
       const { name, description, royaltyFee } = data.assets[idx];
+      const tokenId = data.tokenIds[idx];
       const collectionId = data.collectionId;
       const chainId = data.chainId;
       const status = data.status;
-      const tokenId = data.tokenId + idx;
       const userId = data.userId;
 
       await nftsCollection.insertOne({
