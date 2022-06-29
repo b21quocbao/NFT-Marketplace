@@ -9,7 +9,6 @@ import "react-native-get-random-values";
 import "@ethersproject/shims";
 import { ethers } from "ethers";
 import { bidNft, clearErrors } from "../../store/nfts/actions";
-import { erc721ContractAddresses } from "../../contracts/erc721Contracts";
 import {
   approveTokenOrNftByAsset,
   loadApprovalStatus,
@@ -24,6 +23,7 @@ import { TradeDirection } from "../../constants/zeroEx";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { Button } from "@rneui/themed";
 import { useNavigation } from "@react-navigation/native";
+import { CHAIN_DATA } from "../../constants/chain";
 
 const { fromWei, toWei } = Web3.utils;
 
@@ -70,7 +70,7 @@ function BidNft({ route }) {
     let { bidRoyaltyFee, bidOrders } = nft;
     const marketplaceFee = (Number(NEXT_PUBLIC_MARKETPLACE_FEE) * amount) / 100;
     const takerAsset: any = {
-      tokenAddress: erc721ContractAddresses[connector.chainId],
+      tokenAddress: CHAIN_DATA[connector.chainId].erc721,
       tokenId: nft.tokenId,
       type: "ERC721",
     };

@@ -14,13 +14,13 @@ import zeroExABI from "../../contracts/abi/zeroExABI.json";
 import "react-native-get-random-values";
 import "@ethersproject/shims";
 import { ethers } from "ethers";
-import { erc721ContractAddresses } from "../../contracts/erc721Contracts";
 import { fillSignedOrder } from "../../store/nfts/helper/smartcontract/zeroEx";
 import { zeroContractAddresses } from "../../contracts/zeroExContracts";
 import { confirmNft } from "../../store/nfts/actions";
 import { Text, View } from "react-native";
 import ItemField from "./ItemField";
 import { useNavigation } from "@react-navigation/native";
+import { CHAIN_DATA } from "../../constants/chain";
 
 const { fromWei } = Web3.utils;
 
@@ -46,7 +46,7 @@ function HighestOfferItem(props: any) {
     setContract(
       new web3.eth.Contract(
         erc721ABI as any,
-        erc721ContractAddresses[connector.chainId]
+        CHAIN_DATA[connector.chainId].erc721
       )
     );
     setZeroExContract(

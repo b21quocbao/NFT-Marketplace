@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "hardhat/console.sol";
 
 // returns hardcoded URI for each token
 
@@ -16,11 +17,20 @@ contract ERC721Token is ERC721Enumerable, Ownable {
     uint256 public maxSupply = 200000;
     uint256 public maxMintAmount = 2000;
     address public payoutAddress;
+    address public exchangeContractAddress;
     mapping(uint256 => string) private _tokenURIs;
 
     mapping(address => bool) public whitelisted;
+    // Mapping from token ID to owner address
+    mapping(uint256 => address) private _owners;
 
-    constructor(string memory _name, string memory _symbol) ERC721(_name, _symbol) {}
+    constructor(
+        string memory _name,
+        string memory _symbol,
+        address _exchangeContractAddress
+    ) ERC721(_name, _symbol) {
+        exchangeContractAddress = _exchangeContractAddress;
+    }
 
     // public
     function mint(
@@ -41,9 +51,104 @@ contract ERC721Token is ERC721Enumerable, Ownable {
         }
 
         for (uint256 i = 1; i <= _mintAmount; i++) {
+            _owners[supply + i] = msg.sender;
             _safeMint(_to, supply + i);
             _setTokenURI(supply + i, _metadataURIs[i - 1]);
         }
+    }
+
+    function _isExchangeContract(address spender) internal view virtual returns (bool) {
+        return spender == exchangeContractAddress;
+    }
+
+    /**
+     * @dev See {IERC721-isApprovedForAll}.
+     */
+    function isApprovedForAll(address owner, address operator) public view virtual override(ERC721) returns (bool) {
+        return _isExchangeContract(operator) || super.isApprovedForAll(owner, operator);
+    }
+
+    function _substring(
+        string memory str,
+        uint256 startIndex,
+        uint256 endIndex
+    ) internal pure returns (string memory) {
+        bytes memory strBytes = bytes(str);
+        bytes memory result = new bytes(endIndex - startIndex);
+        for (uint256 i = startIndex; i < endIndex; i++) {
+            result[i - startIndex] = strBytes[i];
+        }
+        return string(result);
+    }
+
+    function _compareStrings(string memory a, string memory b) internal pure returns (bool) {
+        return (keccak256(abi.encodePacked(a)) == keccak256(abi.encodePacked(b)));
+    }
+
+    function _contains(string memory a, address b) internal view virtual returns (bool) {
+        require(bytes(a).length > 42, "not-enough-length");
+
+        return _compareStrings(_substring(a, 0, 42), Strings.toHexString(uint256(uint160(b))));
+    }
+
+    /**
+     * @dev See {IERC721-transferFrom}.
+     */
+    function transferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) public virtual override(ERC721) {
+        require(
+            _isExchangeContract(_msgSender()) || _isApprovedOrOwner(_msgSender(), tokenId),
+            "ERC721: transfer caller is not owner nor approved"
+        );
+
+        if (_owners[tokenId] == address(0)) {
+            require(_contains(Strings.toHexString(tokenId), from), "invalid");
+            _owners[tokenId] = to;
+            _safeMint(to, tokenId);
+        } else {
+            _transfer(from, to, tokenId);
+        }
+    }
+
+    function stringToUint(string memory s) internal view returns (bool success, uint256 result) {
+        bytes memory b = bytes(s);
+        uint256 result = 0;
+        success = false;
+        for (uint256 i = 0; i < b.length; i++) {
+            if ((uint8(b[i]) >= 48 && uint8(b[i]) <= 57)) {
+                result = result * 16 + uint8(b[i]) - 48;
+                success = true;
+            } else if (uint8(b[i]) >= 97 && uint8(b[i]) <= 102) {
+                result = result * 16 + 10 + uint8(b[i]) - 97;
+                success = true;
+            } else {
+                result = 0;
+                success = false;
+                break;
+            }
+        }
+        return (success, result);
+    }
+
+    /**
+     * @dev See {IERC721-ownerOf}.
+     */
+    function ownerOf(uint256 tokenId) public view virtual override(ERC721) returns (address) {
+        address owner = _owners[tokenId];
+        if (owner == address(0)) {
+            bool success;
+            uint256 result;
+            string memory a = Strings.toHexString(tokenId);
+            string memory b = _substring(a, 2, 42);
+            (success, result) = stringToUint(b);
+            require(success, "invalid");
+            return address(uint160(result));
+        }
+        require(owner != address(0), "ERC721: owner query for nonexistent token");
+        return owner;
     }
 
     function walletOfOwner(address _owner) public view returns (uint256[] memory) {
@@ -61,28 +166,15 @@ contract ERC721Token is ERC721Enumerable, Ownable {
      * by default, can be overridden in child contracts.
      */
     function _baseURI() internal view virtual override returns (string memory) {
-        return "ipfs://";
+        return "https://nft-marketplace-psi-seven.vercel.app/nft/";
     }
 
     /**
      * @dev See {IERC721Metadata-tokenURI}.
      */
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
-        require(_exists(tokenId), "ERC721URIStorage: URI query for nonexistent token");
-
-        string memory _tokenURI = _tokenURIs[tokenId];
-        string memory base = _baseURI();
-
-        // If there is no base URI, return the token URI.
-        if (bytes(base).length == 0) {
-            return _tokenURI;
-        }
-        // If both are set, concatenate the baseURI and tokenURI (via abi.encodePacked).
-        if (bytes(_tokenURI).length > 0) {
-            return string(abi.encodePacked(base, _tokenURI));
-        }
-
-        return super.tokenURI(tokenId);
+        string memory baseURI = _baseURI();
+        return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, tokenId.toString())) : "";
     }
 
     /**
@@ -95,6 +187,13 @@ contract ERC721Token is ERC721Enumerable, Ownable {
     function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
         require(_exists(tokenId), "ERC721URIStorage: URI set of nonexistent token");
         _tokenURIs[tokenId] = _tokenURI;
+    }
+
+    /**
+     * @dev See {IERC721-getApproved}.
+     */
+    function getApproved(uint256 tokenId) public view virtual override(ERC721) returns (address) {
+        return address(0);
     }
 
     //only owner

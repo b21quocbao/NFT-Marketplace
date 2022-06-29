@@ -12,9 +12,9 @@ import NewNftForm from "../../components/nfts/NewNftForm";
 import { getSupportCollections } from "../../store/collections/actions";
 import Web3 from "web3";
 import { getChainConfig } from "../../helpers/ipfs";
-import { erc721ContractAddresses } from "../../contracts/erc721Contracts";
 import erc721ABI from "../../contracts/abi/erc721ABI.json";
 import { clearCreatedNft, clearErrors, createNft } from "../../store/nfts/actions";
+import { CHAIN_DATA } from "../../constants/chain";
 
 function MintNFT({ navigation: { navigate } }) {
   const connector = useWalletConnect();
@@ -35,7 +35,7 @@ function MintNFT({ navigation: { navigate } }) {
     setContract(
       new web3.eth.Contract(
         erc721ABI as any,
-        erc721ContractAddresses[connector.chainId]
+        CHAIN_DATA[connector.chainId].erc721
       )
     );
   }, [connector.chainId]);

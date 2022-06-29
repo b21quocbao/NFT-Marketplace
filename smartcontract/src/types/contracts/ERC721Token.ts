@@ -34,6 +34,7 @@ export interface ERC721TokenInterface extends utils.Interface {
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "cost()": FunctionFragment;
+    "exchangeContractAddress()": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
     "maxMintAmount()": FunctionFragment;
@@ -71,6 +72,7 @@ export interface ERC721TokenInterface extends utils.Interface {
       | "approve"
       | "balanceOf"
       | "cost"
+      | "exchangeContractAddress"
       | "getApproved"
       | "isApprovedForAll"
       | "maxMintAmount"
@@ -109,6 +111,10 @@ export interface ERC721TokenInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
   encodeFunctionData(functionFragment: "cost", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "exchangeContractAddress",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "getApproved",
     values: [BigNumberish]
@@ -215,6 +221,10 @@ export interface ERC721TokenInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "cost", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "exchangeContractAddress",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "getApproved",
     data: BytesLike
@@ -407,6 +417,8 @@ export interface ERC721Token extends BaseContract {
 
     cost(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    exchangeContractAddress(overrides?: CallOverrides): Promise<[string]>;
+
     getApproved(
       tokenId: BigNumberish,
       overrides?: CallOverrides
@@ -554,6 +566,8 @@ export interface ERC721Token extends BaseContract {
 
   cost(overrides?: CallOverrides): Promise<BigNumber>;
 
+  exchangeContractAddress(overrides?: CallOverrides): Promise<string>;
+
   getApproved(
     tokenId: BigNumberish,
     overrides?: CallOverrides
@@ -694,6 +708,8 @@ export interface ERC721Token extends BaseContract {
     balanceOf(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     cost(overrides?: CallOverrides): Promise<BigNumber>;
+
+    exchangeContractAddress(overrides?: CallOverrides): Promise<string>;
 
     getApproved(
       tokenId: BigNumberish,
@@ -871,6 +887,8 @@ export interface ERC721Token extends BaseContract {
 
     cost(overrides?: CallOverrides): Promise<BigNumber>;
 
+    exchangeContractAddress(overrides?: CallOverrides): Promise<BigNumber>;
+
     getApproved(
       tokenId: BigNumberish,
       overrides?: CallOverrides
@@ -1021,6 +1039,10 @@ export interface ERC721Token extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     cost(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    exchangeContractAddress(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     getApproved(
       tokenId: BigNumberish,

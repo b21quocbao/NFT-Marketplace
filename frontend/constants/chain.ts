@@ -72,7 +72,7 @@ export const CHAIN_DATA: any = {
   80001: {
     name: "Polygon Testnet",
     symbol: "MATIC",
-    erc721: "0x446A8082AE9713b635F4b2c8C4b3Fe5DF7e7de28",
+    erc721: "0xd52410B5EC44F69eCC029B5d432C0cbc5B6aA4FC",
     blockExplorerUrl: "https://mumbai.polygonscan.com",
     erc20: [
       {

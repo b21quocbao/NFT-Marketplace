@@ -2,12 +2,13 @@ import { Fragment, useEffect, useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { create as ipfsHttpClient } from "ipfs-http-client";
-
+import { v4 as uuidv4 } from "uuid";
 import NewNftForm from "../../../components/nfts/NewNftForm";
 import StorageUtils from "../../../utils/storage";
 import { useWeb3React } from "@web3-react/core";
 import erc721ABI from "../../../contracts/abi/erc721ABI.json";
 import { Contract } from "@ethersproject/contracts";
+import BigNumber from "bignumber.js";
 import {
   useEagerConnect,
   useInactiveListener,
@@ -21,6 +22,8 @@ import path from "path";
 import { MongoClient } from "mongodb";
 import web3 from "web3";
 import { CHAIN_DATA } from "../../../constants/chain";
+import { parse as uuidParse } from "uuid";
+BigNumber.config({ EXPONENTIAL_AT: 100000 });
 
 const { toWei } = web3.utils;
 
@@ -41,6 +44,13 @@ const client = ipfsHttpClient({
     authorization: auth,
   },
 });
+
+function buf2hex(buffer: any) {
+  // buffer is an ArrayBuffer
+  return [...new Uint8Array(buffer)]
+    .map((x) => x.toString(16).padStart(2, "0"))
+    .join("");
+}
 
 function NewNftPage(props: any) {
   const router = useRouter();
@@ -69,20 +79,15 @@ function NewNftPage(props: any) {
   }, []);
 
   useEffect(() => {
-    setCollections(props.collections.filter((col: any) => col.chainId == chainId))
+    setCollections(
+      props.collections.filter((col: any) => col.chainId == chainId)
+    );
   }, [chainId, props.collections]);
 
   async function addNftHandler(enteredNftData: any) {
     setLoading(true);
-    const cost = 0;
-    const signer = library.getSigner();
     const numNft = enteredNftData.images.length;
     const assetCids = [] as any[];
-    const contract = new Contract(
-      CHAIN_DATA[Number(chainId)].erc721 as string,
-      erc721ABI,
-      signer
-    );
 
     const ipfsAddAssets = enteredNftData.images.map((image: any) => {
       const filePath = image.originFileObj.name;
@@ -109,24 +114,26 @@ function NewNftPage(props: any) {
       imageUrl: [] as string[],
     };
 
-    const ipfsAddMetadatas = await Promise.all(Array.from(Array(numNft).keys()).map(async(idx) => {
-      const filePath = enteredNftData.images[idx].originFileObj.name;
-      const basename = path.basename(filePath);
-      const assetCid = assetCids[idx];
-      const assetURI = ensureIpfsUriPrefix(assetCid) + "/" + basename;
-      const metadata = await makeNFTMetadata(assetURI, enteredNftData);
+    const ipfsAddMetadatas = await Promise.all(
+      Array.from(Array(numNft).keys()).map(async (idx) => {
+        const filePath = enteredNftData.images[idx].originFileObj.name;
+        const basename = path.basename(filePath);
+        const assetCid = assetCids[idx];
+        const assetURI = ensureIpfsUriPrefix(assetCid) + "/" + basename;
+        const metadata = await makeNFTMetadata(assetURI, enteredNftData);
 
-      processedDatas.assetURI.push(assetURI);
-      processedDatas.imageUrl.push(
-        `https://ipfs.infura.io/ipfs/${stripIpfsUriPrefix(assetURI)}`
-      );
+        processedDatas.assetURI.push(assetURI);
+        processedDatas.imageUrl.push(
+          `https://ipfs.infura.io/ipfs/${stripIpfsUriPrefix(assetURI)}`
+        );
 
-      // add the metadata to IPFS
-      return {
-        path: `/nft/metadata.json`,
-        content: JSON.stringify(metadata),
-      };
-    }));
+        // add the metadata to IPFS
+        return {
+          path: `/nft/metadata.json`,
+          content: JSON.stringify(metadata),
+        };
+      })
+    );
 
     // for await (const file of client.addAll(ipfsAddMetadatas)) {
     for (const ipfsAddMetadata of ipfsAddMetadatas) {
@@ -137,7 +144,16 @@ function NewNftPage(props: any) {
       processedDatas.metadataURI.push(metadataURI);
     }
 
-    const totalSupply = (await contract.totalSupply()).toNumber();
+    const tokenIds = [];
+    for (let i = 0; i < ipfsAddAssets.length; ++i) {
+      tokenIds.push(
+        new BigNumber(
+          (
+            user.address + buf2hex(uuidParse(uuidv4())).substring(0, 24)
+          ).toLowerCase()
+        ).toString()
+      );
+    }
 
     await fetch("/api/new-nft", {
       method: "POST",
@@ -150,16 +166,12 @@ function NewNftPage(props: any) {
         collectionId: enteredNftData.collectionId,
         chainId: chainId?.toString(),
         status: "AVAILABLE",
-        tokenId: Number(totalSupply) + 1,
+        tokenIds: tokenIds,
         userId: user._id,
       }),
       headers: {
         "Content-Type": "application/json",
       },
-    });
-
-    await contract.mint(user.address, numNft, processedDatas.metadataURI, {
-      value: toWei((cost * numNft).toString()),
     });
 
     setLoading(false);
@@ -170,7 +182,12 @@ function NewNftPage(props: any) {
   return (
     <>
       {active && (
-        <NewNftForm onAddNft={addNftHandler} collections={collections} chainId={chainId} loading={loading} />
+        <NewNftForm
+          onAddNft={addNftHandler}
+          collections={collections}
+          chainId={chainId}
+          loading={loading}
+        />
       )}
     </>
   );
@@ -184,7 +201,9 @@ export async function getServerSideProps(ctx: any) {
 
   const collectionsCollection = db.collection("collections");
 
-  const collections = await collectionsCollection.find({ userId: ctx.params.userId }).toArray();
+  const collections = await collectionsCollection
+    .find({ userId: ctx.params.userId })
+    .toArray();
 
   client.close();
 
