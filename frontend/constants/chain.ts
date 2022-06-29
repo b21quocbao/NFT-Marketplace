@@ -15,7 +15,7 @@ export const CHAIN_DATA: any = {
   3: {
     name: "Ropsten Testnet",
     symbol: "ETH",
-    erc721: "0x30316CfFcB1c0ffa064E173b368281F356B282Ac",
+    erc721: "0x7724ac5397380322b1D5C2233d2AFb43F26DDcd6",
     blockExplorerUrl: "https://ropsten.etherscan.io",
     erc20: [
       {
@@ -43,7 +43,7 @@ export const CHAIN_DATA: any = {
   42: {
     name: "Kovan Testnet",
     symbol: "ETH",
-    erc721: "0x6f80Dde6F6A7bF3AD550D3Ee1dfF6b514ea1093E",
+    erc721: "0xD33cC9Ca9C530FB28eF73a70C7C8Ff82B8748d24",
     blockExplorerUrl: "https://kovan.etherscan.io",
     erc20: [
       {
