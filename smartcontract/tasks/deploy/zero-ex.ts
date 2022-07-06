@@ -1,15 +1,20 @@
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { task } from "hardhat/config";
 import type { TaskArguments } from "hardhat/types";
+import web3 from "web3";
 
 import type { ERC721Token } from "../../src/types/contracts/ERC721Token";
 import type { ERC20Token } from "../../src/types/contracts/Erc20Token.sol/ERC20Token";
+import { WrappedToken } from "../../src/types/contracts/WrappedToken";
 import type { ZeroEx } from "../../src/types/contracts/src/ZeroEx";
 import type { BootstrapFeature } from "../../src/types/contracts/src/features/BootstrapFeature";
 import type { ERC721Token__factory } from "../../src/types/factories/contracts/ERC721Token__factory";
 import type { ERC20Token__factory } from "../../src/types/factories/contracts/Erc20Token.sol/ERC20Token__factory";
+import { WrappedToken__factory } from "../../src/types/factories/contracts/WrappedToken__factory";
 import type { ZeroEx__factory } from "../../src/types/factories/contracts/src/ZeroEx__factory";
 import type { BootstrapFeature__factory } from "../../src/types/factories/contracts/src/features/BootstrapFeature__factory";
+
+const { toWei, fromWei } = web3.utils;
 
 const addresses = {
   1: {
@@ -68,6 +73,10 @@ const addresses = {
     exchange: "0xdef1c0ded9bec7f1a1670819833240f027b25eff",
     wrappedNativeToken: "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7",
   },
+  15442: {
+    exchange: "0xbe9FD65Fc80b3713504fb688f6f10672605A944f",
+    wrappedNativeToken: "0x94A36ABfb99Fefb5B0d8AFE6d4EF4517A50E94fB",
+  },
 } as any;
 
 task("deploy:ZeroEx").setAction(async function (taskArguments: TaskArguments, { ethers }) {
@@ -106,13 +115,32 @@ task("deploy:ERC721")
     }
   });
 
-task("deploy:ERC20").setAction(async function (taskArguments: TaskArguments, { ethers }) {
-  const signers: SignerWithAddress[] = await ethers.getSigners();
+task("deploy:WrappedToken").setAction(async function (taskArguments: TaskArguments, { ethers, network }) {
+  if (network.config.chainId) {
+    const signers: SignerWithAddress[] = await ethers.getSigners();
 
-  const erc20Factory: ERC20Token__factory = <ERC20Token__factory>await ethers.getContractFactory("ERC20Token");
-  const erc20: ERC20Token = <ERC20Token>(
-    await erc20Factory.connect(signers[0]).deploy("Doge Coin", "DOGE", "100000000000000000000000")
-  );
-  await erc20.deployed();
-  console.log("ERC20 deployed to: ", erc20.address);
+    const wrappedTokenFactory: WrappedToken__factory = <WrappedToken__factory>(
+      await ethers.getContractFactory("WrappedToken")
+    );
+    const wrappedToken: WrappedToken = <WrappedToken>await wrappedTokenFactory.connect(signers[0]).deploy();
+    await wrappedToken.deployed();
+    console.log("WrappedToken deployed to: ", wrappedToken.address);
+  }
 });
+
+task("deploy:ERC20")
+  .addParam("symbol", "Contract symbol")
+  .addParam("name", "Contract name")
+  .addParam("supply", "Token supply")
+  .setAction(async function (taskArguments: TaskArguments, { ethers }) {
+    const signers: SignerWithAddress[] = await ethers.getSigners();
+
+    const erc20Factory: ERC20Token__factory = <ERC20Token__factory>await ethers.getContractFactory("ERC20Token");
+    const erc20: ERC20Token = <ERC20Token>(
+      await erc20Factory
+        .connect(signers[0])
+        .deploy(taskArguments.name, taskArguments.symbol, toWei(Number(taskArguments.supply).toString()))
+    );
+    await erc20.deployed();
+    console.log("ERC20 deployed to: ", erc20.address);
+  });
