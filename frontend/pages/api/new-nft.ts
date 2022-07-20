@@ -16,6 +16,7 @@ async function handler(req: any, res: any) {
       const metadataURI = data.metadataURIs[idx];
       const tokenId = data.tokenIds[idx];
       const { name, description, royaltyFee } = data.assets[idx];
+      const tokenId = data.tokenIds[idx];
       const collectionId = data.collectionId;
       const chainId = data.chainId;
       const status = data.status;

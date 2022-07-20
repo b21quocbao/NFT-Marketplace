@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { create as ipfsHttpClient } from "ipfs-http-client";
+import { v4 as uuidv4 } from "uuid";
 import NewNftForm from "../../../components/nfts/NewNftForm";
 import erc721ABI from "../../../contracts/abi/erc721ABI.json";
 import { Contract } from "@ethersproject/contracts";
+import BigNumber from "bignumber.js";
 import {
   ensureIpfsUriPrefix,
   makeNFTMetadata,
@@ -24,6 +26,8 @@ import {
   MetadataDataData,
 } from "@metaplex-foundation/mpl-token-metadata";
 import BN from "bn.js";
+import { parse as uuidParse } from "uuid";
+BigNumber.config({ EXPONENTIAL_AT: 100000 });
 
 const { toWei } = web3.utils;
 
@@ -45,6 +49,13 @@ const client = ipfsHttpClient({
   },
 });
 
+function buf2hex(buffer: any) {
+  // buffer is an ArrayBuffer
+  return [...new Uint8Array(buffer)]
+    .map((x) => x.toString(16).padStart(2, "0"))
+    .join("");
+}
+
 function NewNftPage(props: any) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -59,7 +70,6 @@ function NewNftPage(props: any) {
 
   async function addNftHandler(enteredNftData: any) {
     setLoading(true);
-    const cost = 0;
     const numNft = enteredNftData.images.length;
     const assetCids = [] as any[];
 
@@ -100,7 +110,6 @@ function NewNftPage(props: any) {
           user.address,
           enteredNftData.assets[idx]
         );
-        console.log(metadata, "metadata");
 
         processedDatas.assetURI.push(assetURI);
         processedDatas.imageUrl.push(
@@ -128,22 +137,14 @@ function NewNftPage(props: any) {
     }
 
     if (!user.solana) {
-      const signer = library.getSigner();
-      const contract = new Contract(
-        CHAIN_DATA[Number(chainId)].erc721 as string,
-        erc721ABI,
-        signer
-      );
-
-      const totalSupply = (await contract.totalSupply()).toNumber();
-
-      await contract.mint(user.address, numNft, processedDatas.metadataURI, {
-        value: toWei((cost * numNft).toString()),
-      });
-      const tokenId = Number(totalSupply) + 1;
-
-      for (let i = 0; i < ipfsAddMetadatas.length; ++i) {
-        tokenIds.push(tokenId + i);
+      for (let i = 0; i < ipfsAddAssets.length; ++i) {
+        tokenIds.push(
+          new BigNumber(
+            (
+              user.address + buf2hex(uuidParse(uuidv4())).substring(0, 24)
+            ).toLowerCase()
+          ).toString()
+        );
       }
     } else if (connection && wallet && wallet.publicKey) {
       const { publicKey } = wallet;
@@ -282,8 +283,6 @@ function NewNftPage(props: any) {
         metadata: x.metadataPDA,
         edition: x.editionPDA,
       }));
-
-      tokenIds = metadatas.map((x: any) => x.mint);
     }
 
     await fetch("/api/new-nft", {

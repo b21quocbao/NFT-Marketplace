@@ -15,7 +15,7 @@ export const CHAIN_DATA: any = {
   3: {
     name: "Ropsten Testnet",
     symbol: "ETH",
-    erc721: "0x30316CfFcB1c0ffa064E173b368281F356B282Ac",
+    erc721: "0xc778417e063141139fce010982780140aa0cd5ab",
     erc20: [
       {
         address: "0xc778417e063141139fce010982780140aa0cd5ab",
@@ -42,7 +42,7 @@ export const CHAIN_DATA: any = {
   42: {
     name: "Kovan Testnet",
     symbol: "ETH",
-    erc721: "0x6f80Dde6F6A7bF3AD550D3Ee1dfF6b514ea1093E",
+    erc721: "0xD33cC9Ca9C530FB28eF73a70C7C8Ff82B8748d24",
     erc20: [
       {
         address: "0xd0a1e359811322d97991e03f863a0c30c2cf029c",
@@ -70,7 +70,7 @@ export const CHAIN_DATA: any = {
   80001: {
     name: "Polygon Testnet",
     symbol: "MATIC",
-    erc721: "0x446A8082AE9713b635F4b2c8C4b3Fe5DF7e7de28",
+    erc721: "0xd52410B5EC44F69eCC029B5d432C0cbc5B6aA4FC",
     erc20: [
       {
         address: "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889",
