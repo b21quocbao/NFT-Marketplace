@@ -14,7 +14,6 @@ async function handler(req: any, res: any) {
       const imageUrl = data.imageUrls[idx];
       const assetURI = data.assetURIs[idx];
       const metadataURI = data.metadataURIs[idx];
-      const tokenId = data.tokenIds[idx];
       const { name, description, royaltyFee } = data.assets[idx];
       const tokenId = data.tokenIds[idx];
       const collectionId = data.collectionId;

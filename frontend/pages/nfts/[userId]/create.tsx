@@ -295,7 +295,7 @@ function NewNftPage(props: any) {
         creator: user.address,
         collectionId: enteredNftData.collectionId,
         metadatas: metadatas,
-        solana: true,
+        solana: user.solana,
         chainId: chainId?.toString(),
         status: "AVAILABLE",
         tokenIds: tokenIds,
