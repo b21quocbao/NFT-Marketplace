@@ -34,6 +34,7 @@ export interface ERC1155TokenInterface extends utils.Interface {
     "balanceOfBatch(address[],uint256[])": FunctionFragment;
     "exchangeContractAddress()": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
+    "mintBatch(address,uint256[],uint256[])": FunctionFragment;
     "safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)": FunctionFragment;
     "safeTransferFrom(address,address,uint256,uint256,bytes)": FunctionFragment;
     "setApprovalForAll(address,bool)": FunctionFragment;
@@ -47,6 +48,7 @@ export interface ERC1155TokenInterface extends utils.Interface {
       | "balanceOfBatch"
       | "exchangeContractAddress"
       | "isApprovedForAll"
+      | "mintBatch"
       | "safeBatchTransferFrom"
       | "safeTransferFrom"
       | "setApprovalForAll"
@@ -69,6 +71,10 @@ export interface ERC1155TokenInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "isApprovedForAll",
     values: [string, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "mintBatch",
+    values: [string, BigNumberish[], BigNumberish[]]
   ): string;
   encodeFunctionData(
     functionFragment: "safeBatchTransferFrom",
@@ -101,6 +107,7 @@ export interface ERC1155TokenInterface extends utils.Interface {
     functionFragment: "isApprovedForAll",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "mintBatch", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "safeBatchTransferFrom",
     data: BytesLike
@@ -227,6 +234,13 @@ export interface ERC1155Token extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    mintBatch(
+      to: string,
+      ids: BigNumberish[],
+      amounts: BigNumberish[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     safeBatchTransferFrom(
       from: string,
       to: string,
@@ -279,6 +293,13 @@ export interface ERC1155Token extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  mintBatch(
+    to: string,
+    ids: BigNumberish[],
+    amounts: BigNumberish[],
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   safeBatchTransferFrom(
     from: string,
     to: string,
@@ -330,6 +351,13 @@ export interface ERC1155Token extends BaseContract {
       operator: string,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    mintBatch(
+      to: string,
+      ids: BigNumberish[],
+      amounts: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     safeBatchTransferFrom(
       from: string,
@@ -433,6 +461,13 @@ export interface ERC1155Token extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    mintBatch(
+      to: string,
+      ids: BigNumberish[],
+      amounts: BigNumberish[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     safeBatchTransferFrom(
       from: string,
       to: string,
@@ -486,6 +521,13 @@ export interface ERC1155Token extends BaseContract {
       owner: string,
       operator: string,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    mintBatch(
+      to: string,
+      ids: BigNumberish[],
+      amounts: BigNumberish[],
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     safeBatchTransferFrom(
