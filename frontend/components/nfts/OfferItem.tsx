@@ -58,11 +58,20 @@ function OfferItem(props: any) {
 
               const signer = library.getSigner();
 
-              const takerAsset: any = {
+              let takerAsset: any = {
                 tokenAddress: props.offer.erc721Token,
                 tokenId: props.offer.erc721TokenId,
                 type: "ERC721",
               };
+
+              if (props.offer.erc1155TokenId) {
+                takerAsset = {
+                  tokenAddress: props.offer.erc1155Token,
+                  tokenId: props.offer.erc1155TokenId,
+                  type: "ERC1155",
+                  amount: props.offer.erc1155Amount,
+                }
+              }
 
               const nftSwapSdk = new NftSwap(library, signer, chainId, {
                 zeroExExchangeProxyContractAddress: zeroContractAddresses[

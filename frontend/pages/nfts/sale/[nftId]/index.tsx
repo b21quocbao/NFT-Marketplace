@@ -117,11 +117,20 @@ function SaleNftPage(props: any) {
       symbol = await contract.symbol();
     }
 
-    const makerAsset: any = {
+    let makerAsset: any = {
       tokenAddress: CHAIN_DATA[Number(chainId)].erc721,
       tokenId: props.nft.tokenId,
       type: "ERC721",
     };
+
+    if (props.nft.erc1155) { // IF multiple tokens
+      makerAsset = {
+        tokenAddress: CHAIN_DATA[Number(chainId)].erc1155,
+        tokenId: props.nft.tokenId,
+        type: "ERC1155",
+        amount: enteredNftData.makerAmount, // CHANGE THIS (add to form)
+      }
+    }
 
     const takerAsset: any = {
       tokenAddress: enteredNftData.erc20TokenAddress,

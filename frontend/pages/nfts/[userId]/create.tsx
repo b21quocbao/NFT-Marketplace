@@ -4,6 +4,7 @@ import { create as ipfsHttpClient } from "ipfs-http-client";
 import { v4 as uuidv4 } from "uuid";
 import NewNftForm from "../../../components/nfts/NewNftForm";
 import erc721ABI from "../../../contracts/abi/erc721ABI.json";
+import erc1155ABI from "../../../contracts/abi/erc1155ABI.json";
 import { Contract } from "@ethersproject/contracts";
 import BigNumber from "bignumber.js";
 import {
@@ -145,6 +146,31 @@ function NewNftPage(props: any) {
             ).toLowerCase()
           ).toString()
         );
+      }
+
+      const multipleTokens = false;  // CHANGE THIS
+      const lazyMint = true;  // CHANGE THIS
+      if (multipleTokens) {
+        const signer = library.getSigner();
+        const contract = new Contract(
+          CHAIN_DATA[Number(chainId)].erc1155 as string,
+          erc1155ABI,
+          signer
+        );
+        const amounts = tokenIds.map((x: any) => "100000"); // CHANGE THIS (add to form)
+        await contract.mintBatch(user.address, tokenIds, amounts);
+      } else if (!lazyMint) {
+        const signer = library.getSigner();
+        const contract = new Contract(
+          CHAIN_DATA[Number(chainId)].erc721 as string,
+          erc721ABI,
+          signer
+        );
+        for (const tokenId of tokenIds) {
+          await contract.mint(user.address, tokenId, processedDatas.metadataURI, {
+            value: 0,
+          });
+        }
       }
     } else if (connection && wallet && wallet.publicKey) {
       const { publicKey } = wallet;
@@ -300,6 +326,7 @@ function NewNftPage(props: any) {
         status: "AVAILABLE",
         tokenIds: tokenIds,
         userId: user._id,
+        erc1155: false // CHANGE THIS to true if multiple tokens
       }),
       headers: {
         "Content-Type": "application/json",
