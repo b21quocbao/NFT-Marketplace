@@ -14,4 +14,3 @@ export type { src };
 export type { test };
 export type { ERC1155Token } from "./ERC1155Token";
 export type { ERC721Token } from "./ERC721Token";
-export type { WrappedToken } from "./WrappedToken";

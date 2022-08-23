@@ -9,9 +9,7 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 contract ERC1155Token is ERC1155 {
     address public exchangeContractAddress;
 
-    constructor(
-        address _exchangeContractAddress
-    ) ERC1155("") {
+    constructor(address _exchangeContractAddress) ERC1155("") {
         exchangeContractAddress = _exchangeContractAddress;
     }
 
@@ -24,5 +22,13 @@ contract ERC1155Token is ERC1155 {
 
     function _isExchangeContract(address spender) internal view virtual returns (bool) {
         return spender == exchangeContractAddress;
+    }
+
+    function mintBatch(
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts
+    ) public {
+        _mintBatch(to, ids, amounts, "");
     }
 }

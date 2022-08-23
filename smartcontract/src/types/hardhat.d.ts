@@ -788,10 +788,6 @@ declare module "hardhat/types/runtime" {
       name: "TestWeth",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TestWeth__factory>;
-    getContractFactory(
-      name: "WrappedToken",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.WrappedToken__factory>;
 
     getContractAt(
       name: "Ownable",
@@ -1763,11 +1759,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.TestWeth>;
-    getContractAt(
-      name: "WrappedToken",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.WrappedToken>;
 
     // default types
     getContractFactory(

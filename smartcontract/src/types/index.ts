@@ -398,5 +398,3 @@ export type { TestTokenSpenderERC20Token } from "./contracts/test/tokens/TestTok
 export { TestTokenSpenderERC20Token__factory } from "./factories/contracts/test/tokens/TestTokenSpenderERC20Token__factory";
 export type { TestWeth } from "./contracts/test/tokens/TestWeth";
 export { TestWeth__factory } from "./factories/contracts/test/tokens/TestWeth__factory";
-export type { WrappedToken } from "./contracts/WrappedToken";
-export { WrappedToken__factory } from "./factories/contracts/WrappedToken__factory";
