@@ -4,13 +4,13 @@ import type { TaskArguments } from "hardhat/types";
 import web3 from "web3";
 
 import type { ERC721Token } from "../../src/types/contracts/ERC721Token";
+import type { ERC1155Token } from "../../src/types/contracts/ERC1155Token";
 import type { ERC20Token } from "../../src/types/contracts/Erc20Token.sol/ERC20Token";
-import { WrappedToken } from "../../src/types/contracts/WrappedToken";
 import type { ZeroEx } from "../../src/types/contracts/src/ZeroEx";
 import type { BootstrapFeature } from "../../src/types/contracts/src/features/BootstrapFeature";
 import type { ERC721Token__factory } from "../../src/types/factories/contracts/ERC721Token__factory";
+import type { ERC1155Token__factory } from "../../src/types/factories/contracts/ERC1155Token__factory";
 import type { ERC20Token__factory } from "../../src/types/factories/contracts/Erc20Token.sol/ERC20Token__factory";
-import { WrappedToken__factory } from "../../src/types/factories/contracts/WrappedToken__factory";
 import type { ZeroEx__factory } from "../../src/types/factories/contracts/src/ZeroEx__factory";
 import type { BootstrapFeature__factory } from "../../src/types/factories/contracts/src/features/BootstrapFeature__factory";
 
@@ -114,19 +114,22 @@ task("deploy:ERC721")
       console.log("ERC721 deployed to: ", erc721.address);
     }
   });
+  
+task("deploy:ERC1155")
+  .setAction(async function (taskArguments: TaskArguments, { ethers, network }) {
+    if (network.config.chainId) {
+      const signers: SignerWithAddress[] = await ethers.getSigners();
 
-task("deploy:WrappedToken").setAction(async function (taskArguments: TaskArguments, { ethers, network }) {
-  if (network.config.chainId) {
-    const signers: SignerWithAddress[] = await ethers.getSigners();
-
-    const wrappedTokenFactory: WrappedToken__factory = <WrappedToken__factory>(
-      await ethers.getContractFactory("WrappedToken")
-    );
-    const wrappedToken: WrappedToken = <WrappedToken>await wrappedTokenFactory.connect(signers[0]).deploy();
-    await wrappedToken.deployed();
-    console.log("WrappedToken deployed to: ", wrappedToken.address);
-  }
-});
+      const erc1155Factory: ERC1155Token__factory = <ERC1155Token__factory>await ethers.getContractFactory("ERC1155Token");
+      const erc1155: ERC1155Token = <ERC1155Token>(
+        await erc1155Factory
+          .connect(signers[0])
+          .deploy(addresses[network.config.chainId].exchange)
+      );
+      await erc1155.deployed();
+      console.log("ERC1155 deployed to: ", erc1155.address);
+    }
+  });
 
 task("deploy:ERC20")
   .addParam("symbol", "Contract symbol")
