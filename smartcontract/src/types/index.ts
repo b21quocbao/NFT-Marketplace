@@ -18,6 +18,14 @@ export type { contractsUtils };
 export * as factories from "./factories";
 export type { Ownable } from "./@openzeppelin/contracts/access/Ownable";
 export { Ownable__factory } from "./factories/@openzeppelin/contracts/access/Ownable__factory";
+export type { ERC1155 } from "./@openzeppelin/contracts/token/ERC1155/ERC1155";
+export { ERC1155__factory } from "./factories/@openzeppelin/contracts/token/ERC1155/ERC1155__factory";
+export type { IERC1155MetadataURI } from "./@openzeppelin/contracts/token/ERC1155/extensions/IERC1155MetadataURI";
+export { IERC1155MetadataURI__factory } from "./factories/@openzeppelin/contracts/token/ERC1155/extensions/IERC1155MetadataURI__factory";
+export type { IERC1155 } from "./@openzeppelin/contracts/token/ERC1155/IERC1155";
+export { IERC1155__factory } from "./factories/@openzeppelin/contracts/token/ERC1155/IERC1155__factory";
+export type { IERC1155Receiver } from "./@openzeppelin/contracts/token/ERC1155/IERC1155Receiver";
+export { IERC1155Receiver__factory } from "./factories/@openzeppelin/contracts/token/ERC1155/IERC1155Receiver__factory";
 export type { ERC20 } from "./@openzeppelin/contracts/token/ERC20/ERC20";
 export { ERC20__factory } from "./factories/@openzeppelin/contracts/token/ERC20/ERC20__factory";
 export type { IERC20Metadata } from "./@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata";
@@ -54,6 +62,8 @@ export type { IOwnableV06 } from "./contracts-utils/contracts/src/v06/interfaces
 export { IOwnableV06__factory } from "./factories/contracts-utils/contracts/src/v06/interfaces/IOwnableV06__factory";
 export type { OwnableV06 } from "./contracts-utils/contracts/src/v06/OwnableV06";
 export { OwnableV06__factory } from "./factories/contracts-utils/contracts/src/v06/OwnableV06__factory";
+export type { ERC1155Token } from "./contracts/ERC1155Token";
+export { ERC1155Token__factory } from "./factories/contracts/ERC1155Token__factory";
 export type { ERC20Token } from "./contracts/Erc20Token.sol/ERC20Token";
 export { ERC20Token__factory } from "./factories/contracts/Erc20Token.sol/ERC20Token__factory";
 export type { ERC721Token } from "./contracts/ERC721Token";
@@ -378,8 +388,6 @@ export type { TestWethTransformerHost } from "./contracts/test/TestWethTransform
 export { TestWethTransformerHost__factory } from "./factories/contracts/test/TestWethTransformerHost__factory";
 export type { TestZeroExFeature } from "./contracts/test/TestZeroExFeature";
 export { TestZeroExFeature__factory } from "./factories/contracts/test/TestZeroExFeature__factory";
-export type { IERC1155Receiver } from "./contracts/test/tokens/TestMintableERC1155Token.sol/IERC1155Receiver";
-export { IERC1155Receiver__factory } from "./factories/contracts/test/tokens/TestMintableERC1155Token.sol/IERC1155Receiver__factory";
 export type { TestMintableERC1155Token } from "./contracts/test/tokens/TestMintableERC1155Token.sol/TestMintableERC1155Token";
 export { TestMintableERC1155Token__factory } from "./factories/contracts/test/tokens/TestMintableERC1155Token.sol/TestMintableERC1155Token__factory";
 export type { TestMintableERC20Token } from "./contracts/test/tokens/TestMintableERC20Token";
@@ -390,3 +398,5 @@ export type { TestTokenSpenderERC20Token } from "./contracts/test/tokens/TestTok
 export { TestTokenSpenderERC20Token__factory } from "./factories/contracts/test/tokens/TestTokenSpenderERC20Token__factory";
 export type { TestWeth } from "./contracts/test/tokens/TestWeth";
 export { TestWeth__factory } from "./factories/contracts/test/tokens/TestWeth__factory";
+export type { WrappedToken } from "./contracts/WrappedToken";
+export { WrappedToken__factory } from "./factories/contracts/WrappedToken__factory";
