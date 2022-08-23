@@ -51,11 +51,20 @@ function BidNftPage(props: any) {
     setLoading(true);
     const signer = library.getSigner();
 
-    const takerAsset: any = {
+    let takerAsset: any = {
       tokenAddress: CHAIN_DATA[Number(chainId)].erc721,
       tokenId: props.nft.tokenId,
       type: "ERC721",
     };
+
+    if (props.nft.erc1155) { // IF multiple tokens
+      takerAsset = {
+        tokenAddress: CHAIN_DATA[Number(chainId)].erc1155,
+        tokenId: props.nft.tokenId,
+        type: "ERC1155",
+        amount: enteredNftData.makerAmount,  // CHANGE THIS (add to form)
+      }
+    }
 
     const makerAsset: any = {
       tokenAddress: props.nft.erc20TokenAddress,
