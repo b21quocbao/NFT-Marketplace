@@ -36,7 +36,7 @@ const BidNftForm = (props: any) => {
     >
       <Form.Item
         name="amount"
-        label="Amount"
+        label="Price"
         initialValue={props.minPrice}
         rules={[
           {

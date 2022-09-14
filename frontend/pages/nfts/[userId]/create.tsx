@@ -148,28 +148,32 @@ function NewNftPage(props: any) {
         );
       }
 
-      const multipleTokens = false;  // CHANGE THIS
-      const lazyMint = true;  // CHANGE THIS
-      if (multipleTokens) {
+      if (enteredNftData.multipleTokens) {
         const signer = library.getSigner();
         const contract = new Contract(
           CHAIN_DATA[Number(chainId)].erc1155 as string,
           erc1155ABI,
           signer
         );
-        const amounts = tokenIds.map((x: any) => "100000"); // CHANGE THIS (add to form)
-        await contract.mintBatch(user.address, tokenIds, amounts);
-      } else if (!lazyMint) {
+        await contract.mintBatch(user.address, tokenIds, enteredNftData.assets.map((asset: any) => asset.amount));
+      } else if (!enteredNftData.lazyMint) {
+
         const signer = library.getSigner();
         const contract = new Contract(
           CHAIN_DATA[Number(chainId)].erc721 as string,
           erc721ABI,
           signer
         );
-        for (const tokenId of tokenIds) {
-          await contract.mint(user.address, tokenId, processedDatas.metadataURI, {
-            value: 0,
-          });
+        const totalSupply = (await contract.totalSupply()).toNumber();
+
+        await contract.mint(user.address, numNft, processedDatas.metadataURI, {
+          value: 0,
+        });
+        const tokenId = Number(totalSupply) + 1;
+        tokenIds = [];
+  
+        for (let i = 0; i < ipfsAddMetadatas.length; ++i) {
+          tokenIds.push(tokenId + i);
         }
       }
     } else if (connection && wallet && wallet.publicKey) {
@@ -326,7 +330,8 @@ function NewNftPage(props: any) {
         status: "AVAILABLE",
         tokenIds: tokenIds,
         userId: user._id,
-        erc1155: false // CHANGE THIS to true if multiple tokens
+        amounts: enteredNftData.assets.map((asset: any) => asset.amount),
+        erc1155: enteredNftData.multipleTokens
       }),
       headers: {
         "Content-Type": "application/json",
@@ -340,6 +345,7 @@ function NewNftPage(props: any) {
 
   return (
     <NewNftForm
+      solana={user.solana}
       onAddNft={addNftHandler}
       collections={collections}
       chainId={chainId}

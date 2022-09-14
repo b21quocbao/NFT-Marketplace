@@ -55,7 +55,7 @@ const SaleNftForm = (props: any) => {
         >
           <Form.Item
             name="amount"
-            label="Amount"
+            label="Price"
             rules={[
               {
                 required: true,
@@ -64,6 +64,19 @@ const SaleNftForm = (props: any) => {
           >
             <InputNumber />
           </Form.Item>
+          {props.erc1155 && (
+            <Form.Item
+              name="makerAmount"
+              label="Amount"
+              rules={[
+                {
+                  required: true,
+                },
+              ]}
+            >
+              <InputNumber />
+            </Form.Item>
+          )}
           <Form.Item
             name="erc20TokenAddress"
             label="Token Address"

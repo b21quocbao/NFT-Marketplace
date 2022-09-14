@@ -89,9 +89,23 @@ function NftItem(props: any) {
         <b>Chain: </b>
         <p>{CHAIN_DATA[props.chainId]?.name}</p>
         <br />
+        {props.erc1155 && (
+          <>
+            <b>Amount: </b>
+            <p>{props.amount}</p>
+            <br />
+          </>
+        )}
 
         {status === "LIST" && (
           <>
+            {props.erc1155 && (
+              <>
+                <b>Sale Amount: </b>
+                <p>{props.saleAmount}</p>
+                <br />
+              </>
+            )}
             {props.signedOrder && (
               <>
                 <b>Price</b>
@@ -287,6 +301,13 @@ function NftItem(props: any) {
         )}
         {status === "AUCTION" && (
           <>
+            {props.erc1155 && (
+              <>
+                <b>Auction Amount: </b>
+                <p>{props.auctionAmount}</p>
+                <br />
+              </>
+            )}
             {props.bidOrders && props.bidOrders.length && (
               <>
                 <b>Highest Offer</b>
@@ -342,9 +363,7 @@ function NftItem(props: any) {
                   props.metadata,
                   props.user.address
                 );
-                const auctionOrderData = await getOrderData(
-                  props.auctionData
-                );
+                const auctionOrderData = await getOrderData(props.auctionData);
                 const { auctionView, bidRedemptions } = await getAuctionView(
                   auctionOrderData,
                   itemData
