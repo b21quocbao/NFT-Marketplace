@@ -64,6 +64,17 @@ const AuctionNftForm = (props: any) => {
           >
             <InputNumber />
           </Form.Item>
+          {props.erc1155 && <Form.Item
+            name="amount"
+            label="Amount"
+            rules={[
+              {
+                required: true,
+              },
+            ]}
+          >
+            <InputNumber />
+          </Form.Item>}
           <Form.Item
             name="erc20TokenAddress"
             label="Token Address"

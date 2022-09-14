@@ -20,6 +20,10 @@ function NftList(props: any) {
             key={nft.id}
             solana={nft.solana}
             metadata={nft.metadata}
+            erc1155={nft.erc1155}
+            amount={nft.amount}
+            saleAmount={nft.saleAmount}
+            auctionAmount={nft.auctionAmount}
             id={nft.id}
             imageUrl={nft.imageUrl}
             tokenId={nft.tokenId}

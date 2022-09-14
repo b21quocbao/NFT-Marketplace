@@ -128,7 +128,7 @@ function SaleNftPage(props: any) {
         tokenAddress: CHAIN_DATA[Number(chainId)].erc1155,
         tokenId: props.nft.tokenId,
         type: "ERC1155",
-        amount: enteredNftData.makerAmount, // CHANGE THIS (add to form)
+        amount: enteredNftData.makerAmount,
       }
     }
 
@@ -192,6 +192,7 @@ function SaleNftPage(props: any) {
         id: props.nft.id,
         status: "LIST",
         symbol: symbol,
+        saleAmount: enteredNftData.makerAmount,
         price: enteredNftData.amount,
         action: "List for sale",
         actionUserId: user.id,
@@ -297,6 +298,7 @@ function SaleNftPage(props: any) {
     <>
       {user.id && (
         <SaleNftForm
+          erc1155={props.nft.erc1155}
           chainId={props.nft.chainId}
           initialValue={
             user.solana

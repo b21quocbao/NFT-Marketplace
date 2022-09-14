@@ -89,6 +89,7 @@ function AuctionNftPage(props: any) {
         status: "AUCTION",
         symbol: symbol,
         erc20TokenAddress: enteredNftData.erc20TokenAddress,
+        auctionAmount: enteredNftData.auctionAmount,
         startingPrice: toWei(
           enteredNftData.startingPrice.toFixed(10).toString()
         ),
@@ -208,6 +209,7 @@ function AuctionNftPage(props: any) {
 
   return (
     <AuctionNftForm
+      erc1155={props.nft.erc1155}
       chainId={props.nft.chainId}
       onAuctionNft={user.solana ? auctionSolanaNftHandler : auctionNftHandler}
       loading={loading}

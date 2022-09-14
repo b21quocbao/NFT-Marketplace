@@ -62,7 +62,7 @@ function BidNftPage(props: any) {
         tokenAddress: CHAIN_DATA[Number(chainId)].erc1155,
         tokenId: props.nft.tokenId,
         type: "ERC1155",
-        amount: enteredNftData.makerAmount,  // CHANGE THIS (add to form)
+        amount: enteredNftData.makerAmount,
       }
     }
 

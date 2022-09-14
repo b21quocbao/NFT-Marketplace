@@ -1,5 +1,6 @@
 import {
   Button,
+  Checkbox,
   Col,
   Form,
   Input,
@@ -10,7 +11,7 @@ import {
   Upload,
 } from "antd";
 import { InboxOutlined } from "@ant-design/icons";
-import { useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import styles from "./NewNftForm.module.css";
 const { Dragger } = Upload;
 const { Option } = Select;
@@ -31,6 +32,17 @@ const validateMessages = {
 
 const NewNftForm = (props: any) => {
   const [form] = Form.useForm();
+  const [multipleTokens, setMultipleTokens] = useState(false);
+
+  const onChangeMultipleTokens = useCallback(() => {
+    const { multipleTokens } = form.getFieldsValue();
+    setMultipleTokens(multipleTokens);
+    if (multipleTokens) {
+      console.log('xcvoiu');
+      
+      form.setFieldsValue({ lazyMint: false });
+    }
+  }, [form]);
 
   const onFinish = (values: any) => {
     props.onAddNft(values);
@@ -54,7 +66,7 @@ const NewNftForm = (props: any) => {
     }
 
     while (len > assets.length) {
-      assets.push({ name: undefined, description: undefined });
+      assets.push({ name: undefined, description: undefined, amount: undefined });
     }
 
     while (len < assets.length) {
@@ -62,7 +74,6 @@ const NewNftForm = (props: any) => {
     }
 
     console.log(assets.length, "assets.length");
-    
 
     // Object.assign(projects[key], { type: value })
     form.setFieldsValue({ assets });
@@ -77,13 +88,31 @@ const NewNftForm = (props: any) => {
         lg: 32,
       }}
     >
-      <Col className="gutter-row" span={6}></Col>
-      <Col className="gutter-row" span={18}>
+      <Col className="gutter-row" span={2}></Col>
+      <Col className="gutter-row" span={21}>
         <Form
           form={form}
           onFinish={onFinish}
           validateMessages={validateMessages}
         >
+          {!props.solana && (
+            <>
+              <Form.Item
+                label="Multiple Tokens"
+                name="multipleTokens"
+                valuePropName="checked"
+              >
+                <Checkbox onChange={onChangeMultipleTokens}>Multiple Tokens</Checkbox>
+              </Form.Item>
+              <Form.Item
+                label="Lazy Minting"
+                name="lazyMint"
+                valuePropName="checked"
+              >
+                <Checkbox disabled={multipleTokens}>Lazy Minting</Checkbox>
+              </Form.Item>
+            </>
+          )}
           <Form.Item
             name="images"
             label="File"
@@ -155,6 +184,20 @@ const NewNftForm = (props: any) => {
                         parser={(value: any) => value.replace("%", "")}
                       />
                     </Form.Item>
+                    {multipleTokens && (
+                      <Form.Item
+                        key={"amount_" + key}
+                        label={"Amount #" + (key + 1)}
+                        name={[name, "amount"]}
+                        rules={[
+                          {
+                            required: true,
+                          },
+                        ]}
+                      >
+                        <InputNumber />
+                      </Form.Item>
+                    )}
                     <Form.Item
                       key={"description_" + key}
                       label={"Description #" + (key + 1)}

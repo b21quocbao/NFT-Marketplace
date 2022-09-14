@@ -21,6 +21,7 @@ async function handler(req: any, res: any) {
       const status = data.status;
       const userId = data.userId;
       const erc1155 = data.erc1155;
+      const amount = data.amounts[idx];
 
       await nftsCollection.insertOne({
         metadata,
@@ -37,7 +38,8 @@ async function handler(req: any, res: any) {
         name,
         royaltyFee,
         description,
-        erc1155
+        erc1155,
+        amount
       })
     }
 

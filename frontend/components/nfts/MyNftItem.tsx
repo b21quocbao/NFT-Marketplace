@@ -46,6 +46,10 @@ function MyNftItem(props: any) {
         <b>Chain: </b>
         <p>{CHAIN_DATA[props.chainId]?.name}</p>
         <br />
+        {props.erc1155 && <>
+        <b>Amount: </b>
+        <p>{props.amount}</p>
+        <br /></>}
         {props.status == "AVAILABLE" && (
           <>
             <Button
